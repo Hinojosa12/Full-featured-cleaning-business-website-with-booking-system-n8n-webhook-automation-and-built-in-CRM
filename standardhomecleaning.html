@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>Livity Projects · Professional Cleaning Services</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link rel="stylesheet" href="services.css">
+</head>
+<body>
+
+<div id="toast" class="toast"></div>
+<a href="index.html" class="back-home"><i class="fas fa-arrow-left"></i> Home</a>
+
+<nav class="quick-nav" id="quickNav">
+  <div class="quick-nav-inner">
+    <a href="#section1">Residential</a>
+    <a href="#section2">Deep Clean</a>
+    <a href="#section3">Commercial</a>
+    <a href="#section4">Steam</a>
+    <a href="#section5">Move In/Out</a>
+    <a href="#section6">Pressure Wash</a>
+  </div>
+</nav>
+
+<!-- ══ SECTION 1: RESIDENTIAL ══ -->
+<section id="section1" class="service-section" style="background-image:url('https://images.pexels.com/photos/4107278/pexels-photo-4107278.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2');">
+  <div class="service-content">
+    <div class="service-grid">
+      <div class="service-text">
+        <span class="section-tag">RESIDENTIAL</span>
+        <h2 class="section-title">Residential <span>Cleaning</span></h2>
+        <p class="service-subtitle">Routine cleaning to keep your home fresh, organized and comfortable.</p>
+        <button class="btn-book" onclick="toggleForm('form-r1')"><i class="fas fa-calendar-check"></i> Book This Service</button>
+        <p class="service-desc">Our professional cleaners handle the cleaning so you can focus on what matters most. Whether you need routine cleaning, a one-time refresh, or help preparing for guests, our team ensures every area of your home is cleaned with attention to detail.</p>
+        <p class="included-title">What's Included:</p>
+        <ul><li>Living Room</li><li>Bedrooms</li><li>Kitchen Cleaning</li><li>Bathroom Cleaning</li><li>General Home Cleaning</li><li>One-Time Cleaning</li></ul>
+        <div class="form-section" id="form-r1">
+          <h3>Book <span>Residential Cleaning</span></h3>
+          <div class="form-grid-2">
+            <div class="fg"><label><i class="fas fa-user"></i>Full name *</label><input type="text" id="r1-nombre" placeholder="e.g., John Smith"><span class="error-msg" id="err-r1-nombre"></span></div>
+            <div class="fg"><label><i class="fas fa-envelope"></i>Email *</label><input type="email" id="r1-email" placeholder="john@email.com"><span class="error-msg" id="err-r1-email"></span></div>
+            <div class="fg"><label><i class="fab fa-whatsapp"></i>WhatsApp *</label><input type="tel" id="r1-telefono" placeholder="+592 123 4567"><span class="error-msg" id="err-r1-telefono"></span></div>
+            <div class="fg"><label><i class="fas fa-home"></i>Service type *</label>
+              <select id="r1-servicio">
+                <option value="">— Select —</option>
+                <option value="residential-1bed">1 Bedroom Apartment</option>
+                <option value="residential-2bed">2 Bedroom House</option>
+                <option value="residential-3bed">3 Bedroom House</option>
+                <option value="residential-general">General Home Cleaning</option>
+                <option value="residential-onetime">One-Time Refresh</option>
+              </select>
+              <span class="error-msg" id="err-r1-servicio"></span>
+            </div>
+            <div class="fg span2"><label><i class="fas fa-calendar-alt"></i>Select available date *</label>
+              <div class="cal-container" id="cal-r1" data-category="Residential Cleaning"></div>
+              <input type="hidden" id="r1-fecha"><span class="error-msg" id="err-r1-fecha"></span>
+            </div>
+            <div class="fg span2"><label><i class="fas fa-map-marker-alt"></i>Address *</label><input type="text" id="r1-direccion" placeholder="Street, city, region"><span class="error-msg" id="err-r1-direccion"></span></div>
+            <div class="fg span2"><label><i class="fas fa-comment"></i>Notes</label><textarea id="r1-notas" rows="2" placeholder="Special instructions..."></textarea></div>
+          </div>
+          <button class="submit-btn" id="btn-r1" onclick="submitForm('r1','Residential Cleaning')"><i class="fas fa-paper-plane"></i><span>Book Residential Cleaning</span></button>
+          <div class="success-panel" id="success-r1"></div>
+        </div>
+      </div>
+      <div class="service-image"><img src="primera.png" alt="Residential cleaning" loading="lazy"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ SECTION 2: DEEP CLEANING ══ -->
+<section id="section2" class="service-section" style="background-image:url('https://images.pexels.com/photos/4239033/pexels-photo-4239033.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2');">
+  <div class="service-content">
+    <div class="service-grid">
+      <div class="service-text">
+        <span class="section-tag">DEEP CLEAN</span>
+        <h2 class="section-title">Deep <span>Cleaning</span></h2>
+        <p class="service-subtitle">Thorough cleaning to make your home spotless and refreshed.</p>
+        <button class="btn-book" onclick="toggleForm('form-r2')"><i class="fas fa-calendar-check"></i> Book This Service</button>
+        <p class="service-desc">Unlike routine cleaning, deep cleaning focuses on every major surface from wall-to-wall, floor-to-ceiling. Ideal for seasonal cleaning, move-in/move-out preparation, or post-event cleanup.</p>
+        <p class="included-title">What's Included:</p>
+        <ul><li>Wall-to-Wall Surfaces</li><li>Floor Sweeping &amp; Mopping</li><li>Window &amp; Glass Cleaning</li><li>Ceiling &amp; Fan Dusting</li><li>Kitchen Deep Cleaning</li><li>Bathroom Sanitization</li><li>High-Touch Disinfection</li></ul>
+        <div class="form-section" id="form-r2">
+          <h3>Book <span>Deep Cleaning</span></h3>
+          <div class="form-grid-2">
+            <div class="fg"><label><i class="fas fa-user"></i>Full name *</label><input type="text" id="r2-nombre" placeholder="e.g., John Smith"></div>
+            <div class="fg"><label><i class="fas fa-envelope"></i>Email *</label><input type="email" id="r2-email" placeholder="john@email.com"></div>
+            <div class="fg"><label><i class="fab fa-whatsapp"></i>WhatsApp *</label><input type="tel" id="r2-telefono" placeholder="+592 123 4567"></div>
+            <div class="fg"><label><i class="fas fa-home"></i>Property size *</label>
+              <select id="r2-servicio">
+                <option value="">— Select —</option>
+                <option value="deep-1bed">1 Bedroom</option>
+                <option value="deep-2bed">2 Bedrooms</option>
+                <option value="deep-3bed">3 Bedrooms</option>
+                <option value="deep-4bed">4+ Bedrooms</option>
+              </select>
+            </div>
+            <div class="fg span2"><label><i class="fas fa-calendar-alt"></i>Select available date *</label>
+              <div class="cal-container" id="cal-r2" data-category="Deep Cleaning"></div>
+              <input type="hidden" id="r2-fecha">
+            </div>
+            <div class="fg span2"><label><i class="fas fa-map-marker-alt"></i>Address *</label><input type="text" id="r2-direccion" placeholder="Street, city, region"></div>
+            <div class="fg span2"><label><i class="fas fa-comment"></i>Notes</label><textarea id="r2-notas" rows="2" placeholder="Areas of concern, access instructions..."></textarea></div>
+          </div>
+          <button class="submit-btn" id="btn-r2" onclick="submitForm('r2','Deep Cleaning')"><i class="fas fa-paper-plane"></i><span>Book Deep Cleaning</span></button>
+          <div class="success-panel" id="success-r2"></div>
+        </div>
+      </div>
+      <div class="service-image"><img src="segunda.jpeg" alt="Deep cleaning" loading="lazy"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ SECTION 3: COMMERCIAL ══ -->
+<section id="section3" class="service-section" style="background-image:url('https://images.pexels.com/photos/4486249/pexels-photo-4486249.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2');">
+  <div class="service-content">
+    <div class="service-grid">
+      <div class="service-text">
+        <span class="section-tag">COMMERCIAL</span>
+        <h2 class="section-title">Commercial &amp; <span>Office Cleaning</span></h2>
+        <p class="service-subtitle">Professional cleaning for productive, impressive workspaces.</p>
+        <button class="btn-book" onclick="toggleForm('form-r3')"><i class="fas fa-calendar-check"></i> Book This Service</button>
+        <p class="service-desc">A clean workspace creates a healthier and more productive environment for employees while leaving a strong impression on clients.</p>
+        <p class="included-title">What's Included:</p>
+        <ul><li>Office &amp; Workspace</li><li>Reception &amp; Lobby</li><li>Restroom Sanitization</li><li>Kitchen &amp; Breakroom</li><li>Window &amp; Glass</li><li>High-Touch Disinfection</li><li>Trash &amp; Waste</li></ul>
+        <div class="form-section" id="form-r3">
+          <h3>Book <span>Commercial Cleaning</span></h3>
+          <div class="form-grid-2">
+            <div class="fg"><label><i class="fas fa-user"></i>Contact name *</label><input type="text" id="r3-nombre" placeholder="e.g., Sarah Johnson"></div>
+            <div class="fg"><label><i class="fas fa-envelope"></i>Email *</label><input type="email" id="r3-email" placeholder="company@email.com"></div>
+            <div class="fg"><label><i class="fab fa-whatsapp"></i>WhatsApp *</label><input type="tel" id="r3-telefono" placeholder="+592 123 4567"></div>
+            <div class="fg"><label><i class="fas fa-building"></i>Office size *</label>
+              <select id="r3-servicio">
+                <option value="">— Select —</option>
+                <option value="commercial-small">Small Office (up to 500 sq ft)</option>
+                <option value="commercial-medium">Medium Office (500–1,500 sq ft)</option>
+                <option value="commercial-large">Large Office (1,500+ sq ft)</option>
+                <option value="commercial-retail">Retail Store</option>
+                <option value="commercial-warehouse">Warehouse/Industrial</option>
+              </select>
+            </div>
+            <div class="fg span2"><label><i class="fas fa-calendar-alt"></i>Select available date *</label>
+              <div class="cal-container" id="cal-r3" data-category="Commercial Cleaning"></div>
+              <input type="hidden" id="r3-fecha">
+            </div>
+            <div class="fg span2"><label><i class="fas fa-map-marker-alt"></i>Address *</label><input type="text" id="r3-direccion" placeholder="Business address"></div>
+            <div class="fg span2"><label><i class="fas fa-comment"></i>Notes</label><textarea id="r3-notas" rows="2" placeholder="Business hours, frequency..."></textarea></div>
+          </div>
+          <button class="submit-btn" id="btn-r3" onclick="submitForm('r3','Commercial & Office Cleaning')"><i class="fas fa-paper-plane"></i><span>Book Commercial Cleaning</span></button>
+          <div class="success-panel" id="success-r3"></div>
+        </div>
+      </div>
+      <div class="service-image"><img src="commercialCleaning.jpeg" alt="Commercial cleaning" loading="lazy"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ SECTION 4: STEAM ══ -->
+<section id="section4" class="service-section" style="background-image:url('https://images.pexels.com/photos/6195123/pexels-photo-6195123.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2');">
+  <div class="service-content">
+    <div class="service-grid">
+      <div class="service-text">
+        <span class="section-tag">STEAM CLEANING</span>
+        <h2 class="section-title">Steam Cleaning <span>&amp; Sanitization</span></h2>
+        <p class="service-subtitle">High-temperature deep clean for furniture, carpets, cars and more.</p>
+        <button class="btn-book" onclick="toggleForm('form-r4')"><i class="fas fa-calendar-check"></i> Book This Service</button>
+        <p class="service-desc">Penetrates deep into fabrics to remove embedded dirt, allergens, and germs — leaving surfaces fresh, sanitized, and restored.</p>
+        <div class="price-card">
+          <h4>Pricing Guide</h4>
+          <div class="price-item"><span>1 Seat Sofa</span><span class="price-val">$6,000</span></div>
+          <div class="price-item"><span>2 Seat Sofa</span><span class="price-val">$10,000</span></div>
+          <div class="price-item"><span>3 Seat Sofa</span><span class="price-val">$14,000</span></div>
+          <div class="price-item"><span>King Mattress + 2 Pillows</span><span class="price-val">$10,000</span></div>
+          <div class="price-item"><span>Car Interior (with mats)</span><span class="price-val">$12,000</span></div>
+          <div class="price-item"><span>SUV Interior (with mats)</span><span class="price-val">$16,000</span></div>
+        </div>
+        <div class="form-section" id="form-r4">
+          <h3>Book <span>Steam Cleaning</span></h3>
+          <div class="form-grid-2">
+            <div class="fg"><label><i class="fas fa-user"></i>Full name *</label><input type="text" id="r4-nombre" placeholder="e.g., John Smith"></div>
+            <div class="fg"><label><i class="fas fa-envelope"></i>Email *</label><input type="email" id="r4-email" placeholder="john@email.com"></div>
+            <div class="fg"><label><i class="fab fa-whatsapp"></i>WhatsApp *</label><input type="tel" id="r4-telefono" placeholder="+592 123 4567"></div>
+            <div class="fg"><label><i class="fas fa-couch"></i>Item to clean *</label>
+              <select id="r4-servicio">
+                <option value="">— Select —</option>
+                <optgroup label="Sofas">
+                  <option value="sofa-1seat">1 Seat — $6,000</option>
+                  <option value="sofa-2seat">2 Seat — $10,000</option>
+                  <option value="sofa-3seat">3 Seat — $14,000</option>
+                  <option value="l-shaped">L-Shaped — $16,000</option>
+                  <option value="suite-321">3-2-1 Suite — $24,000</option>
+                  <option value="suite-311">3-1-1 Suite — $20,000</option>
+                  <option value="recliners">Single Recliner — $6,000</option>
+                  <option value="recliners-joined">Joined Recliners — $10,000</option>
+                </optgroup>
+                <optgroup label="Mattresses">
+                  <option value="mattress-king">King + 2 Pillows — $10,000</option>
+                  <option value="mattress-queen">Queen + 2 Pillows — $8,000</option>
+                </optgroup>
+                <optgroup label="Vehicles">
+                  <option value="car">Car Interior (mats) — $12,000</option>
+                  <option value="suv">SUV Interior (mats) — $16,000</option>
+                </optgroup>
+                <optgroup label="Chairs">
+                  <option value="office-chairs">Office Chair — $2,500/each</option>
+                  <option value="dining-chairs">Dining Chair — $2,000/each</option>
+                </optgroup>
+              </select>
+            </div>
+            <div class="fg span2"><label><i class="fas fa-calendar-alt"></i>Select available date *</label>
+              <div class="cal-container" id="cal-r4" data-category="Steam Cleaning"></div>
+              <input type="hidden" id="r4-fecha">
+            </div>
+            <div class="fg span2"><label><i class="fas fa-map-marker-alt"></i>Address *</label><input type="text" id="r4-direccion" placeholder="Street, city, region"></div>
+            <div class="fg span2"><label><i class="fas fa-comment"></i>Notes</label><textarea id="r4-notas" rows="2" placeholder="Stain types, fabric details..."></textarea></div>
+          </div>
+          <button class="submit-btn" id="btn-r4" onclick="submitForm('r4','Steam Cleaning & Sanitization')"><i class="fas fa-paper-plane"></i><span>Book Steam Cleaning</span></button>
+          <div class="success-panel" id="success-r4"></div>
+        </div>
+      </div>
+      <div class="service-image"><img src="cleaningSanitization.jpeg" alt="Steam cleaning" loading="lazy"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ SECTION 5: MOVE IN/OUT ══ -->
+<section id="section5" class="service-section" style="background-image:url('https://images.pexels.com/photos/4498136/pexels-photo-4498136.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2');">
+  <div class="service-content">
+    <div class="service-grid">
+      <div class="service-text">
+        <span class="section-tag">MOVE IN/OUT</span>
+        <h2 class="section-title">Move-In / <span>Move-Out Cleaning</span></h2>
+        <p class="service-subtitle">Full property cleaning for a perfect fresh start.</p>
+        <button class="btn-book" onclick="toggleForm('form-r5')"><i class="fas fa-calendar-check"></i> Book This Service</button>
+        <p class="service-desc">Whether you are moving into a new space or preparing for new tenants, our team will thoroughly clean from wall-to-wall and floor-to-ceiling.</p>
+        <p class="included-title">What's Included:</p>
+        <ul><li>Full Property Cleaning</li><li>Kitchen Deep Cleaning</li><li>Bathroom Cleaning</li><li>Floor Cleaning</li><li>Windows &amp; Glass</li><li>Wall-to-Wall Surfaces</li></ul>
+        <div class="form-section" id="form-r5">
+          <h3>Book <span>Move-In / Move-Out</span></h3>
+          <div class="form-grid-2">
+            <div class="fg"><label><i class="fas fa-user"></i>Full name *</label><input type="text" id="r5-nombre" placeholder="e.g., John Smith"></div>
+            <div class="fg"><label><i class="fas fa-envelope"></i>Email *</label><input type="email" id="r5-email" placeholder="john@email.com"></div>
+            <div class="fg"><label><i class="fab fa-whatsapp"></i>WhatsApp *</label><input type="tel" id="r5-telefono" placeholder="+592 123 4567"></div>
+            <div class="fg"><label><i class="fas fa-home"></i>Property size *</label>
+              <select id="r5-servicio">
+                <option value="">— Select —</option>
+                <option value="movein-1bed">1 Bedroom Apartment</option>
+                <option value="movein-2bed">2 Bedroom House</option>
+                <option value="movein-3bed">3 Bedroom House</option>
+                <option value="movein-4bed">4+ Bedroom House</option>
+              </select>
+            </div>
+            <div class="fg span2"><label><i class="fas fa-calendar-alt"></i>Select available date *</label>
+              <div class="cal-container" id="cal-r5" data-category="Move In/Out"></div>
+              <input type="hidden" id="r5-fecha">
+            </div>
+            <div class="fg span2"><label><i class="fas fa-map-marker-alt"></i>Address *</label><input type="text" id="r5-direccion" placeholder="Street, city, region"></div>
+            <div class="fg span2"><label><i class="fas fa-comment"></i>Notes</label><textarea id="r5-notas" rows="2" placeholder="Property condition, access details..."></textarea></div>
+          </div>
+          <button class="submit-btn" id="btn-r5" onclick="submitForm('r5','Move-In / Move-Out Cleaning')"><i class="fas fa-paper-plane"></i><span>Book Move-In/Out</span></button>
+          <div class="success-panel" id="success-r5"></div>
+        </div>
+      </div>
+      <div class="service-image"><img src="tercera.png" alt="Move cleaning" loading="lazy"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ SECTION 6: PRESSURE WASHING ══ -->
+<section id="section6" class="service-section" style="background-image:url('https://images.pexels.com/photos/7232409/pexels-photo-7232409.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2');">
+  <div class="service-content">
+    <div class="service-grid">
+      <div class="service-text">
+        <span class="section-tag">PRESSURE WASHING</span>
+        <h2 class="section-title">Pressure <span>Washing</span></h2>
+        <p class="service-subtitle">Restore the appearance of your exterior surfaces.</p>
+        <button class="btn-book" onclick="toggleForm('form-r6')"><i class="fas fa-calendar-check"></i> Book This Service</button>
+        <p class="service-desc">Using powerful equipment, we remove built-up grime, stains, and debris from driveways, patios, buildings and more. Priced at <strong>$30/sq ft</strong>.</p>
+        <p class="included-title">Our Services:</p>
+        <ul><li>Driveway &amp; Walkway</li><li>Building Exterior</li><li>Fence Cleaning</li><li>Patio &amp; Outdoor Areas</li><li>Parking Lot</li></ul>
+        <div class="form-section" id="form-r6">
+          <h3>Book <span>Pressure Washing</span></h3>
+          <div class="form-grid-2">
+            <div class="fg"><label><i class="fas fa-user"></i>Full name *</label><input type="text" id="r6-nombre" placeholder="e.g., John Smith"></div>
+            <div class="fg"><label><i class="fas fa-envelope"></i>Email *</label><input type="email" id="r6-email" placeholder="john@email.com"></div>
+            <div class="fg"><label><i class="fab fa-whatsapp"></i>WhatsApp *</label><input type="tel" id="r6-telefono" placeholder="+592 123 4567"></div>
+            <div class="fg"><label><i class="fas fa-water"></i>Surface type *</label>
+              <select id="r6-servicio">
+                <option value="">— Select —</option>
+                <option value="pressure-driveway">Driveway &amp; Walkway</option>
+                <option value="pressure-patio">Patio / Terrace</option>
+                <option value="pressure-building">Building Exterior (per floor)</option>
+                <option value="pressure-fence">Fence Cleaning</option>
+                <option value="pressure-parking">Parking Lot</option>
+              </select>
+            </div>
+            <div class="fg span2"><label><i class="fas fa-calendar-alt"></i>Select available date *</label>
+              <div class="cal-container" id="cal-r6" data-category="Pressure Washing"></div>
+              <input type="hidden" id="r6-fecha">
+            </div>
+            <div class="fg span2"><label><i class="fas fa-map-marker-alt"></i>Address *</label><input type="text" id="r6-direccion" placeholder="Street, city, region"></div>
+            <div class="fg span2"><label><i class="fas fa-comment"></i>Notes</label><textarea id="r6-notas" rows="2" placeholder="Surface material, stain type..."></textarea></div>
+          </div>
+          <button class="submit-btn" id="btn-r6" onclick="submitForm('r6','Pressure Washing')"><i class="fas fa-paper-plane"></i><span>Book Pressure Washing</span></button>
+          <div class="success-panel" id="success-r6"></div>
+        </div>
+      </div>
+      <div class="service-image"><img src="pressureWashing.jpeg" alt="Pressure washing" loading="lazy"></div>
+    </div>
+  </div>
+</section>
+
+<a href="https://wa.me/5926437296" class="whatsapp-float" target="_blank" rel="noopener noreferrer"><i class="fab fa-whatsapp"></i></a>
+
+<footer class="footer-dark">
+  <p>&copy; 2026 <a href="index.html">Livity Projects Inc.</a> &middot; All rights reserved &middot; <a href="https://wa.me/5926437296">+592 643-7296</a></p>
+</footer>
+
+<script src="services.js"></script>
+</body>
+</html>
