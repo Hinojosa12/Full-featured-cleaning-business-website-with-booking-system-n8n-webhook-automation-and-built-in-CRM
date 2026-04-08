@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>Livity Projects Inc. · Trabaja con nosotros</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div id="toast" class="toast"></div>
+
+<header>
+  <div class="top-header">
+    <div class="contact-details">
+      <span><i class="fas fa-phone-alt"></i> +592 643-7296</span>
+      <span><i class="fas fa-envelope"></i> livityprojectsinc@gmail.com</span>
+      <span><i class="fas fa-map-marker-alt"></i> Tuschen Housing Scheme, EBE</span>
+    </div>
+  </div>
+</header>
+
+<div class="main-nav-bar" id="mainNavBar">
+  <div class="logo" id="logo"><img src="livity.jpeg" alt="Livity Projects"></div>
+  <div class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></div>
+  <nav class="nav-links" id="navLinks">
+    <a href="index.html">Home</a>
+    <a href="index.html#aboutSection">About</a>
+    <a href="index.html#paymentSection">Servicios</a>
+    <a href="portafolio.html">Portafolio</a>
+    <a href="tips.html">Consejos</a>
+    <a href="careers.html" class="active">Carreras</a>
+    <a href="index.html#paymentSection">Reservar</a>
+  </nav>
+</div>
+
+<main>
+  <section class="hero" style="background-image:url('Inicio.png'); min-height: 320px; padding: 3rem 5%;">
+    <div class="hero-content">
+      <div class="hero-tag">ÚNETE AL EQUIPO</div>
+      <h1 class="hero-title">Trabaja con <span>Livity Projects</span></h1>
+      <p class="intro-text">Buscamos personas comprometidas, con ganas de crecer y ofrecer un servicio excepcional.</p>
+    </div>
+  </section>
+
+  <section style="padding: 3rem 5%; max-width: 1200px; margin: 0 auto;">
+    <div class="section-tag">VACANTES ACTIVAS</div>
+    <h2 class="section-title">Oportunidades laborales</h2>
+    <p class="section-subtitle">Si eres responsable, proactivo y te gusta el trabajo en equipo, queremos conocerte.</p>
+
+    <!-- Lista de vacantes usando .feature-card -->
+    <div class="features-grid" style="grid-template-columns: 1fr; gap: 1rem;">
+      <div class="feature-card" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
+        <div>
+          <h3>Técnico en limpieza profunda (Steam Cleaning)</h3>
+          <p>Experiencia en equipos de vapor, tapicería y alfombras. Disponibilidad para viajar.</p>
+          <span style="font-size:0.7rem; color:var(--gold);">Tiempo completo | Salario competitivo</span>
+        </div>
+        <button class="btn-gold" data-job="Técnico en limpieza profunda" style="margin-top:0.5rem;">Aplicar</button>
+      </div>
+      <div class="feature-card" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
+        <div>
+          <h3>Operario de lavado a presión (Pressure Washing)</h3>
+          <p>Manejo de hidrolavadoras, conocimiento de superficies. Licencia de conducir deseable.</p>
+          <span style="font-size:0.7rem; color:var(--gold);">Medio tiempo / Fines de semana</span>
+        </div>
+        <button class="btn-gold" data-job="Operario de lavado a presión" style="margin-top:0.5rem;">Aplicar</button>
+      </div>
+      <div class="feature-card" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
+        <div>
+          <h3>Coordinador de servicio al cliente</h3>
+          <p>Atención vía WhatsApp, gestión de citas, seguimiento de pagos. Conocimiento digital básico.</p>
+          <span style="font-size:0.7rem; color:var(--gold);">Remoto / Híbrido | Lunes a viernes</span>
+        </div>
+        <button class="btn-gold" data-job="Coordinador de servicio al cliente" style="margin-top:0.5rem;">Aplicar</button>
+      </div>
+    </div>
+
+    <!-- Formulario de postulación (oculto inicialmente) -->
+    <div id="applyFormContainer" class="form-card" style="display: none; margin-top: 2rem;">
+      <h3 style="font-size: 1.3rem; font-weight: 800; margin-bottom: 1rem;">Postular a: <span id="selectedJobName"></span></h3>
+      <form id="careerForm">
+        <div class="form-grid">
+          <div class="form-group"><label>Nombre completo *</label><input type="text" id="app_nombre" required></div>
+          <div class="form-group"><label>Correo electrónico *</label><input type="email" id="app_email" required></div>
+          <div class="form-group"><label>Teléfono / WhatsApp *</label><input type="tel" id="app_telefono" required></div>
+          <div class="form-group"><label>Vacante</label><input type="text" id="app_vacante" readonly style="background: var(--cream);"></div>
+          <div class="form-group full"><label>Breve experiencia / motivación</label><textarea id="app_mensaje" rows="4"></textarea></div>
+        </div>
+        <button type="submit" class="btn-primary"><span>Enviar solicitud</span><span class="spinner hidden"></span></button>
+      </form>
+    </div>
+  </section>
+</main>
+
+<button class="scroll-top-float" id="scrollTopBtn"><i class="fas fa-arrow-up"></i></button>
+<a href="https://wa.me/5926437296" class="whatsapp-float" target="_blank"><i class="fab fa-whatsapp"></i></a>
+
+<footer class="footer-dark">
+  <div class="footer-content">
+    <div class="footer-info">
+      <h3>Livity Projects Inc.</h3>
+      <p><i class="fas fa-phone-alt"></i> +592 643-7296</p>
+      <p><i class="fas fa-envelope"></i> livityprojectsinc@gmail.com</p>
+      <p><i class="fas fa-map-marker-alt"></i> 8811 Tuschen Housing Scheme, East Bank Essequibo</p>
+    </div>
+    <div class="footer-social">
+      <h3>Síguenos</h3>
+      <div class="social-icons">
+        <a href="https://www.facebook.com/profile.php?id=100093188593546" target="_blank"><i class="fab fa-facebook-f"></i></a>
+        <a href="https://www.instagram.com/livity_projects/" target="_blank"><i class="fab fa-instagram"></i></a>
+        <a href="https://www.tiktok.com/@livity_projects.gy" target="_blank"><i class="fab fa-tiktok"></i></a>
+      </div>
+    </div>
+  </div>
+  <div class="footer-copyright">&copy; 2026 Livity Projects Inc. Todos los derechos reservados.</div>
+</footer>
+
+<script>
+  (function() {
+    // Navegación
+    const mt = document.getElementById("menuToggle");
+    const nl = document.getElementById("navLinks");
+    if(mt && nl) mt.addEventListener("click", () => nl.classList.toggle("show"));
+    window.addEventListener("scroll", () => {
+      const nb = document.getElementById("mainNavBar");
+      if(nb) nb.classList.toggle("scrolled", window.scrollY > 0);
+    });
+    document.getElementById("logo")?.addEventListener("click", () => window.location.href = "index.html");
+    document.getElementById("scrollTopBtn")?.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
+
+    // Lógica de aplicar
+    const applyBtns = document.querySelectorAll(".btn-gold[data-job]");
+    const formContainer = document.getElementById("applyFormContainer");
+    const selectedJobSpan = document.getElementById("selectedJobName");
+    const vacanteInput = document.getElementById("app_vacante");
+
+    function showToast(msg, type) {
+      const toast = document.getElementById("toast");
+      if(!toast) return;
+      toast.textContent = msg;
+      toast.className = "toast show " + (type || "info");
+      setTimeout(() => toast.classList.remove("show"), 4000);
+    }
+
+    applyBtns.forEach(btn => {
+      btn.addEventListener("click", () => {
+        const jobName = btn.getAttribute("data-job");
+        selectedJobSpan.textContent = jobName;
+        vacanteInput.value = jobName;
+        formContainer.style.display = "block";
+        formContainer.scrollIntoView({ behavior: "smooth" });
+      });
+    });
+
+    const careerForm = document.getElementById("careerForm");
+    careerForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const submitBtn = careerForm.querySelector(".btn-primary");
+      const btnText = submitBtn.querySelector("span:first-child");
+      const spinner = submitBtn.querySelector(".spinner");
+      submitBtn.disabled = true;
+      btnText.classList.add("hidden");
+      spinner.classList.remove("hidden");
+
+      const payload = {
+        nombre: document.getElementById("app_nombre").value.trim(),
+        email: document.getElementById("app_email").value.trim(),
+        telefono: document.getElementById("app_telefono").value.trim(),
+        vacante: vacanteInput.value,
+        mensaje: document.getElementById("app_mensaje").value.trim(),
+        timestamp: new Date().toISOString()
+      };
+
+      try {
+        // Reemplaza con tu webhook real para carreras
+        const response = await fetch("https://n8n-n8n.7toway.easypanel.host/webhook/careers", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        if(response.ok) {
+          showToast("Solicitud enviada. Te contactaremos pronto.", "success");
+          careerForm.reset();
+          formContainer.style.display = "none";
+        } else {
+          throw new Error("Error del servidor");
+        }
+      } catch(err) {
+        console.error(err);
+        showToast("No se pudo enviar. Intenta de nuevo.", "error");
+      } finally {
+        submitBtn.disabled = false;
+        btnText.classList.remove("hidden");
+        spinner.classList.add("hidden");
+      }
+    });
+  })();
+</script>
+</body>
+</html>

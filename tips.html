@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>Livity Projects Inc. · Consejos de limpieza</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div id="toast" class="toast"></div>
+
+<header>
+  <div class="top-header">
+    <div class="contact-details">
+      <span><i class="fas fa-phone-alt"></i> +592 643-7296</span>
+      <span><i class="fas fa-envelope"></i> livityprojectsinc@gmail.com</span>
+      <span><i class="fas fa-map-marker-alt"></i> Tuschen Housing Scheme, EBE</span>
+    </div>
+  </div>
+</header>
+
+<div class="main-nav-bar" id="mainNavBar">
+  <div class="logo" id="logo"><img src="livity.jpeg" alt="Livity Projects"></div>
+  <div class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></div>
+  <nav class="nav-links" id="navLinks">
+    <a href="index.html">Home</a>
+    <a href="index.html#aboutSection">About</a>
+    <a href="index.html#paymentSection">Servicios</a>
+    <a href="portafolio.html">Portafolio</a>
+    <a href="tips.html" class="active">Consejos</a>
+    <a href="careers.html">Carreras</a>
+    <a href="index.html#paymentSection">Reservar</a>
+  </nav>
+</div>
+
+<main>
+  <section class="hero" style="background-image:url('Section2.png'); min-height: 320px; padding: 3rem 5%;">
+    <div class="hero-content">
+      <div class="hero-tag">APRENDE CON NOSOTROS</div>
+      <h1 class="hero-title">Consejos para <span>cuidar tu hogar</span></h1>
+      <p class="intro-text">Pequeños hábitos y técnicas profesionales para mantener tu espacio impecable.</p>
+    </div>
+  </section>
+
+  <section style="padding: 3rem 5%; max-width: 1400px; margin: 0 auto;">
+    <div class="section-tag">BLOG DE IDEAS</div>
+    <h2 class="section-title">Mantenimiento inteligente</h2>
+    <p class="section-subtitle">Artículos prácticos sobre limpieza, organización y cuidado.</p>
+
+    <div class="features-grid" style="grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));">
+      <div class="feature-card">
+        <div class="feature-icon-wrap"><i class="fas fa-soap feature-icon"></i></div>
+        <h3>Eliminar olores de tapicería</h3>
+        <p>Bicarbonato de sodio, dejar actuar 30 minutos y aspirar. Para olores fuertes, el vapor profesional es la solución.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon-wrap"><i class="fas fa-tint feature-icon"></i></div>
+        <h3>Frecuencia ideal para alfombras</h3>
+        <p>En hogares con mascotas o niños, limpieza profunda cada 6 meses. Aspirado semanal alarga la vida útil.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon-wrap"><i class="fas fa-wind feature-icon"></i></div>
+        <h3>Ventilación post limpieza</h3>
+        <p>Abrir puertas y ventanas 20 minutos después de usar químicos reduce humedad y mejora el aire.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon-wrap"><i class="fas fa-broom feature-icon"></i></div>
+        <h3>El orden antes de la limpieza</h3>
+        <p>Recoger objetos del piso permite una limpieza más eficiente. Dedica 5 minutos a despejar.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon-wrap"><i class="fas fa-hand-sparkles feature-icon"></i></div>
+        <h3>Protectores para sofás de tela</h3>
+        <p>Aplicar spray antihumedad cada 3 meses evita manchas y facilita la limpieza diaria.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon-wrap"><i class="fas fa-water feature-icon"></i></div>
+        <h3>Cuándo NO usar hidrolavadora</h3>
+        <p>Evitar en superficies desconchadas o madera sin sellar. Consulta a un profesional.</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<button class="scroll-top-float" id="scrollTopBtn"><i class="fas fa-arrow-up"></i></button>
+<a href="https://wa.me/5926437296" class="whatsapp-float" target="_blank"><i class="fab fa-whatsapp"></i></a>
+
+<footer class="footer-dark">
+  <div class="footer-content">
+    <div class="footer-info">
+      <h3>Livity Projects Inc.</h3>
+      <p><i class="fas fa-phone-alt"></i> +592 643-7296</p>
+      <p><i class="fas fa-envelope"></i> livityprojectsinc@gmail.com</p>
+      <p><i class="fas fa-map-marker-alt"></i> 8811 Tuschen Housing Scheme, East Bank Essequibo</p>
+    </div>
+    <div class="footer-social">
+      <h3>Síguenos</h3>
+      <div class="social-icons">
+        <a href="https://www.facebook.com/profile.php?id=100093188593546" target="_blank"><i class="fab fa-facebook-f"></i></a>
+        <a href="https://www.instagram.com/livity_projects/" target="_blank"><i class="fab fa-instagram"></i></a>
+        <a href="https://www.tiktok.com/@livity_projects.gy" target="_blank"><i class="fab fa-tiktok"></i></a>
+      </div>
+    </div>
+  </div>
+  <div class="footer-copyright">&copy; 2026 Livity Projects Inc. Todos los derechos reservados.</div>
+</footer>
+
+<script>
+  (function() {
+    const mt = document.getElementById("menuToggle");
+    const nl = document.getElementById("navLinks");
+    if(mt && nl) mt.addEventListener("click", () => nl.classList.toggle("show"));
+    window.addEventListener("scroll", () => {
+      const nb = document.getElementById("mainNavBar");
+      if(nb) nb.classList.toggle("scrolled", window.scrollY > 0);
+    });
+    document.getElementById("logo")?.addEventListener("click", () => window.location.href = "index.html");
+    document.getElementById("scrollTopBtn")?.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
+  })();
+</script>
+</body>
+</html>
