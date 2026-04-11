@@ -155,3 +155,22 @@ img { max-width:100%; height:auto; display:block; }
   .cal-day { font-size:.72rem; }
 }
 @media (max-width:480px) { .service-content ul { grid-template-columns:1fr; } .section-title { font-size:1.4rem; } }
+
+/* Add these styles to the END of your existing services.css file */
+
+/* ── CALENDAR PLACEHOLDER (matches index.html style) ── */
+.calendar-message {
+  text-align: center;
+  padding: 2rem 1rem;
+  color: var(--muted);
+  font-size: .9rem;
+}
+.calendar-message i {
+  display: block;
+  font-size: 2rem;
+  color: var(--gold);
+  margin-bottom: .8rem;
+}
+.hidden {
+  display: none !important;
+}
