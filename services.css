@@ -174,3 +174,85 @@ img { max-width:100%; height:auto; display:block; }
 .hidden {
   display: none !important;
 }
+/* ══════════════════════════════════════════════════════════════════════════
+   ADD ALL OF THIS TO THE END OF YOUR services.css FILE
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* ── CALENDAR PLACEHOLDER ── */
+.calendar-message { text-align:center; padding:2rem 1rem; color:var(--muted); font-size:.9rem; }
+.calendar-message i { display:block; font-size:2rem; color:var(--gold); margin-bottom:.8rem; }
+.hidden { display:none !important; }
+
+/* ── SUCCESS ACTIONS (New Booking + MMG button) ── */
+.success-actions { display:flex; gap:.8rem; flex-wrap:wrap; justify-content:center; align-items:stretch; width:100%; margin-top:1rem; }
+
+/* ── MMG VARIABLES ── */
+:root { --mmg-green:#00a651; --mmg-green-dark:#008c44; --mmg-green-light:#00c461; }
+
+/* ── MMG BUTTON ── */
+@keyframes pulse-green{0%{box-shadow:0 0 0 0 rgba(0,166,81,.35)}70%{box-shadow:0 0 0 12px rgba(0,166,81,0)}100%{box-shadow:0 0 0 0 rgba(0,166,81,0)}}
+@keyframes modalIn{from{opacity:0;transform:translateY(30px) scale(.95)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes successPop{0%{transform:scale(0)}50%{transform:scale(1.2)}100%{transform:scale(1)}}
+
+.btn-mmg { display:inline-flex; align-items:center; justify-content:center; padding:0; border-radius:var(--radius-pill); font-family:inherit; cursor:pointer; border:none; transition:var(--transition); background:linear-gradient(135deg,var(--mmg-green),var(--mmg-green-dark)); color:white; box-shadow:0 8px 24px rgba(0,166,81,.35); animation:pulse-green 2.5s infinite; position:relative; overflow:hidden; }
+.btn-mmg::before { content:''; position:absolute; top:0; left:-100%; width:60%; height:100%; background:linear-gradient(90deg,transparent,rgba(255,255,255,.15),transparent); transition:left .6s; }
+.btn-mmg:hover::before { left:120%; }
+.btn-mmg:hover { transform:translateY(-3px) scale(1.02); animation:none; box-shadow:0 14px 36px rgba(0,166,81,.45); }
+.btn-mmg:active { transform:translateY(-1px) scale(.98); }
+.btn-mmg.mmg-disabled { background:linear-gradient(135deg,#9ca3af,#6b7280); box-shadow:none; animation:none; cursor:not-allowed; opacity:.7; }
+.btn-mmg.mmg-disabled:hover { transform:none; box-shadow:none; }
+.btn-mmg.mmg-disabled::before { display:none; }
+.mmg-btn-inner { display:flex; align-items:center; gap:.7rem; padding:.7rem 1.6rem; }
+.mmg-icon-wrap { width:32px; height:32px; background:rgba(255,255,255,.2); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:.95rem; flex-shrink:0; }
+.mmg-btn-text { display:flex; flex-direction:column; align-items:flex-start; line-height:1.2; }
+.mmg-label { font-size:.85rem; font-weight:700; letter-spacing:.3px; }
+.mmg-amount { font-size:.68rem; font-weight:600; opacity:.85; }
+
+/* ── MMG MODAL OVERLAY ── */
+.mmg-overlay { position:fixed; inset:0; background:rgba(10,18,20,.6); backdrop-filter:blur(8px); z-index:5000; display:flex; align-items:center; justify-content:center; padding:1rem; opacity:0; pointer-events:none; transition:opacity .3s; }
+.mmg-overlay.active { opacity:1; pointer-events:all; }
+.mmg-modal { background:white; border-radius:var(--radius-lg); box-shadow:0 30px 80px rgba(0,0,0,.25); width:100%; max-width:420px; padding:2rem; position:relative; animation:modalIn .4s cubic-bezier(.34,1.56,.64,1); max-height:90vh; overflow-y:auto; }
+.mmg-modal-close { position:absolute; top:1rem; right:1rem; width:32px; height:32px; border-radius:50%; border:1px solid var(--cream-border); background:var(--cream-mid); color:var(--muted); cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:.85rem; transition:var(--transition); z-index:1; }
+.mmg-modal-close:hover { background:var(--gold); color:white; border-color:var(--gold); transform:rotate(90deg); }
+.mmg-modal-header { text-align:center; margin-bottom:1.5rem; }
+.mmg-logo-circle { width:64px; height:64px; border-radius:50%; background:linear-gradient(135deg,var(--mmg-green),var(--mmg-green-dark)); display:flex; align-items:center; justify-content:center; margin:0 auto .8rem; font-size:1.5rem; color:white; box-shadow:0 8px 24px rgba(0,166,81,.3); }
+.mmg-modal-header h3 { font-size:1.3rem; font-weight:800; color:var(--dark); margin-bottom:.2rem; }
+.mmg-modal-header p { font-size:.82rem; color:var(--muted); }
+.mmg-modal-body { margin-bottom:1.2rem; }
+.mmg-summary { background:var(--cream); border-radius:var(--radius-sm); padding:1rem 1.2rem; margin-bottom:1.2rem; border:1px solid var(--cream-border); }
+.mmg-summary-row { display:flex; justify-content:space-between; padding:.4rem 0; font-size:.85rem; color:var(--muted); }
+.mmg-summary-row span:last-child { font-weight:700; color:var(--dark); }
+.mmg-summary-row.mmg-total { border-top:1.5px dashed var(--cream-border); margin-top:.3rem; padding-top:.6rem; }
+.mmg-summary-row.mmg-total span:last-child { font-size:1.1rem; color:var(--mmg-green); font-weight:800; }
+.mmg-field { margin-bottom:.5rem; }
+.mmg-field label { display:flex; align-items:center; gap:.4rem; font-size:.72rem; font-weight:700; color:var(--muted); letter-spacing:.08em; text-transform:uppercase; margin-bottom:.4rem; }
+.mmg-field label i { color:var(--mmg-green); }
+.mmg-field input { background:var(--cream); border:1.5px solid var(--cream-border); border-radius:var(--radius-sm); padding:.8rem 1rem; font-family:inherit; font-size:.95rem; width:100%; transition:all .25s; color:var(--dark); }
+.mmg-field input:focus { outline:none; border-color:var(--mmg-green); box-shadow:0 0 0 3px rgba(0,166,81,.12); background:white; }
+.mmg-field-hint { font-size:.7rem; color:var(--muted); margin-top:.3rem; display:block; }
+.mmg-pay-btn { display:flex; align-items:center; justify-content:center; gap:.5rem; padding:1rem; border-radius:var(--radius-pill); font-weight:700; cursor:pointer; border:none; font-family:inherit; font-size:.95rem; background:linear-gradient(135deg,var(--mmg-green),var(--mmg-green-dark)); color:white; box-shadow:0 8px 20px rgba(0,166,81,.3); transition:var(--transition); width:100%; }
+.mmg-pay-btn:hover:not(:disabled) { transform:translateY(-3px); box-shadow:0 16px 36px rgba(0,166,81,.42); }
+.mmg-pay-btn:disabled { opacity:.6; cursor:not-allowed; }
+.mmg-secure { text-align:center; margin-top:.8rem; font-size:.7rem; color:var(--muted); display:flex; align-items:center; justify-content:center; gap:.4rem; }
+.mmg-secure i { color:var(--mmg-green); }
+.mmg-success { text-align:center; padding:1.5rem 0; }
+.mmg-success-icon { font-size:3.5rem; color:var(--mmg-green); margin-bottom:.8rem; animation:successPop .5s cubic-bezier(.34,1.56,.64,1); }
+.mmg-success h3 { font-size:1.3rem; font-weight:800; color:var(--dark); margin-bottom:.4rem; }
+.mmg-success p { font-size:.85rem; color:var(--muted); max-width:320px; margin:0 auto .8rem; }
+.mmg-txn-id { background:var(--cream); border-radius:var(--radius-sm); padding:.6rem 1rem; font-size:.82rem; color:var(--muted); border:1px solid var(--cream-border); }
+.mmg-txn-id strong { color:var(--dark); }
+.mmg-error { text-align:center; padding:1.5rem 0; }
+.mmg-error-icon { font-size:3rem; color:#e24b4a; margin-bottom:.8rem; }
+.mmg-error h3 { font-size:1.2rem; font-weight:800; color:var(--dark); margin-bottom:.4rem; }
+.mmg-error p { font-size:.85rem; color:var(--muted); max-width:320px; margin:0 auto; }
+
+/* ── MMG RESPONSIVE ── */
+@media(max-width:768px) {
+  .success-actions { flex-direction:column; align-items:center; }
+  .btn-mmg { width:100%; }
+  .mmg-btn-inner { justify-content:center; }
+  .mmg-modal { padding:1.5rem; max-width:95vw; }
+  .mmg-logo-circle { width:52px; height:52px; font-size:1.2rem; }
+  .mmg-modal-header h3 { font-size:1.1rem; }
+  .mmg-pay-btn { font-size:.88rem; padding:.85rem; }
+}
