@@ -329,6 +329,47 @@
   </div>
 </section>
 
+<!-- ══ MMG PAYMENT MODAL ══ -->
+<div class="mmg-overlay" id="mmgOverlay">
+  <div class="mmg-modal">
+    <button class="mmg-modal-close" id="mmgCloseBtn"><i class="fas fa-times"></i></button>
+    <div class="mmg-modal-header">
+      <div class="mmg-logo-circle"><i class="fas fa-wallet"></i></div>
+      <h3>MMG Mobile Money</h3>
+      <p>Secure payment via MMG Wallet</p>
+    </div>
+    <div class="mmg-modal-body">
+      <div class="mmg-summary">
+        <div class="mmg-summary-row"><span>Service</span><span id="mmgService"></span></div>
+        <div class="mmg-summary-row mmg-total"><span>Total</span><span id="mmgTotal"></span></div>
+      </div>
+      <div class="mmg-field">
+        <label><i class="fas fa-mobile-alt"></i> MMG Wallet Number *</label>
+        <input type="tel" id="mmgPhone" placeholder="e.g., 6437296">
+        <span class="mmg-field-hint">Enter your MMG mobile wallet number (without +592)</span>
+      </div>
+    </div>
+    <button class="mmg-pay-btn" id="mmgConfirmPay">
+      <span id="mmgPayText"><i class="fas fa-lock"></i> Confirm &amp; Pay</span>
+      <span id="mmgPaySpinner" class="spinner hidden"></span>
+    </button>
+    <div class="mmg-secure"><i class="fas fa-shield-alt"></i> Secured by MMG Mobile Money &middot; GYD</div>
+    <div class="mmg-success hidden" id="mmgSuccess">
+      <div class="mmg-success-icon"><i class="fas fa-check-circle"></i></div>
+      <h3>Payment Initiated!</h3>
+      <p>A payment request has been sent to your MMG wallet. Please approve the transaction from your MMG app.</p>
+      <div class="mmg-txn-id">Transaction ID: <strong id="mmgTxnId">&#8212;</strong></div>
+      <button class="btn-reset" id="mmgDoneBtn" style="margin-top:1rem;">Done</button>
+    </div>
+    <div class="mmg-error hidden" id="mmgError">
+      <div class="mmg-error-icon"><i class="fas fa-exclamation-triangle"></i></div>
+      <h3>Payment Failed</h3>
+      <p id="mmgErrorMsg">Something went wrong. Please try again.</p>
+      <button class="btn-reset" id="mmgRetryBtn" style="margin-top:1rem;"><i class="fas fa-redo"></i> Try Again</button>
+    </div>
+  </div>
+</div>
+
 <a href="https://wa.me/5926437296" class="whatsapp-float" target="_blank" rel="noopener noreferrer"><i class="fab fa-whatsapp"></i></a>
 
 <footer class="footer-dark">
