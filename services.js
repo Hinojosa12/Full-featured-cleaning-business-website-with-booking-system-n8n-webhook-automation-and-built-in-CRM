@@ -40,9 +40,14 @@ const SVC = {
   'pressure-parking':     { name: 'Pressure Washing – Parking Lot',             price: '$30/sq ft',      category: 'Pressure Washing' },
 };
 
+// ┌──────────────────────────────────────────────────────────────────────────┐
+// │  AVAILABLE DATES — Edit these to control which dates appear on each     │
+// │  calendar. Format: 'YYYY-M-D' (no leading zeros needed).               │
+// │  Each category maps to its own list of available dates.                 │
+// └──────────────────────────────────────────────────────────────────────────┘
 const availableDates = {
-  'Steam Cleaning':       ['2026-3-28','2026-3-29','2026-3-30'],
-  'Carpet Cleaning':      ['2026-3-28','2026-3-29','2026-3-30'],
+  'Steam Cleaning':       ['2026-3-28','2026-3-29','2026-3-30','2026-4-18','2026-4-19','2026-4-10'],
+  'Carpet Cleaning':      ['2026-3-28','2026-3-29','2026-4-30','2026-4-8','2026-4-2','2026-4-3'],
   'Pressure Washing':     ['2026-3-28','2026-3-29','2026-3-30'],
   'Residential Cleaning': ['2026-3-28','2026-3-29','2026-3-30'],
   'Deep Cleaning':        ['2026-3-28','2026-3-29','2026-3-30'],
@@ -50,29 +55,67 @@ const availableDates = {
   'Move In/Out':          ['2026-3-28','2026-3-29','2026-3-30'],
 };
 
-// ── CALENDAR ──────────────────────────────────────────────────────────────
+// ── CALENDAR STATE ────────────────────────────────────────────────────────
 var calStates = {};
+var currentCategories = {}; // tracks current category per prefix
 
+// ── SERVICE CHANGE HANDLER (like index.html) ──────────────────────────────
+function onServiceChangeSection(prefix) {
+  var sk = document.getElementById(prefix + '-servicio').value;
+  var sd = SVC[sk];
+  var placeholder = document.getElementById('cal-placeholder-' + prefix);
+  var content = document.getElementById('cal-content-' + prefix);
+
+  // Reset selected date
+  calStates['cal-' + prefix] = calStates['cal-' + prefix] || {};
+  calStates['cal-' + prefix].selected = null;
+  document.getElementById(prefix + '-fecha').value = '';
+
+  if (sd) {
+    // Service selected — show calendar with available dates
+    currentCategories[prefix] = sd.category;
+    if (placeholder) placeholder.classList.add('hidden');
+    if (content) content.classList.remove('hidden');
+    initCalendar('cal-' + prefix);
+  } else {
+    // No service selected — show placeholder
+    currentCategories[prefix] = null;
+    if (placeholder) placeholder.classList.remove('hidden');
+    if (content) content.classList.add('hidden');
+  }
+}
+
+// ── CALENDAR ──────────────────────────────────────────────────────────────
 function initCalendar(containerId) {
   var now = new Date();
-  calStates[containerId] = { month: now.getMonth(), year: now.getFullYear(), selected: null };
+  if (!calStates[containerId]) {
+    calStates[containerId] = { month: now.getMonth(), year: now.getFullYear(), selected: null };
+  } else {
+    calStates[containerId].month = now.getMonth();
+    calStates[containerId].year = now.getFullYear();
+  }
   renderCalendar(containerId);
 }
 
 function renderCalendar(containerId) {
-  var container = document.getElementById(containerId);
-  if (!container) return;
-  var state    = calStates[containerId];
-  var category = container.getAttribute('data-category');
+  var prefix = containerId.replace('cal-', '');
+  var contentEl = document.getElementById('cal-content-' + prefix);
+  if (!contentEl) return;
+
+  var state = calStates[containerId];
+  if (!state) return;
+
+  var category = currentCategories[prefix] || document.getElementById(containerId).getAttribute('data-category');
   var catDates = (category && availableDates[category]) || [];
   var availSet = new Set(catDates);
+
   var monthNames   = ['January','February','March','April','May','June','July','August','September','October','November','December'];
   var dayNames     = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
   var fullDayNames = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-  var today    = new Date(); today.setHours(0,0,0,0);
+
+  var today = new Date(); today.setHours(0,0,0,0);
   var firstDay = new Date(state.year, state.month, 1).getDay();
   var daysInMonth = new Date(state.year, state.month + 1, 0).getDate();
-  var prefix   = containerId.replace('cal-', '');
 
   var html = '<div class="cal-header">';
   html += '<div class="cal-nav"><button type="button" onclick="calPrev(\'' + containerId + '\')"><i class="fas fa-chevron-left"></i></button></div>';
@@ -88,25 +131,32 @@ function renderCalendar(containerId) {
     var dateStr  = state.year + '-' + (state.month + 1) + '-' + d;
     var classes  = 'cal-day current-month';
     var onclick  = '';
+
     if (cellDate.getTime() === today.getTime()) classes += ' today';
+
     if (cellDate < today) {
       classes += ' unavailable';
     } else if (availSet.has(dateStr)) {
       classes += ' available';
-      onclick   = ' onclick="selectCalDate(\'' + containerId + '\',\'' + dateStr + '\',\'' + prefix + '\')"';
+      onclick = ' onclick="selectCalDate(\'' + containerId + '\',\'' + dateStr + '\',\'' + prefix + '\')"';
     } else {
       classes += ' unavailable';
     }
+
     if (state.selected === dateStr) { classes += ' selected'; classes = classes.replace(' unavailable', ''); }
     html += '<div class="' + classes + '"' + onclick + '>' + d + '</div>';
   }
 
   html += '</div>';
+
+  // Legend
   html += '<div class="cal-legend">';
   html += '<div class="cal-legend-item"><div class="cal-legend-dot avail"></div> Available</div>';
   html += '<div class="cal-legend-item"><div class="cal-legend-dot sel"></div> Selected</div>';
   html += '<div class="cal-legend-item"><div class="cal-legend-dot unav"></div> Unavailable</div>';
   html += '</div>';
+
+  // Selected date display
   html += '<div class="cal-selected-display' + (state.selected ? ' show' : '') + '" id="caldisp-' + prefix + '">';
   if (state.selected) {
     var parts   = state.selected.split('-');
@@ -114,7 +164,8 @@ function renderCalendar(containerId) {
     html += '<i class="fas fa-check-circle"></i> ' + fullDayNames[dateObj.getDay()] + ', ' + monthNames[dateObj.getMonth()] + ' ' + parts[2] + ', ' + parts[0];
   }
   html += '</div>';
-  container.innerHTML = html;
+
+  contentEl.innerHTML = html;
 }
 
 function selectCalDate(containerId, dateStr, prefix) {
@@ -157,8 +208,6 @@ function toggleForm(id) {
   document.querySelectorAll('.form-section.open').forEach(function (x) { x.classList.remove('open'); });
   if (!isOpen) {
     f.classList.add('open');
-    var calId = 'cal-' + id.replace('form-', '');
-    if (!calStates[calId]) initCalendar(calId);
     setTimeout(function () { f.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 150);
   }
 }
@@ -187,7 +236,7 @@ function validateForm(p) {
   if (!e || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)) err(p + '-email', 'Valid email required.');
   if (!t || !/^[\+]?[\d\s\-\(\)]{7,15}$/.test(t.replace(/\s/g, ''))) err(p + '-telefono', 'Valid phone required.');
   if (!s) err(p + '-servicio', 'Please select a service.');
-  if (!f) { err(p + '-fecha', 'Please select a date.'); showToast('Please select an available date.', 'error'); }
+  if (!f) { err(p + '-fecha', 'Please select a date.'); showToast('Please select an available date from the calendar.', 'error'); }
   if (!d) err(p + '-direccion', 'Address is required.');
   return ok;
 }
@@ -264,8 +313,16 @@ function resetForm(prefix) {
   });
   document.querySelectorAll('.field-error').forEach(function (e) { e.classList.remove('field-error'); });
   document.querySelectorAll('.error-msg').forEach(function (e) { e.textContent = ''; });
+
+  // Reset calendar to placeholder state
+  currentCategories[prefix] = null;
+  var placeholder = document.getElementById('cal-placeholder-' + prefix);
+  var content = document.getElementById('cal-content-' + prefix);
+  if (placeholder) placeholder.classList.remove('hidden');
+  if (content) content.classList.add('hidden');
+
   var calId = 'cal-' + prefix;
-  if (calStates[calId]) { calStates[calId].selected = null; renderCalendar(calId); }
+  if (calStates[calId]) { calStates[calId].selected = null; }
 }
 
 // ── INIT ──────────────────────────────────────────────────────────────────
