@@ -1,6 +1,14 @@
-const WEBHOOK = 'https://n8n-n8n.7toway.easypanel.host/webhook/0e6a220e-8739-4db7-9770-cd6f4a4c35f4';
+var WEBHOOK = 'https://n8n-n8n.7toway.easypanel.host/webhook/0e6a220e-8739-4db7-9770-cd6f4a4c35f4';
 
-const SVC = {
+// ┌──────────────────────────────────────────────────────────────────────────┐
+// │  MMG PAYMENT WEBHOOK                                                    │
+// │  REPLACE THIS URL with your n8n payment webhook URL.                   │
+// │  The page sends: { customerPhone, amount, currency, servicio }         │
+// │  n8n should return: { success:true, transactionId:"..." }              │
+// └──────────────────────────────────────────────────────────────────────────┘
+var MMG_PAYMENT_WEBHOOK = 'https://n8n-n8n.7toway.easypanel.host/webhook/mmg-payment';
+
+var SVC = {
   'residential-1bed':     { name: 'Residential – 1 Bedroom Apartment',          price: 'Quote on visit', category: 'Residential Cleaning' },
   'residential-2bed':     { name: 'Residential – 2 Bedroom House',               price: 'Quote on visit', category: 'Residential Cleaning' },
   'residential-3bed':     { name: 'Residential – 3 Bedroom House',               price: 'Quote on visit', category: 'Residential Cleaning' },
@@ -45,7 +53,7 @@ const SVC = {
 // │  calendar. Format: 'YYYY-M-D' (no leading zeros needed).               │
 // │  Each category maps to its own list of available dates.                 │
 // └──────────────────────────────────────────────────────────────────────────┘
-const availableDates = {
+var availableDates = {
   'Steam Cleaning':       ['2026-3-28','2026-3-29','2026-3-30','2026-4-18','2026-4-19','2026-4-10'],
   'Carpet Cleaning':      ['2026-3-28','2026-3-29','2026-4-30','2026-4-8','2026-4-2','2026-4-3'],
   'Pressure Washing':     ['2026-3-28','2026-3-29','2026-3-30'],
@@ -55,9 +63,27 @@ const availableDates = {
   'Move In/Out':          ['2026-3-28','2026-3-29','2026-3-30'],
 };
 
-// ── CALENDAR STATE ────────────────────────────────────────────────────────
+// ── STATE ─────────────────────────────────────────────────────────────────
 var calStates = {};
-var currentCategories = {}; // tracks current category per prefix
+var currentCategories = {};
+var lastBookingPayload = null;
+
+// ── HELPER FUNCTIONS ──────────────────────────────────────────────────────
+function parsePrice(priceStr) {
+  if (!priceStr || priceStr.toLowerCase().indexOf('quote') !== -1) return null;
+  var cleaned = priceStr.replace(/[^0-9.]/g, '');
+  var num = parseFloat(cleaned);
+  return isNaN(num) ? null : num;
+}
+
+function formatGYD(amount) {
+  return '$' + amount.toLocaleString('en-US', { minimumFractionDigits: 0 });
+}
+
+function isFixedPrice(priceStr) {
+  if (!priceStr) return false;
+  return priceStr.toLowerCase().indexOf('quote') === -1 && priceStr.indexOf('/sq ft') === -1 && priceStr.indexOf('/each') === -1;
+}
 
 // ── SERVICE CHANGE HANDLER (like index.html) ──────────────────────────────
 function onServiceChangeSection(prefix) {
@@ -72,13 +98,11 @@ function onServiceChangeSection(prefix) {
   document.getElementById(prefix + '-fecha').value = '';
 
   if (sd) {
-    // Service selected — show calendar with available dates
     currentCategories[prefix] = sd.category;
     if (placeholder) placeholder.classList.add('hidden');
     if (content) content.classList.remove('hidden');
     initCalendar('cal-' + prefix);
   } else {
-    // No service selected — show placeholder
     currentCategories[prefix] = null;
     if (placeholder) placeholder.classList.remove('hidden');
     if (content) content.classList.add('hidden');
@@ -148,15 +172,11 @@ function renderCalendar(containerId) {
   }
 
   html += '</div>';
-
-  // Legend
   html += '<div class="cal-legend">';
   html += '<div class="cal-legend-item"><div class="cal-legend-dot avail"></div> Available</div>';
   html += '<div class="cal-legend-item"><div class="cal-legend-dot sel"></div> Selected</div>';
   html += '<div class="cal-legend-item"><div class="cal-legend-dot unav"></div> Unavailable</div>';
   html += '</div>';
-
-  // Selected date display
   html += '<div class="cal-selected-display' + (state.selected ? ' show' : '') + '" id="caldisp-' + prefix + '">';
   if (state.selected) {
     var parts   = state.selected.split('-');
@@ -277,6 +297,7 @@ async function submitForm(prefix, serviceName) {
     await fetch(WEBHOOK, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
   } catch (e) { console.error('Webhook error:', e); }
 
+  lastBookingPayload = payload;
   showSuccessPanel(prefix, payload);
   showToast("Booking sent! We'll confirm via WhatsApp soon.", 'success', 6000);
   btn.disabled  = false;
@@ -289,18 +310,35 @@ function showSuccessPanel(prefix, data) {
   var fmt = data.fecha
     ? new Date(data.fecha + 'T12:00:00').toLocaleDateString('en-GB', { weekday:'long', year:'numeric', month:'long', day:'numeric' })
     : 'TBD';
+
+  // Determine if MMG button should be active or disabled
+  var mmgBtnClass = isFixedPrice(data.precio) ? 'btn-mmg' : 'btn-mmg mmg-disabled';
+  var mmgBtnDisabled = isFixedPrice(data.precio) ? '' : ' disabled';
+  var mmgAmountText = isFixedPrice(data.precio) ? data.precio + ' GYD' : 'Quote required';
+
   panel.innerHTML =
     '<div class="success-icon">&#9989;</div>' +
     '<h3>Booking Request Sent!</h3>' +
     '<p>Thank you <strong>' + data.nombre + '</strong>! Our team will confirm via WhatsApp.</p>' +
     '<div class="success-details">' +
-    '<div><span>Service</span><span>'  + data.servicio  + '</span></div>' +
-    '<div><span>Price</span><span>'    + data.precio    + '</span></div>' +
-    '<div><span>Date</span><span>'     + fmt            + '</span></div>' +
-    '<div><span>Address</span><span>'  + data.direccion + '</span></div>' +
-    '<div><span>WhatsApp</span><span>' + data.telefono  + '</span></div>' +
+      '<div><span>Service</span><span>'  + data.servicio  + '</span></div>' +
+      '<div><span>Price</span><span>'    + data.precio    + '</span></div>' +
+      '<div><span>Date</span><span>'     + fmt            + '</span></div>' +
+      '<div><span>Address</span><span>'  + data.direccion + '</span></div>' +
+      '<div><span>WhatsApp</span><span>' + data.telefono  + '</span></div>' +
     '</div>' +
-    '<button class="btn-reset" onclick="resetForm(\'' + prefix + '\')"><i class="fas fa-plus"></i> New Booking</button>';
+    '<div class="success-actions">' +
+      '<button class="btn-reset" onclick="resetForm(\'' + prefix + '\')"><i class="fas fa-plus"></i> New Booking</button>' +
+      '<button class="' + mmgBtnClass + '"' + mmgBtnDisabled + ' onclick="openMMGModal()">' +
+        '<span class="mmg-btn-inner">' +
+          '<span class="mmg-icon-wrap"><i class="fas fa-wallet"></i></span>' +
+          '<span class="mmg-btn-text">' +
+            '<span class="mmg-label">Pay via MMG</span>' +
+            '<span class="mmg-amount">' + mmgAmountText + '</span>' +
+          '</span>' +
+        '</span>' +
+      '</button>' +
+    '</div>';
   panel.classList.add('show');
   setTimeout(function () { panel.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 200);
 }
@@ -314,7 +352,6 @@ function resetForm(prefix) {
   document.querySelectorAll('.field-error').forEach(function (e) { e.classList.remove('field-error'); });
   document.querySelectorAll('.error-msg').forEach(function (e) { e.textContent = ''; });
 
-  // Reset calendar to placeholder state
   currentCategories[prefix] = null;
   var placeholder = document.getElementById('cal-placeholder-' + prefix);
   var content = document.getElementById('cal-content-' + prefix);
@@ -323,6 +360,70 @@ function resetForm(prefix) {
 
   var calId = 'cal-' + prefix;
   if (calStates[calId]) { calStates[calId].selected = null; }
+  lastBookingPayload = null;
+}
+
+// ── MMG PAYMENT ───────────────────────────────────────────────────────────
+function openMMGModal() {
+  if (!lastBookingPayload) return;
+  var amount = parsePrice(lastBookingPayload.precio);
+  document.getElementById('mmgService').textContent = lastBookingPayload.servicio;
+  document.getElementById('mmgTotal').textContent = formatGYD(amount) + ' GYD';
+  var phone = lastBookingPayload.telefono.replace(/\+592\s?/, '').replace(/\s/g, '');
+  document.getElementById('mmgPhone').value = phone;
+  document.getElementById('mmgSuccess').classList.add('hidden');
+  document.getElementById('mmgError').classList.add('hidden');
+  document.querySelector('.mmg-modal-body').classList.remove('hidden');
+  document.getElementById('mmgConfirmPay').classList.remove('hidden');
+  document.querySelector('.mmg-secure').classList.remove('hidden');
+  document.getElementById('mmgOverlay').classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeMMGModal() {
+  document.getElementById('mmgOverlay').classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+async function processMMGPayment() {
+  var phoneInput = document.getElementById('mmgPhone');
+  var phone = phoneInput.value.trim().replace(/\s/g, '');
+  if (!phone || phone.length < 6) { phoneInput.classList.add('field-error'); showToast('Please enter a valid MMG wallet number.', 'error'); return; }
+  phoneInput.classList.remove('field-error');
+  var amount = parsePrice(lastBookingPayload.precio);
+  if (!amount) { showToast('Cannot determine payment amount.', 'error'); return; }
+
+  var payBtn = document.getElementById('mmgConfirmPay'), payText = document.getElementById('mmgPayText'), paySpinner = document.getElementById('mmgPaySpinner');
+  payBtn.disabled = true; payText.classList.add('hidden'); paySpinner.classList.remove('hidden');
+
+  try {
+    var paymentPayload = { action: 'mmg_payment', customerPhone: phone, amount: amount.toFixed(2), currency: 'GYD', servicio: lastBookingPayload.servicio, nombre: lastBookingPayload.nombre, email: lastBookingPayload.email, fecha: lastBookingPayload.fecha };
+    var response = await fetch(MMG_PAYMENT_WEBHOOK, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(paymentPayload) });
+    if (!response.ok) { var errorText = await response.text(); throw new Error('Server error: ' + (errorText || response.status)); }
+    var result = await response.json();
+    if (result.success || result.transactionId || result.statusCode === '1000') {
+      document.querySelector('.mmg-modal-body').classList.add('hidden');
+      document.getElementById('mmgConfirmPay').classList.add('hidden');
+      document.querySelector('.mmg-secure').classList.add('hidden');
+      document.getElementById('mmgSuccess').classList.remove('hidden');
+      document.getElementById('mmgTxnId').textContent = result.transactionId || result.serverCorrelationId || '—';
+      showToast('Payment request sent to your MMG wallet!', 'success', 6000);
+    } else { throw new Error(result.message || result.errorMessage || 'Payment was declined by MMG.'); }
+  } catch (err) {
+    console.error('MMG Payment Error:', err);
+    document.querySelector('.mmg-modal-body').classList.add('hidden');
+    document.getElementById('mmgConfirmPay').classList.add('hidden');
+    document.querySelector('.mmg-secure').classList.add('hidden');
+    document.getElementById('mmgError').classList.remove('hidden');
+    document.getElementById('mmgErrorMsg').textContent = err.message || 'Something went wrong. Please try again.';
+  } finally { payBtn.disabled = false; payText.classList.remove('hidden'); paySpinner.classList.add('hidden'); }
+}
+
+function resetMMGModal() {
+  document.getElementById('mmgError').classList.add('hidden');
+  document.querySelector('.mmg-modal-body').classList.remove('hidden');
+  document.getElementById('mmgConfirmPay').classList.remove('hidden');
+  document.querySelector('.mmg-secure').classList.remove('hidden');
 }
 
 // ── INIT ──────────────────────────────────────────────────────────────────
@@ -341,6 +442,13 @@ document.addEventListener('DOMContentLoaded', function () {
   }, { threshold: 0.35 });
 
   sections.forEach(function (s) { obs.observe(s); });
+
+  // MMG Modal Events
+  var mc = document.getElementById('mmgCloseBtn'); if (mc) mc.addEventListener('click', closeMMGModal);
+  var mo = document.getElementById('mmgOverlay'); if (mo) mo.addEventListener('click', function(e) { if (e.target === e.currentTarget) closeMMGModal(); });
+  var mcp = document.getElementById('mmgConfirmPay'); if (mcp) mcp.addEventListener('click', function(e) { e.preventDefault(); processMMGPayment(); });
+  var md = document.getElementById('mmgDoneBtn'); if (md) md.addEventListener('click', closeMMGModal);
+  var mr = document.getElementById('mmgRetryBtn'); if (mr) mr.addEventListener('click', resetMMGModal);
 
   var hash = window.location.hash;
   if (hash) {
