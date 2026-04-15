@@ -3,59 +3,57 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Livity Projects Inc. · Customer Service Dashboard</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <title>Livity Projects · Customer Service Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800;900&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <link rel="stylesheet" href="dashboard.css">
 </head>
 <body>
 
-<!-- ══════════════════ LOGIN ══════════════════ -->
+<!-- ══ LOGIN ══ -->
 <div class="login-screen" id="loginScreen">
   <div class="login-card">
     <div class="login-logo">
-      <img src="livity.jpeg" alt="Livity" class="login-logo-img">
+      <img src="images/logo.png" alt="Livity" class="login-logo-img" onerror="this.style.display='none'">
       <h1>Livity <span>Projects</span></h1>
-      <p>Customer Service Dashboard</p>
+      <p>Customer Service Dashboard · Sign In</p>
     </div>
     <div class="login-field">
       <label><i class="fas fa-envelope"></i> Email</label>
-      <input type="email" id="loginEmail" placeholder="you@livityprojects.com" autocomplete="email">
+      <input type="email" id="loginEmail" placeholder="you@livityprojects.com" autocomplete="email" onkeydown="if(event.key==='Enter')document.getElementById('loginPassword').focus()">
     </div>
     <div class="login-field">
       <label><i class="fas fa-lock"></i> Password</label>
-      <input type="password" id="loginPassword" placeholder="Enter your password" autocomplete="current-password">
+      <input type="password" id="loginPassword" placeholder="Enter your password" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
     </div>
-    <button class="login-btn" id="loginBtn">Sign In</button>
-    <div class="login-error hidden" id="loginError"></div>
+    <button class="login-btn" id="loginBtn" onclick="doLogin()">Sign In</button>
+    <div class="login-error" id="loginError" style="display:none"></div>
   </div>
 </div>
 
-<!-- ══════════════════ DASHBOARD ══════════════════ -->
-<div class="dashboard hidden" id="dashboard">
-
-  <!-- HEADER -->
+<!-- ══ DASHBOARD ══ -->
+<div class="dashboard" id="dashboard" style="display:none">
   <header class="dash-header">
     <div class="dash-brand">
-      <img src="livity.jpeg" alt="Livity" class="dash-brand-img">
+      <img src="images/logo.png" alt="Livity" class="dash-brand-img" onerror="this.style.display='none'">
       <div>
         <h2>Livity <span>Projects</span></h2>
-        <div class="dash-subtitle">Customer Service</div>
+        <div class="dash-subtitle">CUSTOMER SERVICE</div>
       </div>
     </div>
     <div class="dash-right">
       <div class="dash-time">
-        <div class="live-time" id="liveTime">--:--</div>
+        <div class="live-time" id="liveTime">--:--:--</div>
         <div class="live-date" id="liveDate"></div>
       </div>
       <div class="dash-user">
-        <div class="dash-avatar" id="dashAvatar">LP</div>
-        <div class="dash-user-info">
-          <div class="dash-name" id="dashName">Agent</div>
-          <div class="dash-role" id="dashRole">Staff</div>
+        <div>
+          <div class="dash-name" id="dashName"></div>
+          <div class="dash-role" id="dashRole"></div>
         </div>
+        <div class="dash-avatar" id="dashAvatar"></div>
+        <button class="btn-logout" id="btnLogout" onclick="doLogout()" title="Logout"><i class="fas fa-sign-out-alt"></i></button>
       </div>
-      <button class="btn-logout" id="btnLogout" title="Log out"><i class="fas fa-sign-out-alt"></i></button>
     </div>
   </header>
 
@@ -63,171 +61,141 @@
   <div class="stats-bar">
     <div class="stat-card">
       <div class="stat-icon whatsapp"><i class="fab fa-whatsapp"></i></div>
-      <div class="stat-info"><div class="stat-num" id="statWhatsapp">0</div><div class="stat-label">WhatsApp</div></div>
+      <div><div class="stat-num" id="statWhatsapp">0</div><div class="stat-label">WhatsApp</div></div>
     </div>
     <div class="stat-card">
       <div class="stat-icon messenger"><i class="fab fa-facebook-messenger"></i></div>
-      <div class="stat-info"><div class="stat-num" id="statMessenger">0</div><div class="stat-label">Messenger</div></div>
+      <div><div class="stat-num" id="statMessenger">0</div><div class="stat-label">Messenger</div></div>
     </div>
     <div class="stat-card">
       <div class="stat-icon instagram"><i class="fab fa-instagram"></i></div>
-      <div class="stat-info"><div class="stat-num" id="statInstagram">0</div><div class="stat-label">Instagram</div></div>
+      <div><div class="stat-num" id="statInstagram">0</div><div class="stat-label">Instagram</div></div>
     </div>
     <div class="stat-card">
       <div class="stat-icon tiktok"><i class="fab fa-tiktok"></i></div>
-      <div class="stat-info"><div class="stat-num" id="statTiktok">0</div><div class="stat-label">TikTok</div></div>
+      <div><div class="stat-num" id="statTiktok">0</div><div class="stat-label">TikTok</div></div>
     </div>
     <div class="stat-card total">
-      <div class="stat-icon total"><i class="fas fa-inbox"></i></div>
-      <div class="stat-info"><div class="stat-num" id="statTotal">0</div><div class="stat-label">Total</div></div>
+      <div class="stat-icon total"><i class="fas fa-comments"></i></div>
+      <div><div class="stat-num" id="statTotal">0</div><div class="stat-label">Total</div></div>
     </div>
   </div>
 
-  <!-- MAIN CONTENT -->
   <main class="dash-main">
 
     <!-- TAB SWITCHER -->
     <div class="comms-tabs">
-      <button class="comms-tab active" id="tabInbox" data-tab="inbox">
-        <i class="fas fa-inbox"></i> <span>Inbox</span>
-        <span class="tab-badge hidden" id="badgeInbox">0</span>
+      <button class="comms-tab active" id="tabInbox" data-tab="inbox" onclick="switchTab('inbox')">
+        <i class="fab fa-facebook-messenger"></i> <span>Inbox</span>
       </button>
-      <button class="comms-tab" id="tabComments" data-tab="comments">
+      <button class="comms-tab" id="tabComments" data-tab="comments" onclick="switchTab('comments')">
         <i class="fab fa-facebook"></i> <span>FB Comments</span>
-        <span class="tab-badge hidden" id="badgeComments">0</span>
       </button>
     </div>
 
     <!-- ══ INBOX PANEL ══ -->
     <div class="comms-panel" id="panelInbox">
 
-      <!-- Toolbar -->
+      <!-- TOOLBAR -->
       <div class="inbox-toolbar">
         <div class="inbox-filters" id="inboxFilters">
-          <button class="filter-chip active" data-platform="all" onclick="filterInbox('all',this)">
-            <i class="fas fa-globe"></i> All
-          </button>
-          <button class="filter-chip" data-platform="whatsapp" onclick="filterInbox('whatsapp',this)">
-            <i class="fab fa-whatsapp"></i> WhatsApp
-          </button>
-          <button class="filter-chip" data-platform="messenger" onclick="filterInbox('messenger',this)">
-            <i class="fab fa-facebook-messenger"></i> Messenger
-          </button>
-          <button class="filter-chip" data-platform="instagram" onclick="filterInbox('instagram',this)">
-            <i class="fab fa-instagram"></i> Instagram
-          </button>
-          <button class="filter-chip" data-platform="tiktok" onclick="filterInbox('tiktok',this)">
-            <i class="fab fa-tiktok"></i> TikTok
-          </button>
+          <button class="filter-chip active" onclick="filterInbox('all',this)"><i class="fas fa-globe"></i> All</button>
+          <button class="filter-chip" onclick="filterInbox('whatsapp',this)"><i class="fab fa-whatsapp"></i> WhatsApp</button>
+          <button class="filter-chip" onclick="filterInbox('messenger',this)"><i class="fab fa-facebook-messenger"></i> Messenger</button>
+          <button class="filter-chip" onclick="filterInbox('instagram',this)"><i class="fab fa-instagram"></i> Instagram</button>
+          <button class="filter-chip" onclick="filterInbox('tiktok',this)"><i class="fab fa-tiktok"></i> TikTok</button>
         </div>
         <div class="inbox-actions">
           <div class="inbox-search">
             <i class="fas fa-search"></i>
-            <input type="text" id="searchInput" placeholder="Search conversations..." oninput="searchInbox(this.value)">
+            <input type="text" placeholder="Search..." oninput="searchInbox(this.value)">
           </div>
-          <button class="btn-refresh" id="btnRefresh" onclick="fetchAllMessages()">
-            <i class="fas fa-sync-alt"></i> Refresh
-          </button>
+          <button class="btn-refresh" id="btnRefresh" onclick="fetchAllMessages()"><i class="fas fa-sync-alt"></i> Refresh</button>
         </div>
       </div>
 
-      <!-- Status Filter -->
+      <!-- STATUS FILTERS -->
       <div class="status-filters">
-        <button class="status-chip active" data-status="all" onclick="filterStatus('all',this)">All</button>
-        <button class="status-chip" data-status="new" onclick="filterStatus('new',this)">
-          <span class="status-dot new"></span> New
-        </button>
-        <button class="status-chip" data-status="in_progress" onclick="filterStatus('in_progress',this)">
-          <span class="status-dot progress"></span> In Progress
-        </button>
-        <button class="status-chip" data-status="resolved" onclick="filterStatus('resolved',this)">
-          <span class="status-dot resolved"></span> Resolved
-        </button>
+        <button class="status-chip active" onclick="filterStatus('all',this)">All</button>
+        <button class="status-chip" onclick="filterStatus('new',this)"><span class="status-dot new"></span> New</button>
+        <button class="status-chip" onclick="filterStatus('in_progress',this)"><span class="status-dot progress"></span> In Progress</button>
+        <button class="status-chip" onclick="filterStatus('resolved',this)"><span class="status-dot resolved"></span> Resolved</button>
       </div>
 
-      <!-- Inbox Container -->
+      <!-- INBOX CONTAINER -->
       <div class="inbox-container">
-
         <!-- Conversation List -->
         <div class="inbox-list" id="inboxList">
           <div class="inbox-empty">
-            <i class="fas fa-comments"></i>
-            <span>Click <strong>Refresh</strong> to load conversations</span>
+            <i class="fas fa-comments" style="font-size:2rem;opacity:.3"></i>
+            <span>Click Refresh to load conversations</span>
           </div>
         </div>
 
         <!-- Chat Panel -->
-        <div class="chat-panel" id="chatPanel">
-
+        <div class="chat-panel">
           <!-- Chat Header -->
-          <div class="chat-header hidden" id="chatHeader">
-            <button class="chat-back" id="chatBack" onclick="closeChat()"><i class="fas fa-arrow-left"></i></button>
+          <div class="chat-header" id="chatHeader" style="display:none">
+            <button class="chat-back" onclick="closeChat()"><i class="fas fa-arrow-left"></i></button>
             <div class="chat-contact">
               <div class="chat-avatar" id="chatAvatar"><i class="fas fa-user"></i></div>
-              <div class="chat-contact-info">
-                <div class="chat-contact-name" id="chatName">—</div>
+              <div>
+                <div class="chat-contact-name" id="chatName">Select a conversation</div>
                 <div class="chat-contact-platform" id="chatPlatform"></div>
               </div>
             </div>
             <div class="chat-header-actions">
               <select class="chat-status-select" id="chatStatusSelect" onchange="updateConvoStatus(this.value)">
-                <option value="new">🔵 New</option>
-                <option value="in_progress">🟡 In Progress</option>
-                <option value="resolved">🟢 Resolved</option>
+                <option value="new">New</option>
+                <option value="in_progress">In Progress</option>
+                <option value="resolved">Resolved</option>
               </select>
-              <button class="btn-icon" id="btnAssign" onclick="assignConvo()" title="Assign to me">
-                <i class="fas fa-user-check"></i>
-              </button>
+              <button class="btn-icon" onclick="assignConvo()" title="Assign to me"><i class="fas fa-user-check"></i></button>
+              <button class="btn-icon btn-delete" id="btnDelete" onclick="deleteConversation()" title="Delete conversation" style="display:none"><i class="fas fa-trash"></i></button>
             </div>
           </div>
 
           <!-- Chat Body -->
           <div class="chat-body" id="chatBody">
             <div class="chat-empty">
-              <i class="fas fa-comments"></i>
+              <i class="fas fa-comments" style="font-size:2.5rem;opacity:.2"></i>
               <span>Select a conversation<br>to view messages</span>
             </div>
           </div>
 
           <!-- Chat Reply -->
-          <div class="chat-reply hidden" id="chatReply">
+          <div class="chat-reply" id="chatReply" style="display:none">
             <div class="reply-row">
-              <input type="text" id="replyInput" placeholder="Type your reply…">
-              <button class="btn-send" id="btnSend" onclick="sendReply()" title="Send reply">
-                <i class="fas fa-paper-plane"></i>
-              </button>
+              <input type="text" id="replyInput" placeholder="Type your reply..." onkeydown="if(event.key==='Enter')sendReply()">
+              <button class="btn-send" onclick="sendReply()"><i class="fas fa-paper-plane"></i></button>
             </div>
-            <div class="reply-hint" id="replyHint">Replying via <span id="replyPlatform">—</span></div>
+            <div class="reply-hint">Replying via <span id="replyPlatform">Messenger</span></div>
           </div>
         </div>
-
       </div>
     </div>
 
-    <!-- ══ FACEBOOK COMMENTS PANEL ══ -->
-    <div class="comms-panel hidden" id="panelComments">
+    <!-- ══ COMMENTS PANEL ══ -->
+    <div class="comms-panel" id="panelComments" style="display:none">
       <div class="inbox-toolbar">
         <div class="inbox-filters" id="commentFilters">
-          <button class="filter-chip active" data-page="all" onclick="filterComments('all',this)">
-            <i class="fas fa-globe"></i> All Pages
-          </button>
+          <button class="filter-chip active" onclick="filterComments('all',this)"><i class="fas fa-globe"></i> All Pages</button>
         </div>
         <div class="inbox-actions">
           <button class="btn-refresh" onclick="fetchFbComments()"><i class="fas fa-sync-alt"></i> Refresh</button>
         </div>
       </div>
-
       <div class="comments-list" id="commentsList">
         <div class="inbox-empty">
-          <i class="fas fa-comment-dots"></i>
-          <span>Click <strong>Refresh</strong> to load Facebook comments</span>
+          <i class="fas fa-comment-dots" style="font-size:2rem;opacity:.3"></i>
+          <span>Click Refresh to load comments</span>
         </div>
       </div>
     </div>
 
     <!-- ACTIVITY LOG -->
     <div class="activity-log">
-      <div class="section-label"><i class="fas fa-history"></i> Recent Activity</div>
+      <div class="section-label"><i class="fas fa-history"></i> Activity Log</div>
       <div class="log-list" id="logList">
         <div class="log-empty">No activity recorded yet</div>
       </div>
@@ -236,7 +204,8 @@
   </main>
 
   <footer class="dash-footer">
-    &copy; 2026 Livity Projects Inc. &middot; Customer Service Dashboard
+    &copy; 2026 Livity Projects Inc. &nbsp;·&nbsp;
+    <a href="privacyPolicy.html" style="color:var(--muted);text-decoration:none">Privacy Policy</a>
   </footer>
 </div>
 
