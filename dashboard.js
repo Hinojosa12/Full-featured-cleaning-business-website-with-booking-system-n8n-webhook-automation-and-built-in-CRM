@@ -1,38 +1,20 @@
 (function () {
   "use strict";
 
-  // ══════════════════════════════════════════════════════════════════════
-  // CONFIG — Replace these webhook URLs with your actual n8n webhook URLs
-  // ══════════════════════════════════════════════════════════════════════
   var CONFIG = {
-    // Webhook that returns all conversations from all platforms
-    // Should return: { conversations: [ { id, platform, name, messages: [...], status, assignedTo, lastMessageTime } ] }
     FETCH_MESSAGES_WEBHOOK: "https://n8n-n8n.7toway.easypanel.host/webhook/livity-fetch-messages",
-
-    // Webhook to send a reply to a conversation
-    // Receives: { conversationId, platform, recipientId, message, agentName }
     SEND_REPLY_WEBHOOK: "https://n8n-n8n.7toway.easypanel.host/webhook/livity-send-reply",
-
-    // Webhook that returns Facebook page comments
-    // Should return: { comments: [ { id, postId, postTitle, userName, userAvatar, message, time, pageId, pageName } ] }
     FETCH_COMMENTS_WEBHOOK: "https://n8n-n8n.7toway.easypanel.host/webhook/livity-fetch-comments",
-
-    // Webhook to reply to a Facebook comment
-    // Receives: { commentId, postId, message, pageId }
     REPLY_COMMENT_WEBHOOK: "https://n8n-n8n.7toway.easypanel.host/webhook/livity-reply-comment",
-
-    // Webhook to update conversation status
-    // Receives: { conversationId, status, assignedTo }
     UPDATE_STATUS_WEBHOOK: "https://n8n-n8n.7toway.easypanel.host/webhook/REPLACE-UPDATE-STATUS",
+    DELETE_MESSAGES_WEBHOOK: "https://n8n-n8n.7toway.easypanel.host/webhook/livity-delete-messages",
   };
 
-  // Staff accounts (simple — replace with your own)
   var STAFF = [
     { email: "admin@livityprojects.com", password: "Livity2026!", name: "Admin", role: "Manager" },
     { email: "staff@livityprojects.com", password: "Staff2026!", name: "Staff", role: "Customer Service" },
   ];
 
-  // ══════════ STATE ══════════
   var currentUser = null;
   var conversations = [];
   var allComments = [];
@@ -42,16 +24,12 @@
   var searchQuery = "";
   var activityLog = [];
 
-  // ══════════ UTILITIES ══════════
   function $(id) { return document.getElementById(id); }
   function now() { return new Date(); }
   function timeStr(d) {
     if (!d) return "—";
     var dt = new Date(d);
     return dt.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: true });
-  }
-  function dateStr(d) {
-    return new Date(d).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" });
   }
   function initials(name) {
     if (!name) return "?";
@@ -72,14 +50,12 @@
     return labels[p] || p;
   }
 
-  // ══════════ CLOCK ══════════
   function updateClock() {
     var n = now();
     $("liveTime").textContent = n.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: true });
     $("liveDate").textContent = n.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" });
   }
 
-  // ══════════ ACTIVITY LOG ══════════
   function addLog(icon, text) {
     activityLog.unshift({ icon: icon, text: text, time: now().toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", second: "2-digit" }) });
     renderLog();
@@ -92,73 +68,64 @@
     }).join("");
   }
 
-  // ══════════ LOGIN ══════════
-  function doLogin() {
+  window.doLogin = function () {
     var email = $("loginEmail").value.trim().toLowerCase();
     var pass = $("loginPassword").value;
     var err = $("loginError");
-
     var user = null;
     for (var i = 0; i < STAFF.length; i++) {
       if (STAFF[i].email.toLowerCase() === email && STAFF[i].password === pass) { user = STAFF[i]; break; }
     }
-
-    if (!user) {
-      err.textContent = "Invalid email or password.";
-      err.classList.remove("hidden");
-      return;
-    }
-
-    err.classList.add("hidden");
+    if (!user) { err.textContent = "Invalid email or password."; err.style.display = "block"; return; }
+    err.style.display = "none";
     currentUser = user;
     try { localStorage.setItem("livity_dash_user", JSON.stringify(user)); } catch (e) {}
-
     showDashboard();
-  }
+  };
 
-  function doLogout() {
+  window.doLogout = function () {
     currentUser = null;
     try { localStorage.removeItem("livity_dash_user"); } catch (e) {}
-    $("loginScreen").classList.remove("hidden");
-    $("dashboard").classList.add("hidden");
+    $("loginScreen").style.display = "flex";
+    $("dashboard").style.display = "none";
     $("loginEmail").value = "";
     $("loginPassword").value = "";
-  }
+  };
 
   function showDashboard() {
-    $("loginScreen").classList.add("hidden");
-    $("dashboard").classList.remove("hidden");
+    $("loginScreen").style.display = "none";
+    $("dashboard").style.display = "flex";
     $("dashName").textContent = currentUser.name;
     $("dashRole").textContent = currentUser.role;
     $("dashAvatar").textContent = initials(currentUser.name);
     addLog("fas fa-sign-in-alt", currentUser.name + " signed in");
   }
 
-  // ══════════ TABS ══════════
   window.switchTab = function (tab) {
     document.querySelectorAll(".comms-tab").forEach(function (t) { t.classList.remove("active"); });
-    document.querySelector('[data-tab="' + tab + '"]').classList.add("active");
-    $("panelInbox").classList.toggle("hidden", tab !== "inbox");
-    $("panelComments").classList.toggle("hidden", tab !== "comments");
+    if (tab === "inbox") {
+      $("tabInbox").classList.add("active");
+      $("panelInbox").style.display = "block";
+      $("panelComments").style.display = "none";
+    } else {
+      $("tabComments").classList.add("active");
+      $("panelInbox").style.display = "none";
+      $("panelComments").style.display = "block";
+    }
   };
 
-  // ══════════ FETCH MESSAGES ══════════
   window.fetchAllMessages = async function () {
     var btn = $("btnRefresh");
     btn.classList.add("loading");
     btn.disabled = true;
-
     try {
       var res = await fetch(CONFIG.FETCH_MESSAGES_WEBHOOK, { method: "GET" });
       if (!res.ok) throw new Error("HTTP " + res.status);
       var data = await res.json();
-
-      // Normalize: expect { conversations: [...] } or just an array
       if (Array.isArray(data)) conversations = data;
       else if (data.conversations) conversations = data.conversations;
       else if (data.data) conversations = data.data;
       else conversations = [];
-
       updateStats();
       renderConversations();
       addLog("fas fa-download", "Loaded " + conversations.length + " conversations");
@@ -187,7 +154,6 @@
     $("statTotal").textContent = conversations.length;
   }
 
-  // ══════════ RENDER CONVERSATIONS ══════════
   function renderConversations() {
     var list = $("inboxList");
     var filtered = conversations.filter(function (c) {
@@ -200,12 +166,10 @@
       }
       return true;
     });
-
     if (!filtered.length) {
       list.innerHTML = '<div class="inbox-empty"><i class="fas fa-search"></i><span>No conversations found</span></div>';
       return;
     }
-
     list.innerHTML = filtered.map(function (c) {
       var p = (c.platform || "whatsapp").toLowerCase();
       var statusClass = (c.status === "resolved") ? "resolved" : (c.status === "in_progress") ? "progress" : "new";
@@ -213,7 +177,6 @@
       var isUnread = (c.status || "new") === "new" ? " unread" : "";
       var lastMsg = c.lastMessage || (c.messages && c.messages.length ? c.messages[c.messages.length - 1].text : "No messages");
       var lastTime = c.lastMessageTime || (c.messages && c.messages.length ? c.messages[c.messages.length - 1].time : "");
-
       return '<div class="convo-item' + isActive + isUnread + '" onclick="openConvo(\'' + c.id + '\')">'
         + '<div class="convo-avatar ' + p + '"><i class="' + platformIcon(p) + '"></i></div>'
         + '<div class="convo-info">'
@@ -227,7 +190,6 @@
     }).join("");
   }
 
-  // ══════════ FILTERS ══════════
   window.filterInbox = function (platform, btn) {
     currentPlatformFilter = platform;
     document.querySelectorAll("#inboxFilters .filter-chip").forEach(function (b) { b.classList.remove("active"); });
@@ -247,27 +209,24 @@
     renderConversations();
   };
 
-  // ══════════ OPEN CONVERSATION ══════════
   window.openConvo = function (id) {
     activeConvoId = id;
     var convo = conversations.find(function (c) { return c.id === id; });
     if (!convo) return;
-
     var p = (convo.platform || "whatsapp").toLowerCase();
 
-    // Update header
-    $("chatHeader").classList.remove("hidden");
-    $("chatReply").classList.remove("hidden");
+    $("chatHeader").style.display = "flex";
+    $("chatReply").style.display = "flex";
     $("chatName").textContent = convo.name || "Unknown";
     $("chatPlatform").textContent = platformLabel(p);
     $("chatPlatform").className = "chat-contact-platform " + p;
     $("chatAvatar").innerHTML = '<i class="' + platformIcon(p) + '"></i>';
-    $("chatAvatar").className = "chat-avatar";
-    $("chatAvatar").style.background = "";
     $("chatStatusSelect").value = convo.status || "new";
     $("replyPlatform").textContent = platformLabel(p);
 
-    // Render messages
+    var btnDelete = $("btnDelete");
+    if (btnDelete) btnDelete.style.display = "flex";
+
     var msgs = convo.messages || [];
     var body = $("chatBody");
     if (!msgs.length) {
@@ -283,33 +242,29 @@
       body.scrollTop = body.scrollHeight;
     }
 
-    // Mobile: show chat panel
     $("inboxList").classList.add("chat-open");
-    $("chatPanel").classList.add("chat-open");
-
+    document.querySelector(".chat-panel").classList.add("chat-open");
     renderConversations();
   };
 
   window.closeChat = function () {
     activeConvoId = null;
     $("inboxList").classList.remove("chat-open");
-    $("chatPanel").classList.remove("chat-open");
-    $("chatHeader").classList.add("hidden");
-    $("chatReply").classList.add("hidden");
+    document.querySelector(".chat-panel").classList.remove("chat-open");
+    $("chatHeader").style.display = "none";
+    $("chatReply").style.display = "none";
+    var btnDelete = $("btnDelete");
+    if (btnDelete) btnDelete.style.display = "none";
     $("chatBody").innerHTML = '<div class="chat-empty"><i class="fas fa-comments"></i><span>Select a conversation<br>to view messages</span></div>';
     renderConversations();
   };
 
-  // ══════════ SEND REPLY ══════════
   window.sendReply = async function () {
     var input = $("replyInput");
     var text = input.value.trim();
     if (!text || !activeConvoId) return;
-
     var convo = conversations.find(function (c) { return c.id === activeConvoId; });
     if (!convo) return;
-
-    // Add locally
     var msg = { text: text, direction: "outgoing", time: now().toISOString() };
     if (!convo.messages) convo.messages = [];
     convo.messages.push(msg);
@@ -318,10 +273,7 @@
     if (convo.status === "new") convo.status = "in_progress";
     input.value = "";
     openConvo(activeConvoId);
-
     addLog("fas fa-paper-plane", "Replied to " + (convo.name || "Unknown") + " via " + platformLabel(convo.platform));
-
-    // Send to webhook
     try {
       await fetch(CONFIG.SEND_REPLY_WEBHOOK, {
         method: "POST",
@@ -340,7 +292,28 @@
     }
   };
 
-  // ══════════ STATUS UPDATE ══════════
+  window.deleteConversation = async function () {
+    if (!activeConvoId) return;
+    var convo = conversations.find(function (c) { return c.id === activeConvoId; });
+    if (!convo) return;
+    if (!confirm('Delete conversation with ' + (convo.name || 'Unknown') + '?')) return;
+    try {
+      await fetch(CONFIG.DELETE_MESSAGES_WEBHOOK, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ senderId: convo.senderId })
+      });
+      conversations = conversations.filter(function (c) { return c.id !== activeConvoId; });
+      closeChat();
+      renderConversations();
+      updateStats();
+      addLog('fas fa-trash', 'Deleted conversation with ' + (convo.name || 'Unknown'));
+    } catch (e) {
+      console.error('Delete error:', e);
+      addLog('fas fa-exclamation-triangle', 'Failed to delete: ' + e.message);
+    }
+  };
+
   window.updateConvoStatus = async function (status) {
     if (!activeConvoId) return;
     var convo = conversations.find(function (c) { return c.id === activeConvoId; });
@@ -348,7 +321,6 @@
     convo.status = status;
     renderConversations();
     addLog("fas fa-tag", "Changed " + (convo.name || "Unknown") + " status to " + status);
-
     try {
       await fetch(CONFIG.UPDATE_STATUS_WEBHOOK, {
         method: "POST",
@@ -366,7 +338,6 @@
     addLog("fas fa-user-check", "Assigned " + (convo.name || "Unknown") + " to " + currentUser.name);
   };
 
-  // ══════════ FACEBOOK COMMENTS ══════════
   window.fetchFbComments = async function () {
     try {
       var res = await fetch(CONFIG.FETCH_COMMENTS_WEBHOOK, { method: "GET" });
@@ -416,22 +387,15 @@
     var input = $("commentReplyInput" + i);
     var text = input.value.trim();
     if (!text) return;
-
     var comment = allComments[i];
     addLog("fab fa-facebook", "Replied to comment by " + (comment.userName || "Unknown"));
     input.value = "";
     $("commentReply" + i).classList.remove("show");
-
     try {
       await fetch(CONFIG.REPLY_COMMENT_WEBHOOK, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          commentId: comment.id,
-          postId: comment.postId,
-          message: text,
-          pageId: comment.pageId || "",
-        }),
+        body: JSON.stringify({ commentId: comment.id, postId: comment.postId, message: text, pageId: comment.pageId || "" }),
       });
     } catch (e) { console.error(e); }
   };
@@ -442,29 +406,9 @@
     renderComments();
   };
 
-  // ══════════ INIT ══════════
   function init() {
-    // Clock
     updateClock();
     setInterval(updateClock, 1000);
-
-    // Login events
-    $("loginBtn").addEventListener("click", doLogin);
-    $("loginPassword").addEventListener("keydown", function (e) { if (e.key === "Enter") doLogin(); });
-    $("loginEmail").addEventListener("keydown", function (e) { if (e.key === "Enter") $("loginPassword").focus(); });
-
-    // Logout
-    $("btnLogout").addEventListener("click", doLogout);
-
-    // Tab switching
-    document.querySelectorAll(".comms-tab").forEach(function (tab) {
-      tab.addEventListener("click", function () { switchTab(tab.dataset.tab); });
-    });
-
-    // Reply on Enter
-    $("replyInput").addEventListener("keydown", function (e) { if (e.key === "Enter") sendReply(); });
-
-    // Check saved session
     try {
       var saved = localStorage.getItem("livity_dash_user");
       if (saved) {
