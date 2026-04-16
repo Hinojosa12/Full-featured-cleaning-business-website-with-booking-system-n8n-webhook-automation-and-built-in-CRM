@@ -39,11 +39,23 @@
     d.textContent = s;
     return d.innerHTML;
   }
+  // Detectar plataforma para icono y color (ampliado para Messenger)
+  function getPlatformType(platform) {
+    var p = (platform || "").toLowerCase();
+    if (p.includes("messenger") || p.includes("facebook") || p === "fb") return "messenger";
+    if (p.includes("instagram") || p === "ig") return "instagram";
+    return "other";
+  }
   function platformIcon(p) {
-    return p === "messenger" ? "fab fa-facebook-messenger" : "fab fa-instagram";
+    var type = getPlatformType(p);
+    return type === "messenger" ? "fab fa-facebook-messenger" : "fab fa-instagram";
   }
   function platformLabel(p) {
-    return p === "messenger" ? "Messenger" : "Instagram";
+    var type = getPlatformType(p);
+    return type === "messenger" ? "Messenger" : "Instagram";
+  }
+  function platformClass(p) {
+    return getPlatformType(p);
   }
 
   function updateClock() {
@@ -110,11 +122,9 @@
     }
   };
 
+  // AHORA SIN FILTRO: mostramos todas las conversaciones (como antes)
   function filterAllowedConversations(convs) {
-    return convs.filter(function(c) {
-      var p = (c.platform || "").toLowerCase();
-      return p === "messenger" || p === "instagram";
-    });
+    return convs;
   }
 
   window.fetchAllMessages = async function () {
@@ -143,10 +153,12 @@
   };
 
   function updateStats() {
+    // Contamos solo Messenger e Instagram para las tarjetas, pero el total muestra todo
     var counts = { messenger: 0, instagram: 0 };
     conversations.forEach(function (c) {
-      var p = (c.platform || "").toLowerCase();
-      if (counts[p] !== undefined) counts[p]++;
+      var type = getPlatformType(c.platform);
+      if (type === "messenger") counts.messenger++;
+      if (type === "instagram") counts.instagram++;
     });
     $("statMessenger").textContent = counts.messenger;
     $("statInstagram").textContent = counts.instagram;
@@ -156,8 +168,11 @@
   function renderConversations() {
     var list = $("inboxList");
     var filtered = conversations.filter(function (c) {
-      var p = (c.platform || "").toLowerCase();
-      if (currentPlatformFilter !== "all" && p !== currentPlatformFilter) return false;
+      var type = getPlatformType(c.platform);
+      if (currentPlatformFilter !== "all") {
+        if (currentPlatformFilter === "messenger" && type !== "messenger") return false;
+        if (currentPlatformFilter === "instagram" && type !== "instagram") return false;
+      }
       if (searchQuery) {
         var q = searchQuery.toLowerCase();
         return (c.name || "").toLowerCase().includes(q) || (c.lastMessage || "").toLowerCase().includes(q);
@@ -169,12 +184,12 @@
       return;
     }
     list.innerHTML = filtered.map(function (c) {
-      var p = (c.platform || "messenger").toLowerCase();
+      var type = getPlatformType(c.platform);
       var isActive = c.id === activeConvoId ? " active" : "";
       var lastMsg = c.lastMessage || (c.messages && c.messages.length ? c.messages[c.messages.length-1].text : "No messages");
       var lastTime = c.lastMessageTime || (c.messages && c.messages.length ? c.messages[c.messages.length-1].time : "");
       return '<div class="convo-item' + isActive + '" onclick="openConvo(\'' + c.id + '\')">'
-        + '<div class="convo-avatar ' + p + '"><i class="' + platformIcon(p) + '"></i></div>'
+        + '<div class="convo-avatar ' + type + '"><i class="' + platformIcon(c.platform) + '"></i></div>'
         + '<div class="convo-info">'
         + '<div class="convo-name">' + escHtml(c.name || "Unknown") + '</div>'
         + '<div class="convo-preview">' + escHtml(lastMsg).substring(0, 50) + '</div>'
@@ -201,15 +216,15 @@
     activeConvoId = id;
     var convo = conversations.find(function (c) { return c.id === id; });
     if (!convo) return;
-    var p = (convo.platform || "messenger").toLowerCase();
+    var type = getPlatformType(convo.platform);
 
     $("chatHeader").style.display = "flex";
     $("chatReply").style.display = "flex";
     $("chatName").textContent = convo.name || "Unknown";
-    $("chatPlatform").textContent = platformLabel(p);
-    $("chatPlatform").className = "chat-contact-platform " + p;
-    $("chatAvatar").innerHTML = '<i class="' + platformIcon(p) + '"></i>';
-    $("replyPlatform").textContent = platformLabel(p);
+    $("chatPlatform").textContent = platformLabel(convo.platform);
+    $("chatPlatform").className = "chat-contact-platform " + type;
+    $("chatAvatar").innerHTML = '<i class="' + platformIcon(convo.platform) + '"></i>';
+    $("replyPlatform").textContent = platformLabel(convo.platform);
     var btnDelete = $("btnDelete");
     if (btnDelete) btnDelete.style.display = "flex";
 
