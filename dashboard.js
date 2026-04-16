@@ -6,7 +6,6 @@
     SEND_REPLY_WEBHOOK: "https://n8n-n8n.7toway.easypanel.host/webhook/livity-send-reply",
     FETCH_COMMENTS_WEBHOOK: "https://n8n-n8n.7toway.easypanel.host/webhook/livity-fetch-comments",
     REPLY_COMMENT_WEBHOOK: "https://n8n-n8n.7toway.easypanel.host/webhook/livity-reply-comment",
-    UPDATE_STATUS_WEBHOOK: "https://n8n-n8n.7toway.easypanel.host/webhook/REPLACE-UPDATE-STATUS",
     DELETE_MESSAGES_WEBHOOK: "https://n8n-n8n.7toway.easypanel.host/webhook/livity-delete-messages",
   };
 
@@ -20,7 +19,6 @@
   var allComments = [];
   var activeConvoId = null;
   var currentPlatformFilter = "all";
-  var currentStatusFilter = "all";
   var searchQuery = "";
   var activityLog = [];
 
@@ -42,12 +40,10 @@
     return d.innerHTML;
   }
   function platformIcon(p) {
-    var icons = { whatsapp: "fab fa-whatsapp", messenger: "fab fa-facebook-messenger", instagram: "fab fa-instagram", tiktok: "fab fa-tiktok" };
-    return icons[p] || "fas fa-comment";
+    return p === "messenger" ? "fab fa-facebook-messenger" : "fab fa-instagram";
   }
   function platformLabel(p) {
-    var labels = { whatsapp: "WhatsApp", messenger: "Messenger", instagram: "Instagram", tiktok: "TikTok" };
-    return labels[p] || p;
+    return p === "messenger" ? "Messenger" : "Instagram";
   }
 
   function updateClock() {
@@ -114,6 +110,13 @@
     }
   };
 
+  function filterAllowedConversations(convs) {
+    return convs.filter(function(c) {
+      var p = (c.platform || "").toLowerCase();
+      return p === "messenger" || p === "instagram";
+    });
+  }
+
   window.fetchAllMessages = async function () {
     var btn = $("btnRefresh");
     btn.classList.add("loading");
@@ -122,10 +125,8 @@
       var res = await fetch(CONFIG.FETCH_MESSAGES_WEBHOOK, { method: "GET" });
       if (!res.ok) throw new Error("HTTP " + res.status);
       var data = await res.json();
-      if (Array.isArray(data)) conversations = data;
-      else if (data.conversations) conversations = data.conversations;
-      else if (data.data) conversations = data.data;
-      else conversations = [];
+      var raw = Array.isArray(data) ? data : (data.conversations || data.data || []);
+      conversations = filterAllowedConversations(raw);
       updateStats();
       renderConversations();
       addLog("fas fa-download", "Loaded " + conversations.length + " conversations");
@@ -142,15 +143,13 @@
   };
 
   function updateStats() {
-    var counts = { whatsapp: 0, messenger: 0, instagram: 0, tiktok: 0 };
+    var counts = { messenger: 0, instagram: 0 };
     conversations.forEach(function (c) {
       var p = (c.platform || "").toLowerCase();
       if (counts[p] !== undefined) counts[p]++;
     });
-    $("statWhatsapp").textContent = counts.whatsapp;
     $("statMessenger").textContent = counts.messenger;
     $("statInstagram").textContent = counts.instagram;
-    $("statTiktok").textContent = counts.tiktok;
     $("statTotal").textContent = conversations.length;
   }
 
@@ -159,7 +158,6 @@
     var filtered = conversations.filter(function (c) {
       var p = (c.platform || "").toLowerCase();
       if (currentPlatformFilter !== "all" && p !== currentPlatformFilter) return false;
-      if (currentStatusFilter !== "all" && (c.status || "new") !== currentStatusFilter) return false;
       if (searchQuery) {
         var q = searchQuery.toLowerCase();
         return (c.name || "").toLowerCase().includes(q) || (c.lastMessage || "").toLowerCase().includes(q);
@@ -171,13 +169,11 @@
       return;
     }
     list.innerHTML = filtered.map(function (c) {
-      var p = (c.platform || "whatsapp").toLowerCase();
-      var statusClass = (c.status === "resolved") ? "resolved" : (c.status === "in_progress") ? "progress" : "new";
+      var p = (c.platform || "messenger").toLowerCase();
       var isActive = c.id === activeConvoId ? " active" : "";
-      var isUnread = (c.status || "new") === "new" ? " unread" : "";
-      var lastMsg = c.lastMessage || (c.messages && c.messages.length ? c.messages[c.messages.length - 1].text : "No messages");
-      var lastTime = c.lastMessageTime || (c.messages && c.messages.length ? c.messages[c.messages.length - 1].time : "");
-      return '<div class="convo-item' + isActive + isUnread + '" onclick="openConvo(\'' + c.id + '\')">'
+      var lastMsg = c.lastMessage || (c.messages && c.messages.length ? c.messages[c.messages.length-1].text : "No messages");
+      var lastTime = c.lastMessageTime || (c.messages && c.messages.length ? c.messages[c.messages.length-1].time : "");
+      return '<div class="convo-item' + isActive + '" onclick="openConvo(\'' + c.id + '\')">'
         + '<div class="convo-avatar ' + p + '"><i class="' + platformIcon(p) + '"></i></div>'
         + '<div class="convo-info">'
         + '<div class="convo-name">' + escHtml(c.name || "Unknown") + '</div>'
@@ -185,7 +181,6 @@
         + '</div>'
         + '<div class="convo-meta">'
         + '<div class="convo-time">' + timeStr(lastTime) + '</div>'
-        + '<div class="convo-status-dot status-dot ' + statusClass + '"></div>'
         + '</div></div>';
     }).join("");
   }
@@ -193,13 +188,6 @@
   window.filterInbox = function (platform, btn) {
     currentPlatformFilter = platform;
     document.querySelectorAll("#inboxFilters .filter-chip").forEach(function (b) { b.classList.remove("active"); });
-    btn.classList.add("active");
-    renderConversations();
-  };
-
-  window.filterStatus = function (status, btn) {
-    currentStatusFilter = status;
-    document.querySelectorAll(".status-chip").forEach(function (b) { b.classList.remove("active"); });
     btn.classList.add("active");
     renderConversations();
   };
@@ -213,7 +201,7 @@
     activeConvoId = id;
     var convo = conversations.find(function (c) { return c.id === id; });
     if (!convo) return;
-    var p = (convo.platform || "whatsapp").toLowerCase();
+    var p = (convo.platform || "messenger").toLowerCase();
 
     $("chatHeader").style.display = "flex";
     $("chatReply").style.display = "flex";
@@ -221,9 +209,7 @@
     $("chatPlatform").textContent = platformLabel(p);
     $("chatPlatform").className = "chat-contact-platform " + p;
     $("chatAvatar").innerHTML = '<i class="' + platformIcon(p) + '"></i>';
-    $("chatStatusSelect").value = convo.status || "new";
     $("replyPlatform").textContent = platformLabel(p);
-
     var btnDelete = $("btnDelete");
     if (btnDelete) btnDelete.style.display = "flex";
 
@@ -270,7 +256,6 @@
     convo.messages.push(msg);
     convo.lastMessage = text;
     convo.lastMessageTime = msg.time;
-    if (convo.status === "new") convo.status = "in_progress";
     input.value = "";
     openConvo(activeConvoId);
     addLog("fas fa-paper-plane", "Replied to " + (convo.name || "Unknown") + " via " + platformLabel(convo.platform));
@@ -312,22 +297,6 @@
       console.error('Delete error:', e);
       addLog('fas fa-exclamation-triangle', 'Failed to delete: ' + e.message);
     }
-  };
-
-  window.updateConvoStatus = async function (status) {
-    if (!activeConvoId) return;
-    var convo = conversations.find(function (c) { return c.id === activeConvoId; });
-    if (!convo) return;
-    convo.status = status;
-    renderConversations();
-    addLog("fas fa-tag", "Changed " + (convo.name || "Unknown") + " status to " + status);
-    try {
-      await fetch(CONFIG.UPDATE_STATUS_WEBHOOK, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ conversationId: convo.id, status: status, assignedTo: currentUser ? currentUser.name : "" }),
-      });
-    } catch (e) { console.error(e); }
   };
 
   window.assignConvo = function () {
