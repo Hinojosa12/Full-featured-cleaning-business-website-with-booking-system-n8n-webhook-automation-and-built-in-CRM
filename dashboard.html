@@ -4,13 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Livity Projects · Customer Service Dashboard</title>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800;900&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <link rel="stylesheet" href="dashboard.css">
 </head>
 <body>
 
-<!-- ══ LOGIN ══ -->
+<!-- LOGIN SCREEN -->
 <div class="login-screen" id="loginScreen">
   <div class="login-card">
     <div class="login-logo">
@@ -31,7 +31,7 @@
   </div>
 </div>
 
-<!-- ══ DASHBOARD ══ -->
+<!-- DASHBOARD -->
 <div class="dashboard" id="dashboard" style="display:none">
   <header class="dash-header">
     <div class="dash-brand">
@@ -57,12 +57,8 @@
     </div>
   </header>
 
-  <!-- STATS BAR -->
+  <!-- STATS BAR (only Messenger & Instagram) -->
   <div class="stats-bar">
-    <div class="stat-card">
-      <div class="stat-icon whatsapp"><i class="fab fa-whatsapp"></i></div>
-      <div><div class="stat-num" id="statWhatsapp">0</div><div class="stat-label">WhatsApp</div></div>
-    </div>
     <div class="stat-card">
       <div class="stat-icon messenger"><i class="fab fa-facebook-messenger"></i></div>
       <div><div class="stat-num" id="statMessenger">0</div><div class="stat-label">Messenger</div></div>
@@ -71,10 +67,6 @@
       <div class="stat-icon instagram"><i class="fab fa-instagram"></i></div>
       <div><div class="stat-num" id="statInstagram">0</div><div class="stat-label">Instagram</div></div>
     </div>
-    <div class="stat-card">
-      <div class="stat-icon tiktok"><i class="fab fa-tiktok"></i></div>
-      <div><div class="stat-num" id="statTiktok">0</div><div class="stat-label">TikTok</div></div>
-    </div>
     <div class="stat-card total">
       <div class="stat-icon total"><i class="fas fa-comments"></i></div>
       <div><div class="stat-num" id="statTotal">0</div><div class="stat-label">Total</div></div>
@@ -82,8 +74,7 @@
   </div>
 
   <main class="dash-main">
-
-    <!-- TAB SWITCHER -->
+    <!-- TABS -->
     <div class="comms-tabs">
       <button class="comms-tab active" id="tabInbox" data-tab="inbox" onclick="switchTab('inbox')">
         <i class="fab fa-facebook-messenger"></i> <span>Inbox</span>
@@ -93,17 +84,13 @@
       </button>
     </div>
 
-    <!-- ══ INBOX PANEL ══ -->
+    <!-- INBOX PANEL -->
     <div class="comms-panel" id="panelInbox">
-
-      <!-- TOOLBAR -->
       <div class="inbox-toolbar">
         <div class="inbox-filters" id="inboxFilters">
           <button class="filter-chip active" onclick="filterInbox('all',this)"><i class="fas fa-globe"></i> All</button>
-          <button class="filter-chip" onclick="filterInbox('whatsapp',this)"><i class="fab fa-whatsapp"></i> WhatsApp</button>
           <button class="filter-chip" onclick="filterInbox('messenger',this)"><i class="fab fa-facebook-messenger"></i> Messenger</button>
           <button class="filter-chip" onclick="filterInbox('instagram',this)"><i class="fab fa-instagram"></i> Instagram</button>
-          <button class="filter-chip" onclick="filterInbox('tiktok',this)"><i class="fab fa-tiktok"></i> TikTok</button>
         </div>
         <div class="inbox-actions">
           <div class="inbox-search">
@@ -114,27 +101,13 @@
         </div>
       </div>
 
-      <!-- STATUS FILTERS -->
-      <div class="status-filters">
-        <button class="status-chip active" onclick="filterStatus('all',this)">All</button>
-        <button class="status-chip" onclick="filterStatus('new',this)"><span class="status-dot new"></span> New</button>
-        <button class="status-chip" onclick="filterStatus('in_progress',this)"><span class="status-dot progress"></span> In Progress</button>
-        <button class="status-chip" onclick="filterStatus('resolved',this)"><span class="status-dot resolved"></span> Resolved</button>
-      </div>
-
       <!-- INBOX CONTAINER -->
       <div class="inbox-container">
-        <!-- Conversation List -->
         <div class="inbox-list" id="inboxList">
-          <div class="inbox-empty">
-            <i class="fas fa-comments" style="font-size:2rem;opacity:.3"></i>
-            <span>Click Refresh to load conversations</span>
-          </div>
+          <div class="inbox-empty"><i class="fas fa-comments"></i><span>Click Refresh to load conversations</span></div>
         </div>
 
-        <!-- Chat Panel -->
         <div class="chat-panel">
-          <!-- Chat Header -->
           <div class="chat-header" id="chatHeader" style="display:none">
             <button class="chat-back" onclick="closeChat()"><i class="fas fa-arrow-left"></i></button>
             <div class="chat-contact">
@@ -145,25 +118,13 @@
               </div>
             </div>
             <div class="chat-header-actions">
-              <select class="chat-status-select" id="chatStatusSelect" onchange="updateConvoStatus(this.value)">
-                <option value="new">New</option>
-                <option value="in_progress">In Progress</option>
-                <option value="resolved">Resolved</option>
-              </select>
               <button class="btn-icon" onclick="assignConvo()" title="Assign to me"><i class="fas fa-user-check"></i></button>
               <button class="btn-icon btn-delete" id="btnDelete" onclick="deleteConversation()" title="Delete conversation" style="display:none"><i class="fas fa-trash"></i></button>
             </div>
           </div>
-
-          <!-- Chat Body -->
           <div class="chat-body" id="chatBody">
-            <div class="chat-empty">
-              <i class="fas fa-comments" style="font-size:2.5rem;opacity:.2"></i>
-              <span>Select a conversation<br>to view messages</span>
-            </div>
+            <div class="chat-empty"><i class="fas fa-comments"></i><span>Select a conversation<br>to view messages</span></div>
           </div>
-
-          <!-- Chat Reply -->
           <div class="chat-reply" id="chatReply" style="display:none">
             <div class="reply-row">
               <input type="text" id="replyInput" placeholder="Type your reply..." onkeydown="if(event.key==='Enter')sendReply()">
@@ -175,7 +136,7 @@
       </div>
     </div>
 
-    <!-- ══ COMMENTS PANEL ══ -->
+    <!-- COMMENTS PANEL -->
     <div class="comms-panel" id="panelComments" style="display:none">
       <div class="inbox-toolbar">
         <div class="inbox-filters" id="commentFilters">
@@ -186,27 +147,17 @@
         </div>
       </div>
       <div class="comments-list" id="commentsList">
-        <div class="inbox-empty">
-          <i class="fas fa-comment-dots" style="font-size:2rem;opacity:.3"></i>
-          <span>Click Refresh to load comments</span>
-        </div>
+        <div class="inbox-empty"><i class="fas fa-comment-dots"></i><span>Click Refresh to load comments</span></div>
       </div>
     </div>
 
     <!-- ACTIVITY LOG -->
     <div class="activity-log">
       <div class="section-label"><i class="fas fa-history"></i> Activity Log</div>
-      <div class="log-list" id="logList">
-        <div class="log-empty">No activity recorded yet</div>
-      </div>
+      <div class="log-list" id="logList"><div class="log-empty">No activity recorded yet</div></div>
     </div>
-
   </main>
-
-  <footer class="dash-footer">
-    &copy; 2026 Livity Projects Inc. &nbsp;·&nbsp;
-    <a href="privacyPolicy.html" style="color:var(--muted);text-decoration:none">Privacy Policy</a>
-  </footer>
+  <footer class="dash-footer">&copy; 2026 Livity Projects Inc. &nbsp;·&nbsp; <a href="privacyPolicy.html" style="color:var(--muted);text-decoration:none">Privacy Policy</a></footer>
 </div>
 
 <script src="dashboard.js"></script>
