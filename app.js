@@ -5,21 +5,7 @@
   const CONFIG = {
     WEBHOOK_URL: "https://n8n-n8n.7toway.easypanel.host/webhook/0e6a220e-8739-4db7-9770-cd6f4a4c35f4",
     SERVICES_PAGE: "standardhomecleaning.html",
-
-    // ┌──────────────────────────────────────────────────────────────────┐
-    // │  MMG PAYMENT WEBHOOK                                            │
-    // │                                                                  │
-    // │  REPLACE THIS URL with your n8n payment webhook URL.            │
-    // │  Create a new workflow in n8n with:                              │
-    // │    1. Webhook node (POST)                                       │
-    // │    2. MMG Login node (HTTP Request)                              │
-    // │    3. MMG Payment node (HTTP Request)                            │
-    // │    4. Respond to Webhook node (returns transactionId)           │
-    // │                                                                  │
-    // │  The page sends: { customerPhone, amount, currency, servicio }  │
-    // │  n8n should return: { success:true, transactionId:"..." }       │
-    // └──────────────────────────────────────────────────────────────────┘
-    MMG_PAYMENT_WEBHOOK: "https://n8n-n8n.7toway.easypanel.host/webhook/mmg-payment",
+    MMG_CHECKOUT_WEBHOOK: "https://n8n-n8n.7toway.easypanel.host/webhook/mmg-generate-checkout",
   };
 
   const servicesData = {
@@ -199,7 +185,23 @@
     var btn = document.getElementById("btnReservar"), bt = document.getElementById("btnReservarText"), bs = document.getElementById("btnReservarSpinner");
     btn.disabled = true; if (bt) bt.classList.add("hidden"); if (bs) bs.classList.remove("hidden");
     var sk = document.getElementById("servicio").value, sd = servicesData[sk] || {}, fv = document.getElementById("fechaSeleccionada").value;
-    var payload = { nombre: document.getElementById("nombre").value.trim(), email: document.getElementById("email").value.trim(), telefono: document.getElementById("telefono").value.trim(), servicioKey: sk, servicio: sd.name || sk, categoria: sd.category || "", precio: sd.price || "Quote on visit", fechaHora: fv + "T09:00", fecha: fv, horario: "09:00", direccion: document.getElementById("direccion").value.trim(), notas: (document.getElementById("notas") ? document.getElementById("notas").value.trim() : ""), cantidad: null, sqft: null, pickup: null, tipoMudanza: null, timestamp: new Date().toISOString(), source: "index.html" };
+    var payload = {
+      nombre: document.getElementById("nombre").value.trim(),
+      email: document.getElementById("email").value.trim(),
+      telefono: document.getElementById("telefono").value.trim(),
+      servicioKey: sk,
+      servicio: sd.name || sk,
+      categoria: sd.category || "",
+      precio: sd.price || "Quote on visit",
+      fechaHora: fv + "T09:00",
+      fecha: fv,
+      horario: "09:00",
+      direccion: document.getElementById("direccion").value.trim(),
+      notas: (document.getElementById("notas") ? document.getElementById("notas").value.trim() : ""),
+      cantidad: null, sqft: null, pickup: null, tipoMudanza: null,
+      timestamp: new Date().toISOString(),
+      source: "index.html"
+    };
     saveBooking(Object.assign({}, payload, { status: "pending" })); renderCRM();
     try { await fetch(CONFIG.WEBHOOK_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) }); } catch (err) { console.error("Webhook:", err); }
     lastBookingPayload = payload; showSuccess(payload);
@@ -216,12 +218,17 @@
     document.getElementById("reciboDireccion2").textContent = p.direccion;
     var precioEl = document.getElementById("reciboPrecio2"); if (precioEl) precioEl.textContent = p.precio;
     var mmgBtn = document.getElementById("btnPayMMG"), mmgLabel = document.getElementById("mmgAmountLabel");
-    if (isFixedPrice(p.precio)) { mmgBtn.classList.remove("mmg-disabled"); mmgBtn.disabled = false; mmgLabel.textContent = p.precio + " GYD"; }
-    else { mmgBtn.classList.add("mmg-disabled"); mmgBtn.disabled = true; mmgLabel.textContent = "Quote required"; }
+    if (isFixedPrice(p.precio)) {
+      mmgBtn.classList.remove("mmg-disabled"); mmgBtn.disabled = false;
+      mmgLabel.textContent = p.precio + " GYD";
+    } else {
+      mmgBtn.classList.add("mmg-disabled"); mmgBtn.disabled = true;
+      mmgLabel.textContent = "Quote required";
+    }
     setStep(2); showToast("Booking submitted! You'll receive a WhatsApp confirmation shortly.", "success", 6000);
   }
 
-  // ── MMG PAYMENT (routed through n8n webhook) ─────────────────────────────
+  // ── MMG CHECKOUT (redirects to MMG payment page) ─────────────────────────
   function openMMGModal() {
     if (!lastBookingPayload) return;
     var amount = parsePrice(lastBookingPayload.precio);
@@ -238,43 +245,77 @@
     document.body.style.overflow = "hidden";
   }
 
-  function closeMMGModal() { document.getElementById("mmgOverlay").classList.remove("active"); document.body.style.overflow = ""; }
+  function closeMMGModal() {
+    document.getElementById("mmgOverlay").classList.remove("active");
+    document.body.style.overflow = "";
+  }
 
   async function processMMGPayment() {
     var phoneInput = document.getElementById("mmgPhone");
     var phone = phoneInput.value.trim().replace(/\s/g, "");
-    if (!phone || phone.length < 6) { phoneInput.classList.add("field-error"); showToast("Please enter a valid MMG wallet number.", "error"); return; }
+    if (!phone || phone.length < 6) {
+      phoneInput.classList.add("field-error");
+      showToast("Please enter a valid MMG wallet number.", "error");
+      return;
+    }
     phoneInput.classList.remove("field-error");
-    var amount = parsePrice(lastBookingPayload.precio);
-    if (!amount) { showToast("Cannot determine payment amount.", "error"); return; }
 
-    var payBtn = document.getElementById("mmgConfirmPay"), payText = document.getElementById("mmgPayText"), paySpinner = document.getElementById("mmgPaySpinner");
-    payBtn.disabled = true; payText.classList.add("hidden"); paySpinner.classList.remove("hidden");
+    var payBtn = document.getElementById("mmgConfirmPay");
+    var payText = document.getElementById("mmgPayText");
+    var paySpinner = document.getElementById("mmgPaySpinner");
+    payBtn.disabled = true;
+    payText.classList.add("hidden");
+    paySpinner.classList.remove("hidden");
 
     try {
-      var paymentPayload = { action: "mmg_payment", customerPhone: phone, amount: amount.toFixed(2), currency: "GYD", servicio: lastBookingPayload.servicio, nombre: lastBookingPayload.nombre, email: lastBookingPayload.email, fecha: lastBookingPayload.fecha };
-      var response = await fetch(CONFIG.MMG_PAYMENT_WEBHOOK, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(paymentPayload) });
-      if (!response.ok) { var errorText = await response.text(); throw new Error("Server error: " + (errorText || response.status)); }
-      var result = await response.json();
-      if (result.success || result.transactionId || result.statusCode === "1000") {
-        document.querySelector(".mmg-modal-body").classList.add("hidden");
-        document.getElementById("mmgConfirmPay").classList.add("hidden");
-        document.querySelector(".mmg-secure").classList.add("hidden");
-        document.getElementById("mmgSuccess").classList.remove("hidden");
-        document.getElementById("mmgTxnId").textContent = result.transactionId || result.serverCorrelationId || "—";
-        setStep(3); showToast("Payment request sent to your MMG wallet!", "success", 6000);
-      } else { throw new Error(result.message || result.errorMessage || "Payment was declined by MMG."); }
+      var response = await fetch(CONFIG.MMG_CHECKOUT_WEBHOOK, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          nombre:    lastBookingPayload.nombre,
+          email:     lastBookingPayload.email,
+          telefono:  phone,
+          servicio:  lastBookingPayload.servicio,
+          precio:    lastBookingPayload.precio,
+          fecha:     lastBookingPayload.fecha,
+          direccion: lastBookingPayload.direccion,
+          categoria: lastBookingPayload.categoria
+        })
+      });
+
+      if (!response.ok) throw new Error("Error generating payment URL");
+
+      var data = await response.json();
+
+      if (!data.checkoutUrl) throw new Error("No checkout URL received");
+
+      // ── Redirigir al cliente a la página de pago de MMG ──
+      closeMMGModal();
+      showToast("Redirecting to MMG payment page...", "info", 3000);
+      setTimeout(function() {
+        window.location.href = data.checkoutUrl;
+      }, 800);
+
     } catch (err) {
-      console.error("MMG Payment Error:", err);
+      console.error("MMG Checkout Error:", err);
       document.querySelector(".mmg-modal-body").classList.add("hidden");
       document.getElementById("mmgConfirmPay").classList.add("hidden");
       document.querySelector(".mmg-secure").classList.add("hidden");
       document.getElementById("mmgError").classList.remove("hidden");
       document.getElementById("mmgErrorMsg").textContent = err.message || "Something went wrong. Please try again.";
-    } finally { payBtn.disabled = false; payText.classList.remove("hidden"); paySpinner.classList.add("hidden"); }
+    } finally {
+      payBtn.disabled = false;
+      payText.classList.remove("hidden");
+      paySpinner.classList.add("hidden");
+    }
   }
 
-  function resetMMGModal() { document.getElementById("mmgError").classList.add("hidden"); document.querySelector(".mmg-modal-body").classList.remove("hidden"); document.getElementById("mmgConfirmPay").classList.remove("hidden"); document.querySelector(".mmg-secure").classList.remove("hidden"); }
+  function resetMMGModal() {
+    document.getElementById("mmgError").classList.add("hidden");
+    document.querySelector(".mmg-modal-body").classList.remove("hidden");
+    document.getElementById("mmgConfirmPay").classList.remove("hidden");
+    document.querySelector(".mmg-secure").classList.remove("hidden");
+  }
 
   function animateCounters() {
     document.querySelectorAll(".stat-number[data-target]").forEach(function(el) {
