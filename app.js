@@ -53,7 +53,7 @@
   };
 
   const availableDates = {
-    "Steam Cleaning":       ["2026-4-28","2026-4-29","2026-4-30","2026-4-28","2026-4-29","2026-4-20"],
+    "Steam Cleaning":       ["2026-4-28","2026-4-29","2026-4-30","2026-4-28","2026-4-29","2026-4-30"],
     "Carpet Cleaning":      ["2026-4-28","2026-4-29","2026-4-30","2026-4-28","2026-4-29","2026-4-30"],
     "Pressure Washing":     ["2026-4-28","2026-4-29","2026-4-30"],
     "Residential Cleaning": ["2026-4-28","2026-4-29","2026-4-30"],
@@ -87,9 +87,13 @@
         showToast("✓ Payment confirmed! Your booking is now confirmed.", "success", 7000);
         var pendingEmail = sessionStorage.getItem('mmg_pending_email');
         sessionStorage.removeItem('mmg_pending_email');
-        setTimeout(function() { loadBookingsFromSheets(pendingEmail); }, 1500);
-        var crm = document.querySelector(".crm-section");
-        if (crm) setTimeout(function(){ crm.scrollIntoView({ behavior: "smooth", block: "start" }); }, 800);
+        if (pendingEmail) {
+          setTimeout(function() { loadBookingsFromSheets(pendingEmail); }, 1500);
+          var crm = document.querySelector(".crm-section");
+          if (crm) setTimeout(function(){ crm.scrollIntoView({ behavior: "smooth", block: "start" }); }, 800);
+        } else {
+          showToast("✓ Payment confirmed! Submit a new booking to see your history.", "success", 7000);
+        }
       } else if (data.resultCode === "6") {
         showToast("Payment was cancelled. You can try again.", "error", 6000);
       } else {
