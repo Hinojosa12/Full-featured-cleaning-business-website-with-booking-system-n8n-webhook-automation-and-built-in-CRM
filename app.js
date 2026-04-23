@@ -6,6 +6,8 @@
     WEBHOOK_URL: "https://n8n-n8n.7toway.easypanel.host/webhook/0e6a220e-8739-4db7-9770-cd6f4a4c35f4",
     SERVICES_PAGE: "standardhomecleaning.html",
     MMG_CHECKOUT_WEBHOOK: "https://n8n-n8n.7toway.easypanel.host/webhook/mmg-generate-checkout",
+    MMG_VERIFY_WEBHOOK:   "https://n8n-n8n.7toway.easypanel.host/webhook/mmg-verify-payment",
+    GET_BOOKINGS_WEBHOOK: "https://n8n-n8n.7toway.easypanel.host/webhook/get-bookings",
   };
 
   const servicesData = {
@@ -51,20 +53,76 @@
   };
 
   const availableDates = {
-    "Steam Cleaning":       ["2026-3-28","2026-4-29","2026-3-30","2026-4-27","2026-4-28","2026-4-29"],
-    "Carpet Cleaning":      ["2026-3-28","2026-4-29","2026-4-30","2026-4-29","2026-4-28","2026-4-30"],
-    "Pressure Washing":     ["2026-3-28","2026-4-29","2026-3-30"],
-    "Residential Cleaning": ["2026-3-28","2026-4-29","2026-3-30"],
-    "Deep Cleaning":        ["2026-3-28","2026-4-29","2026-3-30"],
-    "Commercial Cleaning":  ["2026-3-28","2026-4-29","2026-3-30"],
-    "Move In/Out":          ["2026-3-28","2026-4-29","2026-3-30"],
+    "Steam Cleaning":       ["2026-3-28","2026-3-29","2026-3-30","2026-4-18","2026-4-19","2026-4-10"],
+    "Carpet Cleaning":      ["2026-3-28","2026-3-29","2026-4-30","2026-4-8","2026-4-2","2026-4-3"],
+    "Pressure Washing":     ["2026-3-28","2026-3-29","2026-3-30"],
+    "Residential Cleaning": ["2026-3-28","2026-3-29","2026-3-30"],
+    "Deep Cleaning":        ["2026-3-28","2026-3-29","2026-3-30"],
+    "Commercial Cleaning":  ["2026-3-28","2026-3-29","2026-3-30"],
+    "Move In/Out":          ["2026-3-28","2026-3-29","2026-3-30"],
   };
 
   let bookings = [];
-  try { bookings = JSON.parse(localStorage.getItem("livityBookings") || "[]"); } catch (e) { bookings = []; }
   let countersStarted = false, submitting = false;
   let calMonth, calYear, selectedDate = null, currentCategory = null;
   let lastBookingPayload = null;
+
+  // ── HANDLE MMG RETURN ───────────────────────────────────────────────────
+  // When MMG redirects back to livitygy.com?TOKEN=... we verify the payment
+  async function handleMMGReturn() {
+    var params = new URLSearchParams(window.location.search);
+    var token = params.get("TOKEN") || params.get("token") || params.get("mmg_token");
+    if (!token) return;
+
+    // Clean URL without reloading
+    window.history.replaceState({}, document.title, window.location.pathname);
+
+    showToast("Processing your payment...", "info", 5000);
+
+    try {
+      var res = await fetch(CONFIG.MMG_VERIFY_WEBHOOK + "?TOKEN=" + encodeURIComponent(token));
+      var data = await res.json();
+
+      if (data.isSuccess || data.resultCode === "0" || data.resultCode === 0) {
+        showToast("✓ Payment confirmed! Your booking is now confirmed.", "success", 7000);
+        setTimeout(loadBookingsFromSheets, 1500);
+        var crm = document.querySelector(".crm-section");
+        if (crm) setTimeout(function(){ crm.scrollIntoView({ behavior: "smooth", block: "start" }); }, 800);
+      } else if (data.resultCode === "6") {
+        showToast("Payment was cancelled. You can try again.", "error", 6000);
+      } else {
+        showToast("Payment could not be completed. Please try again.", "error", 6000);
+      }
+    } catch (err) {
+      console.error("MMG verify error:", err);
+      showToast("Could not verify payment. Please check your booking status.", "error", 6000);
+    }
+  }
+
+  // ── LOAD BOOKINGS FROM GOOGLE SHEETS ────────────────────────────────────
+  async function loadBookingsFromSheets() {
+    try {
+      var res = await fetch(CONFIG.GET_BOOKINGS_WEBHOOK);
+      var data = await res.json();
+      var rows = Array.isArray(data) ? data : (data.data || []);
+      bookings = rows
+        .filter(function(r) { return r["nombre "] || r.nombre; })
+        .map(function(r) {
+          return {
+            nombre:    r["nombre "] || r.nombre || "",
+            telefono:  r.telefono || "",
+            servicio:  r.servicio || "",
+            fecha:     r.fecha || "",
+            direccion: r["direccion "] || r.direccion || "",
+            status:    (r["statusCode "] || r.statusCode || "pending").toLowerCase()
+          };
+        })
+        .reverse();
+      renderCRM();
+    } catch (err) {
+      console.error("Error loading bookings from Sheets:", err);
+    }
+  }
 
   function parsePrice(priceStr) {
     if (!priceStr || priceStr.toLowerCase().includes("quote")) return null;
@@ -202,7 +260,8 @@
       timestamp: new Date().toISOString(),
       source: "index.html"
     };
-    saveBooking(Object.assign({}, payload, { status: "pending" })); renderCRM();
+    // Optimistically add to local CRM while Sheets loads
+    bookings.unshift(Object.assign({}, payload, { status: "pending" })); renderCRM();
     try { await fetch(CONFIG.WEBHOOK_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) }); } catch (err) { console.error("Webhook:", err); }
     lastBookingPayload = payload; showSuccess(payload);
     submitting = false; btn.disabled = false; if (bt) bt.classList.remove("hidden"); if (bs) bs.classList.add("hidden");
@@ -327,7 +386,9 @@
   var obs = new IntersectionObserver(function(entries) { entries.forEach(function(e) { if (e.isIntersecting) { e.target.classList.add("visible"); if (e.target.closest(".stats-section") && !countersStarted) { countersStarted = true; animateCounters(); } obs.unobserve(e.target); } }); }, { threshold: 0.15 });
 
   function init() {
-    populateSelect(); renderCRM(); setStep(1); initCalendar();
+    populateSelect(); setStep(1); initCalendar();
+    handleMMGReturn();   // Check if returning from MMG payment
+    loadBookingsFromSheets(); // Load CRM from Google Sheets
     document.querySelectorAll(".animate-on-scroll").forEach(function(el){ obs.observe(el); });
     var mt = document.getElementById("menuToggle"); if(mt) mt.addEventListener("click", function(){ var nl=document.getElementById("navLinks"); if(nl) nl.classList.toggle("show"); });
     window.addEventListener("scroll", function(){ var nb=document.getElementById("mainNavBar"); if(nb) nb.classList.toggle("scrolled", window.scrollY > 0); });
