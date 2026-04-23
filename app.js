@@ -103,8 +103,14 @@
         }
       } else if (isCancelled) {
         showToast("Payment was cancelled. You can try again from your booking.", "error", 7000);
+        var cancelEmail = sessionStorage.getItem("mmg_pending_email");
+        sessionStorage.removeItem("mmg_pending_email");
+        if (cancelEmail) setTimeout(function() { loadBookingsFromSheets(cancelEmail); }, 1500);
       } else {
         showToast("Payment could not be completed. Please try again.", "error", 7000);
+        var failEmail = sessionStorage.getItem("mmg_pending_email");
+        sessionStorage.removeItem("mmg_pending_email");
+        if (failEmail) setTimeout(function() { loadBookingsFromSheets(failEmail); }, 1500);
       }
     } catch (err) {
       console.error("MMG verify error:", err);
@@ -132,7 +138,8 @@
             status:    (r["statusCode "] || r.statusCode || "pending").toLowerCase()
           };
         })
-        .reverse();
+        .reverse()
+        .slice(0, 20); // Show max 20 most recent
       renderCRM();
     } catch (err) {
       console.error("Error loading bookings from Sheets:", err);
