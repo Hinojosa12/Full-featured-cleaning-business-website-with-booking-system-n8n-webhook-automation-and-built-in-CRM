@@ -286,7 +286,8 @@
     bookings.unshift(Object.assign({}, payload, { status: "pending" })); renderCRM();
     try { await fetch(CONFIG.WEBHOOK_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) }); } catch (err) { console.error("Webhook:", err); }
     lastBookingPayload = payload; showSuccess(payload);
-    loadBookingsFromSheets(payload.email);
+    // Delay 3s so client sees Pending before Sheets loads
+    setTimeout(function() { loadBookingsFromSheets(payload.email); }, 3000);
     submitting = false; btn.disabled = false; if (bt) bt.classList.remove("hidden"); if (bs) bs.classList.add("hidden");
   }
 
