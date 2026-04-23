@@ -68,36 +68,43 @@
   let lastBookingPayload = null;
 
   // ── HANDLE MMG RETURN ───────────────────────────────────────────────────
-  // When MMG redirects back to livitygy.com?TOKEN=... we verify the payment
   async function handleMMGReturn() {
     var params = new URLSearchParams(window.location.search);
     var token = params.get("TOKEN") || params.get("token") || params.get("mmg_token");
     if (!token) return;
 
-    // Clean URL without reloading
     window.history.replaceState({}, document.title, window.location.pathname);
-
     showToast("Processing your payment...", "info", 5000);
 
     try {
       var res = await fetch(CONFIG.MMG_VERIFY_WEBHOOK + "?TOKEN=" + encodeURIComponent(token));
       var data = await res.json();
 
-      if (data.isSuccess || data.resultCode === "0" || data.resultCode === 0 || (Array.isArray(data) && data[0] && (data[0]["statusCode "] === "CONFIRMED" || data[0].statusCode === "CONFIRMED"))) {
+      // Determine success strictly — only true boolean true or explicit CONFIRMED
+      var isSuccess = data.isSuccess === true ||
+                      data.statusCode === "CONFIRMED" ||
+                      (Array.isArray(data) && data[0] && (
+                        data[0]["statusCode "] === "CONFIRMED" ||
+                        data[0].statusCode === "CONFIRMED"
+                      ));
+
+      var isCancelled = data.isCancelledByUser === true ||
+                        data.resultCode === "6" ||
+                        data.statusCode === "CANCELLED";
+
+      if (isSuccess) {
         showToast("✓ Payment confirmed! Your booking is now confirmed.", "success", 7000);
-        var pendingEmail = sessionStorage.getItem('mmg_pending_email');
-        sessionStorage.removeItem('mmg_pending_email');
+        var pendingEmail = sessionStorage.getItem("mmg_pending_email");
+        sessionStorage.removeItem("mmg_pending_email");
         if (pendingEmail) {
           setTimeout(function() { loadBookingsFromSheets(pendingEmail); }, 1500);
           var crm = document.querySelector(".crm-section");
           if (crm) setTimeout(function(){ crm.scrollIntoView({ behavior: "smooth", block: "start" }); }, 800);
-        } else {
-          showToast("✓ Payment confirmed! Submit a new booking to see your history.", "success", 7000);
         }
-      } else if (data.resultCode === "6") {
-        showToast("Payment was cancelled. You can try again.", "error", 6000);
+      } else if (isCancelled) {
+        showToast("Payment was cancelled. You can try again from your booking.", "error", 7000);
       } else {
-        showToast("Payment could not be completed. Please try again.", "error", 6000);
+        showToast("Payment could not be completed. Please try again.", "error", 7000);
       }
     } catch (err) {
       console.error("MMG verify error:", err);
@@ -224,16 +231,24 @@
     return v;
   }
 
-  function saveBooking(d) { bookings.unshift(d); try { localStorage.setItem("livityBookings", JSON.stringify(bookings.slice(0, 100))); } catch (e) {} }
-
   function renderCRM() {
     var tb = document.getElementById("crm-body"); if (!tb) return;
     if (!bookings.length) { tb.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:2rem;color:var(--muted)">No bookings yet.</td></tr>'; return; }
     tb.innerHTML = "";
     bookings.forEach(function(b) {
-      var st = { pending: '<span style="background:#fff5e6;color:#9a5c00;border:1px solid #ffcc80;padding:.2rem .7rem;border-radius:20px;font-size:.72rem;font-weight:700">⏳ Pending</span>', confirmed: '<span style="background:#e8f5ed;color:#1e7c3a;border:1px solid #a8d8b5;padding:.2rem .7rem;border-radius:20px;font-size:.72rem;font-weight:700">✓ Confirmed</span>' };
+      var statusLower = (b.status || "pending").toLowerCase();
+      var statusBadge;
+      if (statusLower === "confirmed") {
+        statusBadge = '<span style="background:#e8f5ed;color:#1e7c3a;border:1px solid #a8d8b5;padding:.2rem .7rem;border-radius:20px;font-size:.72rem;font-weight:700">✓ Confirmed</span>';
+      } else if (statusLower === "cancelled") {
+        statusBadge = '<span style="background:#fdecea;color:#c0392b;border:1px solid #f5c6cb;padding:.2rem .7rem;border-radius:20px;font-size:.72rem;font-weight:700">✗ Cancelled</span>';
+      } else if (statusLower === "failed") {
+        statusBadge = '<span style="background:#fdecea;color:#c0392b;border:1px solid #f5c6cb;padding:.2rem .7rem;border-radius:20px;font-size:.72rem;font-weight:700">✗ Failed</span>';
+      } else {
+        statusBadge = '<span style="background:#fff5e6;color:#9a5c00;border:1px solid #ffcc80;padding:.2rem .7rem;border-radius:20px;font-size:.72rem;font-weight:700">⏳ Pending</span>';
+      }
       var r = document.createElement("tr");
-      r.innerHTML = '<td><strong>'+b.nombre+'</strong></td><td>'+b.telefono+'</td><td>'+b.servicio+'</td><td>'+b.fecha+'</td><td>'+b.direccion+'</td><td>'+(st[b.status]||st["pending"])+'</td>';
+      r.innerHTML = '<td><strong>'+b.nombre+'</strong></td><td>'+b.telefono+'</td><td>'+b.servicio+'</td><td>'+b.fecha+'</td><td>'+b.direccion+'</td><td>'+statusBadge+'</td>';
       tb.appendChild(r);
     });
   }
@@ -268,7 +283,6 @@
       timestamp: new Date().toISOString(),
       source: "index.html"
     };
-    // Optimistically add to local CRM while Sheets loads
     bookings.unshift(Object.assign({}, payload, { status: "pending" })); renderCRM();
     try { await fetch(CONFIG.WEBHOOK_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) }); } catch (err) { console.error("Webhook:", err); }
     lastBookingPayload = payload; showSuccess(payload);
@@ -296,7 +310,7 @@
     setStep(2); showToast("Booking submitted! You'll receive a WhatsApp confirmation shortly.", "success", 6000);
   }
 
-  // ── MMG CHECKOUT (redirects to MMG payment page) ─────────────────────────
+  // ── MMG CHECKOUT ─────────────────────────────────────────────────────────
   function openMMGModal() {
     if (!lastBookingPayload) return;
     var amount = parsePrice(lastBookingPayload.precio);
@@ -352,20 +366,13 @@
       });
 
       if (!response.ok) throw new Error("Error generating payment URL");
-
       var data = await response.json();
-
       if (!data.checkoutUrl) throw new Error("No checkout URL received");
 
-      // Guardar email en sessionStorage antes de redirigir a MMG
-      sessionStorage.setItem('mmg_pending_email', lastBookingPayload.email);
-
-      // ── Redirigir al cliente a la página de pago de MMG ──
+      sessionStorage.setItem("mmg_pending_email", lastBookingPayload.email);
       closeMMGModal();
       showToast("Redirecting to MMG payment page...", "info", 3000);
-      setTimeout(function() {
-        window.location.href = data.checkoutUrl;
-      }, 800);
+      setTimeout(function() { window.location.href = data.checkoutUrl; }, 800);
 
     } catch (err) {
       console.error("MMG Checkout Error:", err);
@@ -399,8 +406,7 @@
 
   function init() {
     populateSelect(); setStep(1); initCalendar();
-    handleMMGReturn();   // Check if returning from MMG payment
-    // CRM loads only after booking is submitted with email
+    handleMMGReturn();
     document.querySelectorAll(".animate-on-scroll").forEach(function(el){ obs.observe(el); });
     var mt = document.getElementById("menuToggle"); if(mt) mt.addEventListener("click", function(){ var nl=document.getElementById("navLinks"); if(nl) nl.classList.toggle("show"); });
     window.addEventListener("scroll", function(){ var nb=document.getElementById("mainNavBar"); if(nb) nb.classList.toggle("scrolled", window.scrollY > 0); });
@@ -432,7 +438,7 @@
     });
 
     var cc = document.getElementById("btnClearCRM"); if(cc) cc.addEventListener("click", function() {
-      if (confirm("Clear all booking history?")) { bookings = []; localStorage.removeItem("livityBookings"); renderCRM(); showToast("History cleared.", "info"); }
+      if (confirm("Clear all booking history?")) { bookings = []; renderCRM(); showToast("History cleared.", "info"); }
     });
 
     var cp = document.getElementById("carouselPrev"); if(cp) cp.addEventListener("click", function(){ var ct=document.getElementById("carouselTrack"); if(ct) ct.scrollBy({ left: -300, behavior: "smooth" }); });
@@ -442,7 +448,6 @@
 
     document.querySelectorAll(".step-card").forEach(function(c){ c.addEventListener("click", function(){ var s = c.dataset.section; if (s) window.location.href = CONFIG.SERVICES_PAGE + "#" + s; }); });
 
-    // MMG Payment Events
     var bp = document.getElementById("btnPayMMG"); if(bp) bp.addEventListener("click", openMMGModal);
     var mc = document.getElementById("mmgCloseBtn"); if(mc) mc.addEventListener("click", closeMMGModal);
     var mo = document.getElementById("mmgOverlay"); if(mo) mo.addEventListener("click", function(e){ if(e.target===e.currentTarget) closeMMGModal(); });
