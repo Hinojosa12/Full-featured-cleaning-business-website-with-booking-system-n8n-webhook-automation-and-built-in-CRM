@@ -83,7 +83,7 @@
       var res = await fetch(CONFIG.MMG_VERIFY_WEBHOOK + "?TOKEN=" + encodeURIComponent(token));
       var data = await res.json();
 
-      if (data.isSuccess || data.resultCode === "0" || data.resultCode === 0) {
+      if (data.isSuccess || data.resultCode === "0" || data.resultCode === 0 || (Array.isArray(data) && data[0] && (data[0]["statusCode "] === "CONFIRMED" || data[0].statusCode === "CONFIRMED"))) {
         showToast("✓ Payment confirmed! Your booking is now confirmed.", "success", 7000);
         setTimeout(loadBookingsFromSheets, 1500);
         var crm = document.querySelector(".crm-section");
