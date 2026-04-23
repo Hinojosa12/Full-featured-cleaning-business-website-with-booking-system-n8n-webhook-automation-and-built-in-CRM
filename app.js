@@ -53,13 +53,13 @@
   };
 
   const availableDates = {
-    "Steam Cleaning":       ["2026-3-28","2026-4-29","2026-3-30","2026-4-28","2026-4-29","2026-4-30"],
-    "Carpet Cleaning":      ["2026-3-28","2026-4-29","2026-4-30","2026-4-28","2026-4-29","2026-4-30"],
-    "Pressure Washing":     ["2026-3-28","2026-4-29","2026-3-30"],
-    "Residential Cleaning": ["2026-3-28","2026-4-29","2026-3-30"],
-    "Deep Cleaning":        ["2026-3-28","2026-4-29","2026-3-30"],
-    "Commercial Cleaning":  ["2026-3-28","2026-4-29","2026-3-30"],
-    "Move In/Out":          ["2026-3-28","2026-4-29","2026-3-30"],
+    "Steam Cleaning":       ["2026-3-28","2026-3-29","2026-3-30","2026-4-18","2026-4-19","2026-4-10"],
+    "Carpet Cleaning":      ["2026-3-28","2026-3-29","2026-4-30","2026-4-8","2026-4-2","2026-4-3"],
+    "Pressure Washing":     ["2026-3-28","2026-3-29","2026-3-30"],
+    "Residential Cleaning": ["2026-3-28","2026-3-29","2026-3-30"],
+    "Deep Cleaning":        ["2026-3-28","2026-3-29","2026-3-30"],
+    "Commercial Cleaning":  ["2026-3-28","2026-3-29","2026-3-30"],
+    "Move In/Out":          ["2026-3-28","2026-3-29","2026-3-30"],
   };
 
   let bookings = [];
@@ -85,7 +85,9 @@
 
       if (data.isSuccess || data.resultCode === "0" || data.resultCode === 0 || (Array.isArray(data) && data[0] && (data[0]["statusCode "] === "CONFIRMED" || data[0].statusCode === "CONFIRMED"))) {
         showToast("✓ Payment confirmed! Your booking is now confirmed.", "success", 7000);
-        setTimeout(function() { loadBookingsFromSheets(data.email || null); }, 1500);
+        var pendingEmail = sessionStorage.getItem('mmg_pending_email');
+        sessionStorage.removeItem('mmg_pending_email');
+        setTimeout(function() { loadBookingsFromSheets(pendingEmail); }, 1500);
         var crm = document.querySelector(".crm-section");
         if (crm) setTimeout(function(){ crm.scrollIntoView({ behavior: "smooth", block: "start" }); }, 800);
       } else if (data.resultCode === "6") {
@@ -350,6 +352,9 @@
       var data = await response.json();
 
       if (!data.checkoutUrl) throw new Error("No checkout URL received");
+
+      // Guardar email en sessionStorage antes de redirigir a MMG
+      sessionStorage.setItem('mmg_pending_email', lastBookingPayload.email);
 
       // ── Redirigir al cliente a la página de pago de MMG ──
       closeMMGModal();
