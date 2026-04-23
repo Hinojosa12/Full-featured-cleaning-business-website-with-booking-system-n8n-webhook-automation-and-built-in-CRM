@@ -85,7 +85,7 @@
 
       if (data.isSuccess || data.resultCode === "0" || data.resultCode === 0 || (Array.isArray(data) && data[0] && (data[0]["statusCode "] === "CONFIRMED" || data[0].statusCode === "CONFIRMED"))) {
         showToast("✓ Payment confirmed! Your booking is now confirmed.", "success", 7000);
-        setTimeout(loadBookingsFromSheets, 1500);
+        setTimeout(function() { loadBookingsFromSheets(data.email || null); }, 1500);
         var crm = document.querySelector(".crm-section");
         if (crm) setTimeout(function(){ crm.scrollIntoView({ behavior: "smooth", block: "start" }); }, 800);
       } else if (data.resultCode === "6") {
@@ -100,9 +100,11 @@
   }
 
   // ── LOAD BOOKINGS FROM GOOGLE SHEETS ────────────────────────────────────
-  async function loadBookingsFromSheets() {
+  async function loadBookingsFromSheets(email) {
     try {
-      var res = await fetch(CONFIG.GET_BOOKINGS_WEBHOOK);
+      var url = CONFIG.GET_BOOKINGS_WEBHOOK;
+      if (email) url += "?email=" + encodeURIComponent(email);
+      var res = await fetch(url);
       var data = await res.json();
       var rows = Array.isArray(data) ? data : (data.data || []);
       bookings = rows
@@ -264,6 +266,7 @@
     bookings.unshift(Object.assign({}, payload, { status: "pending" })); renderCRM();
     try { await fetch(CONFIG.WEBHOOK_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) }); } catch (err) { console.error("Webhook:", err); }
     lastBookingPayload = payload; showSuccess(payload);
+    loadBookingsFromSheets(payload.email);
     submitting = false; btn.disabled = false; if (bt) bt.classList.remove("hidden"); if (bs) bs.classList.add("hidden");
   }
 
@@ -388,7 +391,7 @@
   function init() {
     populateSelect(); setStep(1); initCalendar();
     handleMMGReturn();   // Check if returning from MMG payment
-    loadBookingsFromSheets(); // Load CRM from Google Sheets
+    // CRM loads only after booking is submitted with email
     document.querySelectorAll(".animate-on-scroll").forEach(function(el){ obs.observe(el); });
     var mt = document.getElementById("menuToggle"); if(mt) mt.addEventListener("click", function(){ var nl=document.getElementById("navLinks"); if(nl) nl.classList.toggle("show"); });
     window.addEventListener("scroll", function(){ var nb=document.getElementById("mainNavBar"); if(nb) nb.classList.toggle("scrolled", window.scrollY > 0); });
