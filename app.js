@@ -239,13 +239,13 @@
       var statusLower = (b.status || "pending").toLowerCase();
       var statusBadge;
       if (statusLower === "confirmed") {
-        statusBadge = '<span style="background:#e8f5ed;color:#1e7c3a;border:1px solid #a8d8b5;padding:.2rem .7rem;border-radius:20px;font-size:.72rem;font-weight:700">✓ Confirmed</span>';
+        statusBadge = '<span style="background:#e8f5ed;color:#1e7c3a;border:1px solid #a8d8b5;padding:.25rem .9rem;border-radius:20px;font-size:.72rem;font-weight:700;display:inline-flex;align-items:center;gap:.3rem;white-space:nowrap">✓ Confirmed</span>';
       } else if (statusLower === "cancelled") {
-        statusBadge = '<span style="background:#fdecea;color:#c0392b;border:1px solid #f5c6cb;padding:.2rem .7rem;border-radius:20px;font-size:.72rem;font-weight:700">✗ Cancelled</span>';
+        statusBadge = '<span style="background:#fdecea;color:#c0392b;border:1px solid #f5c6cb;padding:.25rem .9rem;border-radius:20px;font-size:.72rem;font-weight:700;display:inline-flex;align-items:center;gap:.3rem;white-space:nowrap">✗ Cancelled</span>';
       } else if (statusLower === "failed") {
-        statusBadge = '<span style="background:#fdecea;color:#c0392b;border:1px solid #f5c6cb;padding:.2rem .7rem;border-radius:20px;font-size:.72rem;font-weight:700">✗ Failed</span>';
+        statusBadge = '<span style="background:#fdecea;color:#c0392b;border:1px solid #f5c6cb;padding:.25rem .9rem;border-radius:20px;font-size:.72rem;font-weight:700;display:inline-flex;align-items:center;gap:.3rem;white-space:nowrap">✗ Failed</span>';
       } else {
-        statusBadge = '<span style="background:#fff5e6;color:#9a5c00;border:1px solid #ffcc80;padding:.2rem .7rem;border-radius:20px;font-size:.72rem;font-weight:700">⏳ Pending</span>';
+        statusBadge = '<span style="background:#fff5e6;color:#9a5c00;border:1px solid #ffcc80;padding:.25rem .9rem;border-radius:20px;font-size:.72rem;font-weight:700;display:inline-flex;align-items:center;gap:.3rem;white-space:nowrap">⏳ Pending</span>';
       }
       var r = document.createElement("tr");
       r.innerHTML = '<td><strong>'+b.nombre+'</strong></td><td>'+b.telefono+'</td><td>'+b.servicio+'</td><td>'+b.fecha+'</td><td>'+b.direccion+'</td><td>'+statusBadge+'</td>';
