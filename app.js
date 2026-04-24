@@ -530,7 +530,7 @@
       mmgBtn.classList.add("mmg-disabled"); mmgBtn.disabled = true;
       mmgLabel.textContent = "Quote required";
     }
-    setStep(2); showToast("Booking submitted! You'll receive a WhatsApp confirmation shortly.", "success", 6000);
+    setStep(2); showToast("Data saved, please press Pay via MMG to complete payment.", "success", 7000);
   }
 
   // ── MMG CHECKOUT ─────────────────────────────────────────────────────────
