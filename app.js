@@ -67,6 +67,223 @@
   let calMonth, calYear, selectedDate = null, currentCategory = null;
   let lastBookingPayload = null;
 
+  // ══════════════════════════════════════════════════════════════════════════
+  //  LIVITY UI — Custom Select Dropdown + Visual Enhancements
+  //  (No existing logic was modified — only added below this block)
+  // ══════════════════════════════════════════════════════════════════════════
+  var _lvSet = (typeof WeakSet !== "undefined") ? new WeakSet() : null;
+
+  function LvSelect(native) {
+    var self = this;
+    this.native = native;
+    this.isOpen = false;
+
+    // Wrap the native select
+    this.wrap = document.createElement("div");
+    this.wrap.className = "lv-select-wrapper";
+    native.parentNode.insertBefore(this.wrap, native);
+    this.wrap.appendChild(native);
+    this.wrap._lv = this;
+    native._lv = this;
+
+    // Trigger button
+    this.trig = document.createElement("div");
+    this.trig.className = "lv-trigger";
+    this.trig.setAttribute("tabindex", "0");
+    this.trig.innerHTML =
+      '<span class="lv-value"></span>' +
+      '<svg class="lv-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">' +
+        '<polyline points="6 9 12 15 18 9"/>' +
+      "</svg>";
+    this.wrap.appendChild(this.trig);
+    this.valEl = this.trig.querySelector(".lv-value");
+
+    // Dropdown panel
+    this.panel = document.createElement("div");
+    this.panel.className = "lv-panel";
+    this.wrap.appendChild(this.panel);
+
+    // Watch for option changes (handles dynamic populateSelect)
+    new MutationObserver(function () { self.rebuild(); })
+      .observe(native, { childList: true, subtree: true });
+
+    // Events
+    this.trig.addEventListener("click", function (e) {
+      e.stopPropagation();
+      self.isOpen ? self.close() : self.open();
+    });
+    this.trig.addEventListener("keydown", function (e) {
+      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); self.isOpen ? self.close() : self.open(); }
+      else if (e.key === "Escape") self.close();
+      else if (e.key === "ArrowDown") { e.preventDefault(); self.move(1); }
+      else if (e.key === "ArrowUp")   { e.preventDefault(); self.move(-1); }
+    });
+    document.addEventListener("click", function () { self.close(); });
+    this.panel.addEventListener("click", function (e) { e.stopPropagation(); });
+
+    this.rebuild();
+  }
+
+  LvSelect.prototype.rebuild = function () {
+    var self = this, panel = this.panel;
+    panel.innerHTML = "";
+    var opts = Array.from(this.native.options), lastGrp = null;
+    var chk =
+      '<svg class="lv-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">' +
+        '<polyline points="20 6 9 17 4 12"/>' +
+      "</svg>";
+
+    opts.forEach(function (opt, i) {
+      var grp = (opt.parentElement.tagName === "OPTGROUP") ? opt.parentElement.label : null;
+      if (grp && grp !== lastGrp) {
+        lastGrp = grp;
+        var gh = document.createElement("div");
+        gh.className = "lv-group-header";
+        gh.textContent = grp;
+        panel.appendChild(gh);
+      } else if (!grp) { lastGrp = null; }
+
+      var item = document.createElement("div");
+      item.className = "lv-option" +
+        (opt.value === "" ? " lv-is-placeholder" : "") +
+        (opt.selected && opt.value !== "" ? " lv-is-selected" : "");
+      item.dataset.idx = i;
+
+      var m = opt.text.match(/^(.+?)\s*[—\-–]\s*(.+)$/);
+      item.innerHTML = m
+        ? '<span class="lv-opt-name">' + m[1].trim() + '</span><span class="lv-opt-badge">' + m[2].trim() + "</span>" + chk
+        : '<span class="lv-opt-name">' + opt.text + "</span>" + chk;
+
+      if (opt.value !== "") {
+        item.addEventListener("click", (function (idx) {
+          return function (e) { e.stopPropagation(); self.select(idx); };
+        })(i));
+      }
+      panel.appendChild(item);
+    });
+    this.updateDisplay();
+  };
+
+  LvSelect.prototype.select = function (idx) {
+    this.native.selectedIndex = idx;
+    // Dispatch change on native → triggers all existing onchange handlers
+    this.native.dispatchEvent(new Event("change", { bubbles: true }));
+    this.updateDisplay();
+    this.panel.querySelectorAll(".lv-option").forEach(function (item) {
+      item.classList.toggle("lv-is-selected", parseInt(item.dataset.idx) === idx);
+    });
+    this.close();
+  };
+
+  LvSelect.prototype.updateDisplay = function () {
+    var sel = this.native.options[this.native.selectedIndex];
+    if (!sel || sel.value === "") {
+      this.valEl.innerHTML = '<span class="lv-placeholder-txt">' + (sel ? sel.text : "— Select —") + "</span>";
+    } else {
+      var m = sel.text.match(/^(.+?)\s*[—\-–]\s*(.+)$/);
+      this.valEl.innerHTML = m
+        ? '<span class="lv-sel-label">' + m[1].trim() + '</span><span class="lv-sel-badge">' + m[2].trim() + "</span>"
+        : '<span class="lv-sel-label">' + sel.text + "</span>";
+    }
+  };
+
+  LvSelect.prototype.open = function () {
+    document.querySelectorAll(".lv-select-wrapper.lv-open").forEach(function (w) {
+      if (w._lv) w._lv.close();
+    });
+    this.isOpen = true;
+    this.wrap.classList.add("lv-open");
+    var rect = this.trig.getBoundingClientRect();
+    this.wrap.classList.toggle("lv-dropup", (window.innerHeight - rect.bottom) < 260 && rect.top > 260);
+    var p = this.panel;
+    p.classList.add("lv-animating");
+    p.querySelectorAll(".lv-option, .lv-group-header").forEach(function (el, i) {
+      el.style.animationDelay = (i * 0.022) + "s";
+    });
+    setTimeout(function () { p.classList.remove("lv-animating"); }, 400);
+  };
+
+  LvSelect.prototype.close = function () {
+    if (!this.isOpen) return;
+    this.isOpen = false;
+    this.wrap.classList.remove("lv-open");
+  };
+
+  LvSelect.prototype.move = function (dir) {
+    if (!this.isOpen) this.open();
+    var opts = this.native.options, idx = this.native.selectedIndex + dir;
+    while (idx >= 0 && idx < opts.length && opts[idx].value === "") idx += dir;
+    if (idx >= 0 && idx < opts.length) this.select(idx);
+  };
+
+  function initLvSelects() {
+    document.querySelectorAll("select").forEach(function (sel) {
+      if (sel._lv || (sel.parentElement && sel.parentElement.classList.contains("lv-select-wrapper"))) return;
+      if (_lvSet) { if (_lvSet.has(sel)) return; _lvSet.add(sel); }
+      new LvSelect(sel);
+    });
+  }
+
+  function initLvProgressBar() {
+    var bar = document.createElement("div");
+    bar.id = "lv-progress-bar";
+    document.body.appendChild(bar);
+    window.addEventListener("scroll", function () {
+      var max = document.documentElement.scrollHeight - window.innerHeight;
+      bar.style.width = max > 0 ? Math.min((window.scrollY / max) * 100, 100) + "%" : "0%";
+    }, { passive: true });
+  }
+
+  function initLvCursorGlow() {
+    if (!window.matchMedia("(pointer: fine)").matches) return;
+    var g = document.createElement("div");
+    g.className = "lv-cursor-glow";
+    document.body.appendChild(g);
+    document.addEventListener("mousemove", function (e) {
+      g.style.left = e.clientX + "px";
+      g.style.top  = e.clientY + "px";
+    });
+  }
+
+  function initLvRipple() {
+    var sel = ".hero-btn,.btn-primary,.btn-gold,.submit-btn,.btn-book,.btn-mmg,.mmg-pay-btn";
+    document.addEventListener("click", function (e) {
+      var btn = e.target.closest(sel);
+      if (!btn) return;
+      var c = document.createElement("span");
+      c.className = "lv-ripple-circle";
+      var r = btn.getBoundingClientRect();
+      c.style.left = (e.clientX - r.left) + "px";
+      c.style.top  = (e.clientY - r.top)  + "px";
+      btn.appendChild(c);
+      c.addEventListener("animationend", function () { c.remove(); }, { once: true });
+    });
+  }
+
+  function initLvParallax() {
+    var heroes = document.querySelectorAll(".hero");
+    if (!heroes.length || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    window.addEventListener("scroll", function () {
+      var sy = window.scrollY;
+      heroes.forEach(function (h) {
+        var r = h.getBoundingClientRect();
+        if (r.bottom < 0 || r.top > window.innerHeight) return;
+        h.style.backgroundPositionY = "calc(center + " + (sy * 0.22) + "px)";
+      });
+    }, { passive: true });
+  }
+
+  function initLvUI() {
+    initLvProgressBar();
+    initLvCursorGlow();
+    initLvRipple();
+    initLvParallax();
+    // Selects are initialized after populateSelect() inside init()
+  }
+  // ══════════════════════════════════════════════════════════════════════════
+  //  END LIVITY UI ENHANCEMENTS
+  // ══════════════════════════════════════════════════════════════════════════
+
   // ── HANDLE MMG RETURN ───────────────────────────────────────────────────
   async function handleMMGReturn() {
     var params = new URLSearchParams(window.location.search);
@@ -80,7 +297,6 @@
       var res = await fetch(CONFIG.MMG_VERIFY_WEBHOOK + "?TOKEN=" + encodeURIComponent(token));
       var data = await res.json();
 
-      // Determine success strictly — only true boolean true or explicit CONFIRMED
       var isSuccess = data.isSuccess === true ||
                       data.statusCode === "CONFIRMED" ||
                       (Array.isArray(data) && data[0] && (
@@ -139,7 +355,7 @@
           };
         })
         .reverse()
-        .slice(0, 20); // Show max 20 most recent
+        .slice(0, 20);
       renderCRM();
     } catch (err) {
       console.error("Error loading bookings from Sheets:", err);
@@ -293,7 +509,6 @@
     bookings.unshift(Object.assign({}, payload, { status: "pending" })); renderCRM();
     try { await fetch(CONFIG.WEBHOOK_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) }); } catch (err) { console.error("Webhook:", err); }
     lastBookingPayload = payload; showSuccess(payload);
-    // Delay 3s so client sees Pending before Sheets loads
     setTimeout(function() { loadBookingsFromSheets(payload.email); }, 3000);
     submitting = false; btn.disabled = false; if (bt) bt.classList.remove("hidden"); if (bs) bs.classList.add("hidden");
   }
@@ -413,7 +628,11 @@
   var obs = new IntersectionObserver(function(entries) { entries.forEach(function(e) { if (e.isIntersecting) { e.target.classList.add("visible"); if (e.target.closest(".stats-section") && !countersStarted) { countersStarted = true; animateCounters(); } obs.unobserve(e.target); } }); }, { threshold: 0.15 });
 
   function init() {
-    populateSelect(); setStep(1); initCalendar();
+    populateSelect();
+    // Initialize custom selects right after populating options
+    initLvSelects();
+
+    setStep(1); initCalendar();
     handleMMGReturn();
     document.querySelectorAll(".animate-on-scroll").forEach(function(el){ obs.observe(el); });
     var mt = document.getElementById("menuToggle"); if(mt) mt.addEventListener("click", function(){ var nl=document.getElementById("navLinks"); if(nl) nl.classList.toggle("show"); });
@@ -441,6 +660,9 @@
       document.getElementById("calendarPlaceholder").classList.remove("hidden");
       document.getElementById("calendarContent").classList.add("hidden");
       document.getElementById("selectedDateDisplay").classList.remove("show");
+      // Reset the custom select display as well
+      var servSel = document.getElementById("servicio");
+      if (servSel && servSel._lv) { servSel._lv.updateDisplay(); }
       clearErrors(); setStep(1); lastBookingPayload = null;
       var ps=document.getElementById("paymentSection"); if(ps) ps.scrollIntoView({ behavior: "smooth" });
     });
@@ -462,6 +684,9 @@
     var mcp = document.getElementById("mmgConfirmPay"); if(mcp) mcp.addEventListener("click", function(e){ e.preventDefault(); processMMGPayment(); });
     var md = document.getElementById("mmgDoneBtn"); if(md) md.addEventListener("click", closeMMGModal);
     var mr = document.getElementById("mmgRetryBtn"); if(mr) mr.addEventListener("click", resetMMGModal);
+
+    // Launch visual enhancements
+    initLvUI();
   }
 
   document.addEventListener("DOMContentLoaded", init);
