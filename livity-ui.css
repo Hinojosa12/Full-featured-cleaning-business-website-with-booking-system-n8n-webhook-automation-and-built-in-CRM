@@ -1,0 +1,635 @@
+/*!
+ * livity-ui.css  —  Livity Projects Inc. UI Enhancement Layer
+ * Añade este <link> DESPUÉS de tus hojas de estilo existentes en index.html y services.html
+ * <link rel="stylesheet" href="livity-ui.css">
+ */
+
+/* ═══════════════════════════════════════════════════════════════
+   SCROLL PROGRESS BAR
+   ═══════════════════════════════════════════════════════════════ */
+#lv-progress-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 3px;
+  width: 0%;
+  background: linear-gradient(90deg, var(--gold-dark), #f0c84a, var(--gold));
+  z-index: 99999;
+  border-radius: 0 3px 3px 0;
+  box-shadow: 0 0 10px rgba(136,105,2,0.55), 0 0 4px rgba(240,200,74,0.4);
+  transition: width 0.06s linear;
+  pointer-events: none;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   CUSTOM SCROLLBAR
+   ═══════════════════════════════════════════════════════════════ */
+html {
+  scrollbar-width: thin;
+  scrollbar-color: var(--gold) var(--cream-mid);
+}
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: var(--cream-mid); }
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, var(--gold), var(--gold-dark));
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover { background: var(--gold-dark); }
+
+/* ═══════════════════════════════════════════════════════════════
+   PAGE LOAD — FADE IN SUAVE
+   ═══════════════════════════════════════════════════════════════ */
+@keyframes lvPageIn {
+  from { opacity: 0; transform: translateY(5px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+body {
+  animation: lvPageIn 0.45s ease both;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   CURSOR GLOW (solo desktop)
+   ═══════════════════════════════════════════════════════════════ */
+.lv-cursor-glow {
+  position: fixed;
+  pointer-events: none;
+  width: 420px;
+  height: 420px;
+  border-radius: 50%;
+  background: radial-gradient(circle at center,
+    rgba(136,105,2,0.055) 0%,
+    transparent 65%);
+  transform: translate(-50%, -50%);
+  z-index: 0;
+  transition: left 0.16s ease, top 0.16s ease;
+  will-change: left, top;
+}
+@media (pointer: coarse) { .lv-cursor-glow { display: none; } }
+
+/* ═══════════════════════════════════════════════════════════════
+   LIVITY SELECT — DROPDOWN PERSONALIZADO
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Contenedor */
+.lv-select-wrapper {
+  position: relative;
+  width: 100%;
+  font-family: inherit;
+}
+
+/* Oculta el select nativo pero lo mantiene funcional */
+.lv-select-wrapper > select {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+/* Botón disparador */
+.lv-trigger {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.78rem 1rem;
+  background: var(--cream);
+  border: 1.5px solid var(--cream-border);
+  border-radius: var(--radius-sm, 12px);
+  cursor: pointer;
+  user-select: none;
+  min-height: 46px;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.22s ease, box-shadow 0.22s ease, background 0.22s ease;
+}
+
+/* Gradiente sutil interno */
+.lv-trigger::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, transparent 40%, rgba(136,105,2,0.04) 100%);
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none;
+}
+.lv-select-wrapper:hover .lv-trigger::before { opacity: 1; }
+
+/* Estado abierto / foco */
+.lv-select-wrapper.lv-open .lv-trigger {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(136,105,2,0.12);
+  background: white;
+}
+.lv-trigger:focus-visible {
+  outline: none;
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(136,105,2,0.12);
+}
+
+/* Área de valor */
+.lv-value {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  overflow: hidden;
+}
+
+.lv-placeholder-txt {
+  color: #aaa;
+  font-size: 0.9rem;
+  font-weight: 400;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.lv-sel-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--dark);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+  min-width: 0;
+}
+
+.lv-sel-badge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--gold);
+  background: rgba(136,105,2,0.1);
+  padding: 0.13rem 0.55rem;
+  border-radius: 20px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  border: 1px solid rgba(136,105,2,0.2);
+}
+
+/* Chevron */
+.lv-chevron {
+  width: 17px;
+  height: 17px;
+  flex-shrink: 0;
+  color: var(--muted, #5b6e73);
+  transition: transform 0.32s cubic-bezier(0.34,1.56,0.64,1), color 0.2s ease;
+}
+.lv-select-wrapper.lv-open .lv-chevron {
+  transform: rotate(-180deg);
+  color: var(--gold);
+}
+
+/* Panel desplegable */
+.lv-panel {
+  position: absolute;
+  top: calc(100% + 7px);
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1.5px solid var(--cream-border, #eae2d6);
+  border-radius: 16px;
+  box-shadow:
+    0 4px 6px -2px rgba(30,43,46,0.06),
+    0 28px 70px -8px rgba(30,43,46,0.18),
+    0 8px 28px -4px rgba(136,105,2,0.09);
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(-10px) scale(0.97);
+  transform-origin: top center;
+  pointer-events: none;
+  z-index: 9990;
+  max-height: 300px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--gold) var(--cream-mid);
+  transition: opacity 0.22s ease, transform 0.28s cubic-bezier(0.34,1.56,0.64,1);
+}
+.lv-panel::-webkit-scrollbar { width: 4px; }
+.lv-panel::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 2px; }
+
+.lv-select-wrapper.lv-open .lv-panel {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: all;
+}
+
+/* Variante drop-up */
+.lv-select-wrapper.lv-dropup .lv-panel {
+  top: auto;
+  bottom: calc(100% + 7px);
+  transform-origin: bottom center;
+  transform: translateY(10px) scale(0.97);
+}
+.lv-select-wrapper.lv-open.lv-dropup .lv-panel {
+  transform: translateY(0) scale(1);
+}
+
+/* Cabecera de grupo (optgroup) */
+.lv-group-header {
+  padding: 0.55rem 1rem 0.32rem;
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--gold);
+  background: rgba(136,105,2,0.04);
+  border-bottom: 1px solid var(--cream-border);
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+/* Opción individual */
+.lv-option {
+  display: flex;
+  align-items: center;
+  padding: 0.68rem 1rem;
+  cursor: pointer;
+  border-bottom: 1px solid rgba(234,226,214,0.55);
+  position: relative;
+  transition: background 0.14s ease, padding-left 0.2s ease;
+  gap: 0.5rem;
+}
+.lv-option:last-child { border-bottom: none; }
+
+/* Barra de acento izquierda */
+.lv-option::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 5px;
+  bottom: 5px;
+  width: 3px;
+  background: var(--gold);
+  border-radius: 0 3px 3px 0;
+  transform: scaleY(0);
+  transition: transform 0.22s cubic-bezier(0.34,1.56,0.64,1);
+}
+.lv-option:hover {
+  background: var(--gold-xlight, rgba(136,105,2,0.06));
+  padding-left: 1.3rem;
+}
+.lv-option:hover::before { transform: scaleY(1); }
+.lv-option.lv-is-selected {
+  background: linear-gradient(90deg, rgba(136,105,2,0.09) 0%, rgba(136,105,2,0.03) 100%);
+}
+.lv-option.lv-is-selected::before { transform: scaleY(1); }
+
+/* Placeholder */
+.lv-option.lv-is-placeholder {
+  color: #aaa;
+  font-size: 0.88rem;
+  font-style: italic;
+  cursor: default;
+}
+.lv-option.lv-is-placeholder:hover { background: none; padding-left: 1rem; }
+.lv-option.lv-is-placeholder::before { display: none; }
+
+/* Texto de la opción */
+.lv-opt-name {
+  font-size: 0.87rem;
+  font-weight: 500;
+  color: var(--dark);
+  flex: 1;
+  min-width: 0;
+}
+.lv-is-selected .lv-opt-name { font-weight: 700; color: var(--gold-dark, #6b5201); }
+
+/* Badge de precio */
+.lv-opt-badge {
+  font-size: 0.71rem;
+  font-weight: 700;
+  color: var(--gold);
+  background: rgba(136,105,2,0.1);
+  padding: 0.13rem 0.55rem;
+  border-radius: 20px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  border: 1px solid rgba(136,105,2,0.2);
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.lv-option:hover .lv-opt-badge {
+  background: var(--gold);
+  color: white;
+  border-color: var(--gold);
+}
+
+/* Check de seleccionado */
+.lv-check {
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+  color: var(--gold);
+  opacity: 0;
+  transform: scale(0);
+  transition: opacity 0.2s, transform 0.28s cubic-bezier(0.34,1.56,0.64,1);
+}
+.lv-is-selected .lv-check { opacity: 1; transform: scale(1); }
+
+/* Animación stagger de opciones al abrir */
+@keyframes lvOptSlide {
+  from { opacity: 0; transform: translateX(-7px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+.lv-panel.lv-animating .lv-option,
+.lv-panel.lv-animating .lv-group-header {
+  animation: lvOptSlide 0.2s ease both;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   INPUTS & TEXTAREAS — MEJORAS
+   ═══════════════════════════════════════════════════════════════ */
+.form-group input,
+.form-group textarea,
+.fg input,
+.fg textarea {
+  transition: border-color 0.22s ease, box-shadow 0.22s ease, background 0.22s ease !important;
+}
+
+/* Label en dorado cuando el campo tiene foco */
+.form-group:focus-within > label,
+.fg:focus-within > label {
+  color: var(--gold) !important;
+  transition: color 0.2s ease;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   FEATURE CARDS — LÍNEA INFERIOR ANIMADA
+   ═══════════════════════════════════════════════════════════════ */
+.feature-card {
+  position: relative;
+  overflow: hidden;
+}
+.feature-card::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--gold), var(--gold-light, #a07c03));
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 0.38s cubic-bezier(0.34,1.56,0.64,1);
+}
+.feature-card:hover::after { transform: scaleX(1); }
+
+/* ═══════════════════════════════════════════════════════════════
+   SERVICE CONTENT — BARRA SUPERIOR DORADA
+   ═══════════════════════════════════════════════════════════════ */
+.service-content {
+  position: relative;
+}
+.service-content::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--gold-dark), #f0c84a, var(--gold-dark));
+  border-radius: 28px 28px 0 0;
+  pointer-events: none;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   STEP CARDS — SHIMMER AL HOVER
+   ═══════════════════════════════════════════════════════════════ */
+@keyframes lvShimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+.step-card {
+  position: relative;
+  overflow: hidden;
+}
+.step-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    108deg,
+    transparent 38%,
+    rgba(255,255,255,0.14) 50%,
+    transparent 62%
+  );
+  background-size: 200% 100%;
+  opacity: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  transition: opacity 0.2s;
+}
+.step-card:hover::before {
+  opacity: 1;
+  animation: lvShimmer 0.75s ease;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   QUICK NAV — SUBRAYADO ANIMADO
+   ═══════════════════════════════════════════════════════════════ */
+.quick-nav a {
+  position: relative;
+  overflow: hidden;
+}
+.quick-nav a::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  right: 50%;
+  height: 2px;
+  background: var(--gold);
+  border-radius: 2px;
+  transition: left 0.28s ease, right 0.28s ease;
+}
+.quick-nav a:hover::after,
+.quick-nav a.active::after {
+  left: 8%;
+  right: 8%;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   BOTONES — RIPPLE EFFECT
+   ═══════════════════════════════════════════════════════════════ */
+.hero-btn,
+.btn-primary,
+.btn-gold,
+.submit-btn,
+.btn-book,
+.btn-mmg,
+.mmg-pay-btn {
+  position: relative;
+  overflow: hidden;
+}
+
+@keyframes lvRipple {
+  to { transform: translate(-50%, -50%) scale(4); opacity: 0; }
+}
+.lv-ripple-circle {
+  position: absolute;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.28);
+  transform: translate(-50%, -50%) scale(0);
+  animation: lvRipple 0.65s ease;
+  pointer-events: none;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   STAT ITEMS — GLOW AL HOVER
+   ═══════════════════════════════════════════════════════════════ */
+.stat-item {
+  position: relative;
+  isolation: isolate;
+  border-radius: 14px;
+}
+.stat-item::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center,
+    rgba(136,105,2,0.1) 0%,
+    transparent 72%);
+  opacity: 0;
+  transition: opacity 0.32s ease;
+  pointer-events: none;
+}
+.stat-item:hover::before { opacity: 1; }
+
+/* ═══════════════════════════════════════════════════════════════
+   PRICE ITEMS — HOVER SUTIL
+   ═══════════════════════════════════════════════════════════════ */
+.price-item {
+  transition: padding-left 0.2s ease;
+}
+.price-item:hover { padding-left: 0.4rem; }
+.price-val {
+  transition: transform 0.2s cubic-bezier(0.34,1.56,0.64,1);
+  display: inline-block;
+}
+.price-item:hover .price-val { transform: scale(1.06); }
+
+/* ═══════════════════════════════════════════════════════════════
+   FORM SECTION — ANIMACIÓN AL ABRIR
+   ═══════════════════════════════════════════════════════════════ */
+@keyframes lvFormOpen {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.form-section.open {
+  animation: lvFormOpen 0.35s cubic-bezier(0.34,1.56,0.64,1) both;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   HERO CONTENT — ENTRADA
+   ═══════════════════════════════════════════════════════════════ */
+@keyframes lvHeroIn {
+  from { opacity: 0; transform: translateY(22px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.hero-content {
+  animation: lvHeroIn 0.7s cubic-bezier(0.34,1.56,0.64,1) both;
+}
+.hero-tag { animation-delay: 0.1s; }
+.hero-title { animation-delay: 0.2s; }
+.hero-btn { animation-delay: 0.35s; }
+
+/* ═══════════════════════════════════════════════════════════════
+   CONFIRM PANEL — ENTRADA
+   ═══════════════════════════════════════════════════════════════ */
+@keyframes lvConfirmIn {
+  from { opacity: 0; transform: scale(0.96) translateY(12px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+.confirm-panel {
+  animation: lvConfirmIn 0.4s cubic-bezier(0.34,1.56,0.64,1) both;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   SUCCESS PANEL (services)
+   ═══════════════════════════════════════════════════════════════ */
+.success-panel.show {
+  animation: lvConfirmIn 0.4s cubic-bezier(0.34,1.56,0.64,1) both;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   ABOUT SECTION
+   ═══════════════════════════════════════════════════════════════ */
+.about-section.visible {
+  animation: lvConfirmIn 0.4s cubic-bezier(0.34,1.56,0.64,1) both;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   SOCIAL ICONS — MEJORADO
+   ═══════════════════════════════════════════════════════════════ */
+.social-icons a {
+  transition: background 0.25s ease, color 0.25s ease, transform 0.3s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.25s ease;
+}
+.social-icons a:hover {
+  box-shadow: 0 8px 20px rgba(136,105,2,0.3);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   NAV LINKS — MEJOR TRANSICIÓN
+   ═══════════════════════════════════════════════════════════════ */
+.nav-links a {
+  transition: color 0.2s ease, background 0.2s ease, transform 0.2s ease !important;
+}
+.nav-links a:hover { transform: translateY(-1px); }
+
+/* ═══════════════════════════════════════════════════════════════
+   RECEIPT ROWS — HOVER
+   ═══════════════════════════════════════════════════════════════ */
+.receipt-row {
+  transition: background 0.15s ease;
+  border-radius: 6px;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+.receipt-row:hover { background: var(--cream-mid, #f5f2e8); }
+
+/* ═══════════════════════════════════════════════════════════════
+   SERVICE IMAGE — PARALLAX SUTIL
+   ═══════════════════════════════════════════════════════════════ */
+.service-image img {
+  transition: transform 0.55s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.3s ease !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   CAROUSEL HINT
+   ═══════════════════════════════════════════════════════════════ */
+.carousel-hint {
+  animation: lvCarouselHint 2s ease-in-out infinite;
+}
+@keyframes lvCarouselHint {
+  0%, 100% { opacity: 0.7; transform: translateY(0); }
+  50%       { opacity: 1; transform: translateY(-2px); }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   CALENDAR DAY — MEJOR SELECTED
+   ═══════════════════════════════════════════════════════════════ */
+.calendar-day.selected,
+.cal-day.selected {
+  animation: lvCalPop 0.3s cubic-bezier(0.34,1.56,0.64,1) both;
+}
+@keyframes lvCalPop {
+  from { transform: scale(0.85); }
+  to   { transform: scale(1.08); }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   MOBILE AJUSTES
+   ═══════════════════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+  .lv-panel { max-height: 230px; }
+  .lv-opt-badge { font-size: 0.68rem; padding: 0.1rem 0.42rem; }
+  .lv-sel-badge { font-size: 0.68rem; }
+  .service-content::before { border-radius: 20px 20px 0 0; }
+  .lv-trigger { min-height: 42px; padding: 0.68rem 0.9rem; }
+}
