@@ -236,11 +236,11 @@ body {
   letter-spacing: 0.13em;
   text-transform: uppercase;
   color: var(--gold);
-  background: rgba(136,105,2,0.04);
+  background: #fefcf5;
   border-bottom: 1px solid var(--cream-border);
   position: sticky;
   top: 0;
-  z-index: 1;
+  z-index: 2;
 }
 
 /* Opción individual */
