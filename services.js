@@ -1,11 +1,5 @@
 var WEBHOOK = 'https://n8n-n8n.7toway.easypanel.host/webhook/0e6a220e-8739-4db7-9770-cd6f4a4c35f4';
 
-// ┌──────────────────────────────────────────────────────────────────────────┐
-// │  MMG PAYMENT WEBHOOK                                                    │
-// │  REPLACE THIS URL with your n8n payment webhook URL.                   │
-// │  The page sends: { customerPhone, amount, currency, servicio }         │
-// │  n8n should return: { success:true, transactionId:"..." }              │
-// └──────────────────────────────────────────────────────────────────────────┘
 var MMG_PAYMENT_WEBHOOK = 'https://n8n-n8n.7toway.easypanel.host/webhook/mmg-payment';
 
 var SVC = {
@@ -48,11 +42,6 @@ var SVC = {
   'pressure-parking':     { name: 'Pressure Washing – Parking Lot',             price: '$30/sq ft',      category: 'Pressure Washing' },
 };
 
-// ┌──────────────────────────────────────────────────────────────────────────┐
-// │  AVAILABLE DATES — Edit these to control which dates appear on each     │
-// │  calendar. Format: 'YYYY-M-D' (no leading zeros needed).               │
-// │  Each category maps to its own list of available dates.                 │
-// └──────────────────────────────────────────────────────────────────────────┘
 var availableDates = {
   'Steam Cleaning':       ['2026-3-28','2026-3-29','2026-3-30','2026-4-18','2026-4-19','2026-4-10'],
   'Carpet Cleaning':      ['2026-3-28','2026-3-29','2026-4-30','2026-4-8','2026-4-2','2026-4-3'],
@@ -67,6 +56,223 @@ var availableDates = {
 var calStates = {};
 var currentCategories = {};
 var lastBookingPayload = null;
+
+// ══════════════════════════════════════════════════════════════════════════
+//  LIVITY UI — Custom Select Dropdown + Visual Enhancements
+//  (No existing logic was modified — only added below this block)
+// ══════════════════════════════════════════════════════════════════════════
+var _lvSet = (typeof WeakSet !== 'undefined') ? new WeakSet() : null;
+
+function LvSelect(native) {
+  var self = this;
+  this.native = native;
+  this.isOpen = false;
+
+  // Wrap the native select
+  this.wrap = document.createElement('div');
+  this.wrap.className = 'lv-select-wrapper';
+  native.parentNode.insertBefore(this.wrap, native);
+  this.wrap.appendChild(native);
+  this.wrap._lv = this;
+  native._lv = this;
+
+  // Trigger button
+  this.trig = document.createElement('div');
+  this.trig.className = 'lv-trigger';
+  this.trig.setAttribute('tabindex', '0');
+  this.trig.innerHTML =
+    '<span class="lv-value"></span>' +
+    '<svg class="lv-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">' +
+      '<polyline points="6 9 12 15 18 9"/>' +
+    '</svg>';
+  this.wrap.appendChild(this.trig);
+  this.valEl = this.trig.querySelector('.lv-value');
+
+  // Dropdown panel
+  this.panel = document.createElement('div');
+  this.panel.className = 'lv-panel';
+  this.wrap.appendChild(this.panel);
+
+  // Watch for option changes
+  new MutationObserver(function () { self.rebuild(); })
+    .observe(native, { childList: true, subtree: true });
+
+  // Events
+  this.trig.addEventListener('click', function (e) {
+    e.stopPropagation();
+    self.isOpen ? self.close() : self.open();
+  });
+  this.trig.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); self.isOpen ? self.close() : self.open(); }
+    else if (e.key === 'Escape') self.close();
+    else if (e.key === 'ArrowDown') { e.preventDefault(); self.move(1); }
+    else if (e.key === 'ArrowUp')   { e.preventDefault(); self.move(-1); }
+  });
+  document.addEventListener('click', function () { self.close(); });
+  this.panel.addEventListener('click', function (e) { e.stopPropagation(); });
+
+  this.rebuild();
+}
+
+LvSelect.prototype.rebuild = function () {
+  var self = this, panel = this.panel;
+  panel.innerHTML = '';
+  var opts = Array.from(this.native.options), lastGrp = null;
+  var chk =
+    '<svg class="lv-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">' +
+      '<polyline points="20 6 9 17 4 12"/>' +
+    '</svg>';
+
+  opts.forEach(function (opt, i) {
+    var grp = (opt.parentElement.tagName === 'OPTGROUP') ? opt.parentElement.label : null;
+    if (grp && grp !== lastGrp) {
+      lastGrp = grp;
+      var gh = document.createElement('div');
+      gh.className = 'lv-group-header';
+      gh.textContent = grp;
+      panel.appendChild(gh);
+    } else if (!grp) { lastGrp = null; }
+
+    var item = document.createElement('div');
+    item.className = 'lv-option' +
+      (opt.value === '' ? ' lv-is-placeholder' : '') +
+      (opt.selected && opt.value !== '' ? ' lv-is-selected' : '');
+    item.dataset.idx = i;
+
+    var m = opt.text.match(/^(.+?)\s*[—\-–]\s*(.+)$/);
+    item.innerHTML = m
+      ? '<span class="lv-opt-name">' + m[1].trim() + '</span><span class="lv-opt-badge">' + m[2].trim() + '</span>' + chk
+      : '<span class="lv-opt-name">' + opt.text + '</span>' + chk;
+
+    if (opt.value !== '') {
+      item.addEventListener('click', (function (idx) {
+        return function (e) { e.stopPropagation(); self.select(idx); };
+      })(i));
+    }
+    panel.appendChild(item);
+  });
+  this.updateDisplay();
+};
+
+LvSelect.prototype.select = function (idx) {
+  this.native.selectedIndex = idx;
+  // Dispatch change on native → triggers all existing onchange= handlers
+  this.native.dispatchEvent(new Event('change', { bubbles: true }));
+  this.updateDisplay();
+  this.panel.querySelectorAll('.lv-option').forEach(function (item) {
+    item.classList.toggle('lv-is-selected', parseInt(item.dataset.idx) === idx);
+  });
+  this.close();
+};
+
+LvSelect.prototype.updateDisplay = function () {
+  var sel = this.native.options[this.native.selectedIndex];
+  if (!sel || sel.value === '') {
+    this.valEl.innerHTML = '<span class="lv-placeholder-txt">' + (sel ? sel.text : '— Select —') + '</span>';
+  } else {
+    var m = sel.text.match(/^(.+?)\s*[—\-–]\s*(.+)$/);
+    this.valEl.innerHTML = m
+      ? '<span class="lv-sel-label">' + m[1].trim() + '</span><span class="lv-sel-badge">' + m[2].trim() + '</span>'
+      : '<span class="lv-sel-label">' + sel.text + '</span>';
+  }
+};
+
+LvSelect.prototype.open = function () {
+  document.querySelectorAll('.lv-select-wrapper.lv-open').forEach(function (w) {
+    if (w._lv) w._lv.close();
+  });
+  this.isOpen = true;
+  this.wrap.classList.add('lv-open');
+  var rect = this.trig.getBoundingClientRect();
+  this.wrap.classList.toggle('lv-dropup', (window.innerHeight - rect.bottom) < 260 && rect.top > 260);
+  var p = this.panel;
+  p.classList.add('lv-animating');
+  p.querySelectorAll('.lv-option, .lv-group-header').forEach(function (el, i) {
+    el.style.animationDelay = (i * 0.022) + 's';
+  });
+  setTimeout(function () { p.classList.remove('lv-animating'); }, 400);
+};
+
+LvSelect.prototype.close = function () {
+  if (!this.isOpen) return;
+  this.isOpen = false;
+  this.wrap.classList.remove('lv-open');
+};
+
+LvSelect.prototype.move = function (dir) {
+  if (!this.isOpen) this.open();
+  var opts = this.native.options, idx = this.native.selectedIndex + dir;
+  while (idx >= 0 && idx < opts.length && opts[idx].value === '') idx += dir;
+  if (idx >= 0 && idx < opts.length) this.select(idx);
+};
+
+function initLvSelects() {
+  document.querySelectorAll('select').forEach(function (sel) {
+    if (sel._lv || (sel.parentElement && sel.parentElement.classList.contains('lv-select-wrapper'))) return;
+    if (_lvSet) { if (_lvSet.has(sel)) return; _lvSet.add(sel); }
+    new LvSelect(sel);
+  });
+}
+
+function initLvProgressBar() {
+  var bar = document.createElement('div');
+  bar.id = 'lv-progress-bar';
+  document.body.appendChild(bar);
+  window.addEventListener('scroll', function () {
+    var max = document.documentElement.scrollHeight - window.innerHeight;
+    bar.style.width = max > 0 ? Math.min((window.scrollY / max) * 100, 100) + '%' : '0%';
+  }, { passive: true });
+}
+
+function initLvCursorGlow() {
+  if (!window.matchMedia('(pointer: fine)').matches) return;
+  var g = document.createElement('div');
+  g.className = 'lv-cursor-glow';
+  document.body.appendChild(g);
+  document.addEventListener('mousemove', function (e) {
+    g.style.left = e.clientX + 'px';
+    g.style.top  = e.clientY + 'px';
+  });
+}
+
+function initLvRipple() {
+  var sel = '.hero-btn,.btn-primary,.btn-gold,.submit-btn,.btn-book,.btn-mmg,.mmg-pay-btn';
+  document.addEventListener('click', function (e) {
+    var btn = e.target.closest(sel);
+    if (!btn) return;
+    var c = document.createElement('span');
+    c.className = 'lv-ripple-circle';
+    var r = btn.getBoundingClientRect();
+    c.style.left = (e.clientX - r.left) + 'px';
+    c.style.top  = (e.clientY - r.top)  + 'px';
+    btn.appendChild(c);
+    c.addEventListener('animationend', function () { c.remove(); }, { once: true });
+  });
+}
+
+function initLvParallax() {
+  var heroes = document.querySelectorAll('.service-section');
+  if (!heroes.length || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  window.addEventListener('scroll', function () {
+    var sy = window.scrollY;
+    heroes.forEach(function (h) {
+      var r = h.getBoundingClientRect();
+      if (r.bottom < 0 || r.top > window.innerHeight) return;
+      h.style.backgroundPositionY = 'calc(center + ' + (sy * 0.18) + 'px)';
+    });
+  }, { passive: true });
+}
+
+function initLvUI() {
+  initLvProgressBar();
+  initLvCursorGlow();
+  initLvRipple();
+  initLvParallax();
+  initLvSelects();
+}
+// ══════════════════════════════════════════════════════════════════════════
+//  END LIVITY UI ENHANCEMENTS
+// ══════════════════════════════════════════════════════════════════════════
 
 // ── HELPER FUNCTIONS ──────────────────────────────────────────────────────
 function parsePrice(priceStr) {
@@ -85,14 +291,13 @@ function isFixedPrice(priceStr) {
   return priceStr.toLowerCase().indexOf('quote') === -1 && priceStr.indexOf('/sq ft') === -1 && priceStr.indexOf('/each') === -1;
 }
 
-// ── SERVICE CHANGE HANDLER (like index.html) ──────────────────────────────
+// ── SERVICE CHANGE HANDLER ────────────────────────────────────────────────
 function onServiceChangeSection(prefix) {
   var sk = document.getElementById(prefix + '-servicio').value;
   var sd = SVC[sk];
   var placeholder = document.getElementById('cal-placeholder-' + prefix);
   var content = document.getElementById('cal-content-' + prefix);
 
-  // Reset selected date
   calStates['cal-' + prefix] = calStates['cal-' + prefix] || {};
   calStates['cal-' + prefix].selected = null;
   document.getElementById(prefix + '-fecha').value = '';
@@ -311,10 +516,9 @@ function showSuccessPanel(prefix, data) {
     ? new Date(data.fecha + 'T12:00:00').toLocaleDateString('en-GB', { weekday:'long', year:'numeric', month:'long', day:'numeric' })
     : 'TBD';
 
-  // Determine if MMG button should be active or disabled
-  var mmgBtnClass = isFixedPrice(data.precio) ? 'btn-mmg' : 'btn-mmg mmg-disabled';
+  var mmgBtnClass    = isFixedPrice(data.precio) ? 'btn-mmg' : 'btn-mmg mmg-disabled';
   var mmgBtnDisabled = isFixedPrice(data.precio) ? '' : ' disabled';
-  var mmgAmountText = isFixedPrice(data.precio) ? data.precio + ' GYD' : 'Quote required';
+  var mmgAmountText  = isFixedPrice(data.precio) ? data.precio + ' GYD' : 'Quote required';
 
   panel.innerHTML =
     '<div class="success-icon">&#9989;</div>' +
@@ -360,6 +564,11 @@ function resetForm(prefix) {
 
   var calId = 'cal-' + prefix;
   if (calStates[calId]) { calStates[calId].selected = null; }
+
+  // Reset the custom select display
+  var selEl = document.getElementById(prefix + '-servicio');
+  if (selEl && selEl._lv) { selEl._lv.updateDisplay(); }
+
   lastBookingPayload = null;
 }
 
@@ -431,6 +640,7 @@ document.addEventListener('DOMContentLoaded', function () {
   var sections = document.querySelectorAll('.service-section');
   var links    = document.querySelectorAll('.quick-nav a');
 
+  // Intersection observer for active nav state (existing logic)
   var obs = new IntersectionObserver(function (entries) {
     entries.forEach(function (e) {
       if (e.isIntersecting) {
@@ -442,6 +652,18 @@ document.addEventListener('DOMContentLoaded', function () {
   }, { threshold: 0.35 });
 
   sections.forEach(function (s) { obs.observe(s); });
+
+  // Smooth scroll for quick-nav clicks (new)
+  links.forEach(function (a) {
+    a.addEventListener('click', function (e) {
+      var href = a.getAttribute('href');
+      if (href && href.charAt(0) === '#') {
+        e.preventDefault();
+        var target = document.querySelector(href);
+        if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+  });
 
   // MMG Modal Events
   var mc = document.getElementById('mmgCloseBtn'); if (mc) mc.addEventListener('click', closeMMGModal);
@@ -455,4 +677,7 @@ document.addEventListener('DOMContentLoaded', function () {
     var tgt = document.querySelector(hash);
     if (tgt) setTimeout(function () { tgt.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 300);
   }
+
+  // Launch visual enhancements
+  initLvUI();
 });
