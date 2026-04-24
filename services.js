@@ -1,6 +1,7 @@
 var WEBHOOK = 'https://n8n-n8n.7toway.easypanel.host/webhook/0e6a220e-8739-4db7-9770-cd6f4a4c35f4';
 
-var MMG_PAYMENT_WEBHOOK = 'https://n8n-n8n.7toway.easypanel.host/webhook/mmg-payment';
+var MMG_CHECKOUT_WEBHOOK = 'https://n8n-n8n.7toway.easypanel.host/webhook/mmg-generate-checkout';
+var MMG_VERIFY_WEBHOOK   = 'https://n8n-n8n.7toway.easypanel.host/webhook/mmg-verify-payment';
 
 var SVC = {
   'residential-1bed':     { name: 'Residential – 1 Bedroom Apartment',          price: 'Quote on visit', category: 'Residential Cleaning' },
@@ -504,7 +505,7 @@ async function submitForm(prefix, serviceName) {
 
   lastBookingPayload = payload;
   showSuccessPanel(prefix, payload);
-  showToast("Booking sent! We'll confirm via WhatsApp soon.", 'success', 6000);
+  showToast('Data saved, please press Pay via MMG to complete payment.', 'success', 7000);
   btn.disabled  = false;
   btn.innerHTML = '<i class="fas fa-paper-plane"></i><span>Book Again</span>';
 }
@@ -594,38 +595,97 @@ function closeMMGModal() {
   document.body.style.overflow = '';
 }
 
+// ── HANDLE MMG RETURN (same flow as app.js) ──────────────────────────────
+async function handleMMGReturn() {
+  var params = new URLSearchParams(window.location.search);
+  var token = params.get('TOKEN') || params.get('token') || params.get('mmg_token');
+  if (!token) return;
+
+  window.history.replaceState({}, document.title, window.location.pathname);
+  showToast('Processing your payment...', 'info', 5000);
+
+  try {
+    var res = await fetch(MMG_VERIFY_WEBHOOK + '?TOKEN=' + encodeURIComponent(token));
+    var data = await res.json();
+
+    var isSuccess = data.isSuccess === true ||
+                    data.statusCode === 'CONFIRMED' ||
+                    (Array.isArray(data) && data[0] && (
+                      data[0]['statusCode '] === 'CONFIRMED' ||
+                      data[0].statusCode === 'CONFIRMED'
+                    ));
+
+    var isCancelled = data.isCancelledByUser === true ||
+                      data.resultCode === '6' ||
+                      data.statusCode === 'CANCELLED';
+
+    if (isSuccess) {
+      showToast('✓ Payment confirmed! Your booking is now confirmed.', 'success', 7000);
+    } else if (isCancelled) {
+      showToast('Payment was cancelled. You can try again from your booking.', 'error', 7000);
+    } else {
+      showToast('Payment could not be completed. Please try again.', 'error', 7000);
+    }
+  } catch (err) {
+    console.error('MMG verify error:', err);
+    showToast('Could not verify payment. Please check your booking status.', 'error', 6000);
+  }
+}
+
 async function processMMGPayment() {
   var phoneInput = document.getElementById('mmgPhone');
   var phone = phoneInput.value.trim().replace(/\s/g, '');
-  if (!phone || phone.length < 6) { phoneInput.classList.add('field-error'); showToast('Please enter a valid MMG wallet number.', 'error'); return; }
+  if (!phone || phone.length < 6) {
+    phoneInput.classList.add('field-error');
+    showToast('Please enter a valid MMG wallet number.', 'error');
+    return;
+  }
   phoneInput.classList.remove('field-error');
-  var amount = parsePrice(lastBookingPayload.precio);
-  if (!amount) { showToast('Cannot determine payment amount.', 'error'); return; }
 
-  var payBtn = document.getElementById('mmgConfirmPay'), payText = document.getElementById('mmgPayText'), paySpinner = document.getElementById('mmgPaySpinner');
-  payBtn.disabled = true; payText.classList.add('hidden'); paySpinner.classList.remove('hidden');
+  var payBtn = document.getElementById('mmgConfirmPay');
+  var payText = document.getElementById('mmgPayText');
+  var paySpinner = document.getElementById('mmgPaySpinner');
+  payBtn.disabled = true;
+  payText.classList.add('hidden');
+  paySpinner.classList.remove('hidden');
 
   try {
-    var paymentPayload = { action: 'mmg_payment', customerPhone: phone, amount: amount.toFixed(2), currency: 'GYD', servicio: lastBookingPayload.servicio, nombre: lastBookingPayload.nombre, email: lastBookingPayload.email, fecha: lastBookingPayload.fecha };
-    var response = await fetch(MMG_PAYMENT_WEBHOOK, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(paymentPayload) });
-    if (!response.ok) { var errorText = await response.text(); throw new Error('Server error: ' + (errorText || response.status)); }
-    var result = await response.json();
-    if (result.success || result.transactionId || result.statusCode === '1000') {
-      document.querySelector('.mmg-modal-body').classList.add('hidden');
-      document.getElementById('mmgConfirmPay').classList.add('hidden');
-      document.querySelector('.mmg-secure').classList.add('hidden');
-      document.getElementById('mmgSuccess').classList.remove('hidden');
-      document.getElementById('mmgTxnId').textContent = result.transactionId || result.serverCorrelationId || '—';
-      showToast('Payment request sent to your MMG wallet!', 'success', 6000);
-    } else { throw new Error(result.message || result.errorMessage || 'Payment was declined by MMG.'); }
+    var response = await fetch(MMG_CHECKOUT_WEBHOOK, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        nombre:    lastBookingPayload.nombre,
+        email:     lastBookingPayload.email,
+        telefono:  phone,
+        servicio:  lastBookingPayload.servicio,
+        precio:    lastBookingPayload.precio,
+        fecha:     lastBookingPayload.fecha,
+        direccion: lastBookingPayload.direccion,
+        categoria: lastBookingPayload.categoria
+      })
+    });
+
+    if (!response.ok) throw new Error('Error generating payment URL');
+    var data = await response.json();
+    if (!data.checkoutUrl) throw new Error('No checkout URL received');
+
+    sessionStorage.setItem('mmg_pending_email', lastBookingPayload.email);
+    closeMMGModal();
+    showToast('Redirecting to MMG payment page...', 'info', 3000);
+    setTimeout(function () { window.location.href = data.checkoutUrl; }, 800);
+
   } catch (err) {
-    console.error('MMG Payment Error:', err);
+    console.error('MMG Checkout Error:', err);
     document.querySelector('.mmg-modal-body').classList.add('hidden');
     document.getElementById('mmgConfirmPay').classList.add('hidden');
     document.querySelector('.mmg-secure').classList.add('hidden');
     document.getElementById('mmgError').classList.remove('hidden');
     document.getElementById('mmgErrorMsg').textContent = err.message || 'Something went wrong. Please try again.';
-  } finally { payBtn.disabled = false; payText.classList.remove('hidden'); paySpinner.classList.add('hidden'); }
+  } finally {
+    payBtn.disabled = false;
+    payText.classList.remove('hidden');
+    paySpinner.classList.add('hidden');
+  }
 }
 
 function resetMMGModal() {
@@ -652,6 +712,9 @@ document.addEventListener('DOMContentLoaded', function () {
   }, { threshold: 0.35 });
 
   sections.forEach(function (s) { obs.observe(s); });
+
+  // Handle MMG return from payment page
+  handleMMGReturn();
 
   // Smooth scroll for quick-nav clicks (new)
   links.forEach(function (a) {
