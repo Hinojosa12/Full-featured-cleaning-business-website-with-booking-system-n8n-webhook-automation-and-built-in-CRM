@@ -40,11 +40,11 @@ html {
    PAGE LOAD — FADE IN SUAVE
    ═══════════════════════════════════════════════════════════════ */
 @keyframes lvPageIn {
-  from { opacity: 0; transform: translateY(5px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 body {
-  animation: lvPageIn 0.45s ease both;
+  animation: lvPageIn 0.4s ease both;
 }
 
 /* ═══════════════════════════════════════════════════════════════
