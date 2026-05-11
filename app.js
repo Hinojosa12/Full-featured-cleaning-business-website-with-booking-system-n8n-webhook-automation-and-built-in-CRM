@@ -516,6 +516,18 @@
   function showSuccess(p) {
     document.getElementById("formReserva").classList.add("hidden");
     var pn = document.getElementById("panelEnviado"); if (!pn) return; pn.classList.remove("hidden");
+
+    // ── Google Ads Conversion Tracking ──────────────────────────────────
+    if (typeof gtag === "function") {
+      gtag('event', 'conversion', {
+        'send_to': 'AW-18135400951/f7l_CPb7v6YcEPeD0cdD',
+        'value': 1.0,
+        'currency': 'USD',
+        'transaction_id': p.timestamp || ''
+      });
+    }
+    // ────────────────────────────────────────────────────────────────────
+
     document.getElementById("telefonoMostrar").textContent = p.telefono;
     document.getElementById("reciboNombre2").textContent = p.nombre;
     document.getElementById("reciboServicio2").textContent = p.servicio;
