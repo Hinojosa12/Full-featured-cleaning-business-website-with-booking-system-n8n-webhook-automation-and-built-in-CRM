@@ -12,6 +12,7 @@
   var STAFF = [
     { email: "admin@livityprojects.com", password: "Livity2026!", name: "Admin", role: "Manager" },
     { email: "staff@livityprojects.com", password: "Staff2026!", name: "Staff", role: "Customer Service" },
+    { email: "operations@livitygy.com", password: "operations2026", name: "Operations", role: "Manager" },
   ];
 
   var currentUser = null;
