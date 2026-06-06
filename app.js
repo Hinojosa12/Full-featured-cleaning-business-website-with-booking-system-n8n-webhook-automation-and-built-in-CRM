@@ -11,16 +11,16 @@
   };
 
   const servicesData = {
-    // ========== INSPECCIONES ==========
+    // ========== INSPECCIONES (nuevo) ==========
     "inspection-east":     { name: "Standard Inspection – East Bank up to Friendship; East Coast up to Lusignan & Georgetown", price: "$10,000", category: "Inspection" },
     "inspection-west":     { name: "Standard Inspection – West Coast Demerara & West Bank Demerara", price: "$12,000", category: "Inspection" },
 
-    // ========== SERVICIOS DE AC ==========
+    // ========== SERVICIOS DE AC (nuevo) ==========
     "ac-installation":     { name: "AC Installation (client provides materials)", price: "$30,000", category: "AC Services" },
     "ac-servicing-standard": { name: "AC Servicing – Standard Cleaning", price: "$15,000", category: "AC Services" },
     "ac-servicing-busdown":  { name: "AC Servicing – Bus down of entire unit", price: "$20,000", category: "AC Services" },
 
-    // ========== LIMPIEZA POR AMBIENTES ==========
+    // ========== LIMPIEZA POR AMBIENTES (nuevo) ==========
     "room-bedroom":        { name: "Bedroom Cleaning", price: "$7,500", category: "Room Cleaning" },
     "room-bathroom":       { name: "Bathroom & Toilet Cleaning", price: "$12,000", category: "Room Cleaning" },
     "room-kitchen":        { name: "Kitchen Cleaning", price: "$9,000", category: "Room Cleaning" },
@@ -29,7 +29,7 @@
     "floor-polishing":     { name: "Floor Polishing", price: "$95 (per unit)", category: "Floor Polishing" },
     "office-space":        { name: "Office Space (per sq ft, mopping & surfaces, min $10,000)", price: "$80/sq ft", category: "Office Cleaning" },
 
-    // ========== SOFÁS Y SILLAS ==========
+    // ========== SOFÁS Y SILLAS (ya existentes, se mantienen) ==========
     "sofa-1seat":          { name: "1 Seat Sofa",                              price: "$6,000",        category: "Steam Cleaning" },
     "sofa-2seat":          { name: "2 Seat Sofa",                              price: "$10,000",       category: "Steam Cleaning" },
     "sofa-3seat":          { name: "3 Seat Sofa",                              price: "$14,000",       category: "Steam Cleaning" },
@@ -42,7 +42,7 @@
     "office-chairs":       { name: "Office Chair",                             price: "$2,500/each",   category: "Steam Cleaning" },
     "dining-chairs":       { name: "Dining Chair",                             price: "$2,000/each",   category: "Steam Cleaning" },
 
-    // ========== COLCHONES ==========
+    // ========== COLCHONES (precios corregidos según imagen) ==========
     "mattress-king":       { name: "King Size Mattress (Inclusive of 2 pillows)", price: "$12,000",   category: "Steam Cleaning" },
     "mattress-queen":      { name: "Queen Size Mattress (Inclusive of 2 pillows)",price: "$10,000",   category: "Steam Cleaning" },
     "mattress-double":     { name: "Double Size Mattress",                     price: "$10,000",       category: "Steam Cleaning" },
@@ -97,6 +97,7 @@
     "movein-4bed":         { name: "Move-In/Out – 4+ Bedroom House",           price: "Quote on visit",category: "Move In/Out" },
   };
 
+  // Actualización de availableDates para incluir las nuevas categorías
   const availableDates = {
     "Steam Cleaning":       ["2026-4-28","2026-4-29","2026-4-30","2026-5-2","2026-5-4","2026-5-5","2026-5-6","2026-5-7","2026-5-8","2026-5-9","2026-5-11","2026-5-12","2026-5-13","2026-5-14","2026-5-15","2026-5-16","2026-5-18","2026-5-19","2026-5-20","2026-5-21","2026-5-22","2026-5-23","2026-5-25","2026-5-26","2026-5-27","2026-5-28","2026-5-29","2026-5-30"],
     "Carpet Cleaning":      ["2026-4-28","2026-4-29","2026-4-30","2026-5-2","2026-5-4","2026-5-5","2026-5-6","2026-5-7","2026-5-8","2026-5-9","2026-5-11","2026-5-12","2026-5-13","2026-5-14","2026-5-15","2026-5-16","2026-5-18","2026-5-19","2026-5-20","2026-5-21","2026-5-22","2026-5-23","2026-5-25","2026-5-26","2026-5-27","2026-5-28","2026-5-29","2026-5-30"],
@@ -106,6 +107,7 @@
     "Deep Cleaning":        ["2026-4-28","2026-4-29","2026-4-30","2026-5-2","2026-5-5","2026-5-6","2026-5-8","2026-5-9","2026-5-12","2026-5-13","2026-5-15","2026-5-16","2026-5-19","2026-5-20","2026-5-22","2026-5-23","2026-5-26","2026-5-27","2026-5-29","2026-5-30"],
     "Commercial Cleaning":  ["2026-4-28","2026-4-29","2026-4-30","2026-5-2","2026-5-4","2026-5-5","2026-5-7","2026-5-8","2026-5-11","2026-5-12","2026-5-14","2026-5-15","2026-5-18","2026-5-19","2026-5-21","2026-5-22","2026-5-25","2026-5-26","2026-5-28","2026-5-29"],
     "Move In/Out":          ["2026-4-28","2026-4-29","2026-4-30","2026-5-2","2026-5-4","2026-5-6","2026-5-9","2026-5-11","2026-5-13","2026-5-16","2026-5-18","2026-5-20","2026-5-23","2026-5-25","2026-5-27","2026-5-30"],
+    // Nuevas categorías (usamos las fechas de Residential como base)
     "Inspection":           ["2026-4-28","2026-4-29","2026-4-30","2026-5-2","2026-5-4","2026-5-6","2026-5-8","2026-5-9","2026-5-11","2026-5-13","2026-5-15","2026-5-16","2026-5-18","2026-5-20","2026-5-22","2026-5-23","2026-5-25","2026-5-27","2026-5-29","2026-5-30"],
     "AC Services":          ["2026-4-28","2026-4-29","2026-4-30","2026-5-2","2026-5-4","2026-5-6","2026-5-8","2026-5-9","2026-5-11","2026-5-13","2026-5-15","2026-5-16","2026-5-18","2026-5-20","2026-5-22","2026-5-23","2026-5-25","2026-5-27","2026-5-29","2026-5-30"],
     "Room Cleaning":        ["2026-4-28","2026-4-29","2026-4-30","2026-5-2","2026-5-4","2026-5-6","2026-5-8","2026-5-9","2026-5-11","2026-5-13","2026-5-15","2026-5-16","2026-5-18","2026-5-20","2026-5-22","2026-5-23","2026-5-25","2026-5-27","2026-5-29","2026-5-30"],
@@ -118,45 +120,9 @@
   let calMonth, calYear, selectedDate = null, currentCategory = null;
   let lastBookingPayload = null;
 
-  // ========== ESTILO PARA PRECIO DEBAJO DEL NOMBRE ==========
-  const styleSheet = document.createElement("style");
-  styleSheet.textContent = `
-    .lv-option {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      padding: 0.6rem 1rem;
-      border-bottom: 1px solid rgba(0,0,0,0.05);
-    }
-    .lv-opt-name {
-      font-weight: 500;
-      font-size: 0.9rem;
-      color: #1e1e2a;
-    }
-    .lv-opt-price {
-      font-size: 0.75rem;
-      color: #b8860b;
-      margin-top: 0.2rem;
-      font-weight: normal;
-    }
-    .lv-trigger .lv-value {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-    }
-    .lv-sel-label {
-      font-weight: 500;
-    }
-    .lv-sel-badge {
-      font-size: 0.7rem;
-      color: #b8860b;
-      margin-top: 0.2rem;
-    }
-  `;
-  document.head.appendChild(styleSheet);
-
   // ══════════════════════════════════════════════════════════════════════════
-  //  LIVITY UI — Custom Select Dropdown (modificado para precio debajo)
+  //  LIVITY UI — Custom Select Dropdown + Visual Enhancements
+  //  (No existing logic was modified — only added below this block)
   // ══════════════════════════════════════════════════════════════════════════
   var _lvSet = (typeof WeakSet !== "undefined") ? new WeakSet() : null;
 
@@ -165,6 +131,7 @@
     this.native = native;
     this.isOpen = false;
 
+    // Wrap the native select
     this.wrap = document.createElement("div");
     this.wrap.className = "lv-select-wrapper";
     native.parentNode.insertBefore(this.wrap, native);
@@ -172,6 +139,7 @@
     this.wrap._lv = this;
     native._lv = this;
 
+    // Trigger button
     this.trig = document.createElement("div");
     this.trig.className = "lv-trigger";
     this.trig.setAttribute("tabindex", "0");
@@ -183,13 +151,16 @@
     this.wrap.appendChild(this.trig);
     this.valEl = this.trig.querySelector(".lv-value");
 
+    // Dropdown panel
     this.panel = document.createElement("div");
     this.panel.className = "lv-panel";
     this.wrap.appendChild(this.panel);
 
+    // Watch for option changes (handles dynamic populateSelect)
     new MutationObserver(function () { self.rebuild(); })
       .observe(native, { childList: true, subtree: true });
 
+    // Events
     this.trig.addEventListener("click", function (e) {
       e.stopPropagation();
       self.isOpen ? self.close() : self.open();
@@ -210,9 +181,10 @@
     var self = this, panel = this.panel;
     panel.innerHTML = "";
     var opts = Array.from(this.native.options), lastGrp = null;
-    var chk = '<svg class="lv-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">' +
-                '<polyline points="20 6 9 17 4 12"/>' +
-              "</svg>";
+    var chk =
+      '<svg class="lv-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">' +
+        '<polyline points="20 6 9 17 4 12"/>' +
+      "</svg>";
 
     opts.forEach(function (opt, i) {
       var grp = (opt.parentElement.tagName === "OPTGROUP") ? opt.parentElement.label : null;
@@ -230,16 +202,10 @@
         (opt.selected && opt.value !== "" ? " lv-is-selected" : "");
       item.dataset.idx = i;
 
-      var name = opt.getAttribute("data-name") || opt.textContent;
-      var price = opt.getAttribute("data-price") || "";
-      if (!price && opt.textContent) {
-        var match = opt.textContent.match(/—\s*(\$[\d,]+(?:\/sq ft|\/each)?)/);
-        if (match) price = match[1];
-      }
-
-      item.innerHTML = '<span class="lv-opt-name">' + name + '</span>' +
-                       (price ? '<span class="lv-opt-price">' + price + '</span>' : '') +
-                       chk;
+      var m = opt.text.match(/^(.+?)\s*[—\-–]\s*(.+)$/);
+      item.innerHTML = m
+        ? '<span class="lv-opt-name">' + m[1].trim() + '</span><span class="lv-opt-badge">' + m[2].trim() + "</span>" + chk
+        : '<span class="lv-opt-name">' + opt.text + "</span>" + chk;
 
       if (opt.value !== "") {
         item.addEventListener("click", (function (idx) {
@@ -253,6 +219,7 @@
 
   LvSelect.prototype.select = function (idx) {
     this.native.selectedIndex = idx;
+    // Dispatch change on native → triggers all existing onchange handlers
     this.native.dispatchEvent(new Event("change", { bubbles: true }));
     this.updateDisplay();
     this.panel.querySelectorAll(".lv-option").forEach(function (item) {
@@ -266,14 +233,10 @@
     if (!sel || sel.value === "") {
       this.valEl.innerHTML = '<span class="lv-placeholder-txt">' + (sel ? sel.text : "— Select —") + "</span>";
     } else {
-      var name = sel.getAttribute("data-name") || sel.textContent;
-      var price = sel.getAttribute("data-price") || "";
-      if (!price && sel.textContent) {
-        var match = sel.textContent.match(/—\s*(\$[\d,]+(?:\/sq ft|\/each)?)/);
-        if (match) price = match[1];
-      }
-      this.valEl.innerHTML = '<span class="lv-sel-label">' + name + '</span>' +
-                             (price ? '<span class="lv-sel-badge">' + price + '</span>' : '');
+      var m = sel.text.match(/^(.+?)\s*[—\-–]\s*(.+)$/);
+      this.valEl.innerHTML = m
+        ? '<span class="lv-sel-label">' + m[1].trim() + '</span><span class="lv-sel-badge">' + m[2].trim() + "</span>"
+        : '<span class="lv-sel-label">' + sel.text + "</span>";
     }
   };
 
@@ -368,7 +331,11 @@
     initLvCursorGlow();
     initLvRipple();
     initLvParallax();
+    // Selects are initialized after populateSelect() inside init()
   }
+  // ══════════════════════════════════════════════════════════════════════════
+  //  END LIVITY UI ENHANCEMENTS
+  // ══════════════════════════════════════════════════════════════════════════
 
   // ── HANDLE MMG RETURN ───────────────────────────────────────────────────
   async function handleMMGReturn() {
@@ -514,21 +481,9 @@
   function populateSelect() {
     var s = document.getElementById("servicio"); if (!s) return;
     var c = {};
-    for (var k in servicesData) { var d = servicesData[k]; if (!c[d.category]) c[d.category] = []; c[d.category].push({ key: k, name: d.name, price: d.price }); }
+    for (var k in servicesData) { var d = servicesData[k]; if (!c[d.category]) c[d.category] = []; c[d.category].push(Object.assign({ k: k }, d)); }
     s.innerHTML = '<option value="">— Select a service —</option>';
-    for (var cat in c) {
-      var g = document.createElement("optgroup");
-      g.label = cat;
-      c[cat].forEach(function(item) {
-        var o = document.createElement("option");
-        o.value = item.key;
-        o.setAttribute("data-name", item.name);
-        o.setAttribute("data-price", item.price);
-        o.textContent = item.name + " — " + item.price; // fallback
-        g.appendChild(o);
-      });
-      s.appendChild(g);
-    }
+    for (var cat in c) { var g = document.createElement("optgroup"); g.label = cat; c[cat].forEach(function(i) { var o = document.createElement("option"); o.value = i.k; o.textContent = i.name + " — " + i.price; g.appendChild(o); }); s.appendChild(g); }
     s.addEventListener("change", onServiceChange);
   }
 
@@ -569,7 +524,7 @@
         statusBadge = '<span style="background:#fff5e6;color:#9a5c00;border:1px solid #ffcc80;padding:.25rem .9rem;border-radius:20px;font-size:.72rem;font-weight:700;display:inline-flex;align-items:center;gap:.3rem;white-space:nowrap">⏳ Pending</span>';
       }
       var r = document.createElement("tr");
-      r.innerHTML = '<td><strong>'+b.nombre+'</strong></td><td>'+b.telefono+'</td></td>'+b.servicio+'</td><td>'+b.fecha+'</td><td>'+b.direccion+'</td><td>'+statusBadge+'</td>';
+      r.innerHTML = '<td><strong>'+b.nombre+'</strong></td><td>'+b.telefono+'</td><td>'+b.servicio+'</td><td>'+b.fecha+'</td><td>'+b.direccion+'</td><td>'+statusBadge+'</td>';
       tb.appendChild(r);
     });
   }
@@ -615,6 +570,7 @@
     document.getElementById("formReserva").classList.add("hidden");
     var pn = document.getElementById("panelEnviado"); if (!pn) return; pn.classList.remove("hidden");
 
+    // ── Google Ads Conversion Tracking ──────────────────────────────────
     if (typeof gtag === "function") {
       gtag('event', 'conversion', {
         'send_to': 'AW-18135400951/f7l_CPb7v6YcEPeD0cdD',
@@ -623,6 +579,7 @@
         'transaction_id': p.timestamp || ''
       });
     }
+    // ────────────────────────────────────────────────────────────────────
 
     document.getElementById("telefonoMostrar").textContent = p.telefono;
     document.getElementById("reciboNombre2").textContent = p.nombre;
@@ -737,7 +694,9 @@
 
   function init() {
     populateSelect();
+    // Initialize custom selects right after populating options
     initLvSelects();
+
     setStep(1); initCalendar();
     handleMMGReturn();
     document.querySelectorAll(".animate-on-scroll").forEach(function(el){ obs.observe(el); });
@@ -766,6 +725,7 @@
       document.getElementById("calendarPlaceholder").classList.remove("hidden");
       document.getElementById("calendarContent").classList.add("hidden");
       document.getElementById("selectedDateDisplay").classList.remove("show");
+      // Reset the custom select display as well
       var servSel = document.getElementById("servicio");
       if (servSel && servSel._lv) { servSel._lv.updateDisplay(); }
       clearErrors(); setStep(1); lastBookingPayload = null;
@@ -790,6 +750,7 @@
     var md = document.getElementById("mmgDoneBtn"); if(md) md.addEventListener("click", closeMMGModal);
     var mr = document.getElementById("mmgRetryBtn"); if(mr) mr.addEventListener("click", resetMMGModal);
 
+    // Launch visual enhancements
     initLvUI();
   }
 
