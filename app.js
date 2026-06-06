@@ -11,11 +11,7 @@
   };
 
   const servicesData = {
-   "inspection-east": { name: "Standard Inspection & Estimate Cost - East Bank up to Friendship; East Coast up to Lusignan & Georgetown", price: "$10,000", category: "Inspection" },
-    "inspection-west": { name: "Standard Inspection & Estimate Cost - West Coast Demerara & West Bank Demerara", price: "$12,000", category: "Inspection" },
-    "ac-installation": { name: "AC Installation - Client must provide their own materials or pay additional charges for required materials", price: "$30,000", category: "AC Services" },
-    "ac-servicing-standard": { name: "AC Servicing - Standard Cleaning of Unit", price: "$15,000", category: "AC Services" },
-    "ac-servicing-bus-down": { name: "AC Servicing - Bus down of entire unit for cleaning - Technician will advise if required", price: "$20,000", category: "AC Services" },
+,
     "bedroom": { name: "Bedroom", price: "$7,500", category: "Cleaning" },
     "bathroom-toilet": { name: "Bathroom & Toilet", price: "$12,000", category: "Cleaning" },
     "kitchen": { name: "Kitchen", price: "$9,000", category: "Cleaning" },
@@ -43,7 +39,7 @@
     "tacoma-cleaning": { name: "Tacoma (Pick ups)", price: "$24,000", category: "Vehicle Cleaning" },
     "carpet-uninstalled": { name: "Per Square foot L x W (uninstalled)", price: "$115", category: "Carpet Installation" },
     "carpet-installed": { name: "Per Square foot L x W (installed)", price: "$95", category: "Carpet Installation" },
-    "carpet-deep-cleaning": { name: "Deep Cleaning (Pressure washing, shampooing and steam cleaning) - Carpets", price: "$220", category: "Carpet Cleaning" },
+    "carpet-deep-cleaning": { name: "Deep Cleaning (Pressure washing, shampooing and steam cleaning)", price: "$220", category: "Carpet Cleaning" },
     "pressure-washing": { name: "Per Square foot pressure washing", price: "$30", category: "Pressure Washing" },
     "recliner-single": { name: "Recliner Single", price: "$6,000", category: "Recliner Cleaning" },
     "recliner-joined": { name: "Recliner Joined", price: "$10,000", category: "Recliner Cleaning" },
