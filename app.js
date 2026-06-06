@@ -10,17 +10,18 @@
     GET_BOOKINGS_WEBHOOK: "https://n8n-n8n.7toway.easypanel.host/webhook/get-bookings",
   };
 
+  // ===================== SERVICIOS ACTUALIZADOS =====================
   const servicesData = {
-    // ========== INSPECCIONES (nuevo) ==========
+    // --- INSPECCIONES (nuevo) ---
     "inspection-east":     { name: "Standard Inspection – East Bank up to Friendship; East Coast up to Lusignan & Georgetown", price: "$10,000", category: "Inspection" },
     "inspection-west":     { name: "Standard Inspection – West Coast Demerara & West Bank Demerara", price: "$12,000", category: "Inspection" },
 
-    // ========== SERVICIOS DE AC (nuevo) ==========
+    // --- AC SERVICES (nuevo) ---
     "ac-installation":     { name: "AC Installation (client provides materials)", price: "$30,000", category: "AC Services" },
     "ac-servicing-standard": { name: "AC Servicing – Standard Cleaning", price: "$15,000", category: "AC Services" },
     "ac-servicing-busdown":  { name: "AC Servicing – Bus down of entire unit", price: "$20,000", category: "AC Services" },
 
-    // ========== LIMPIEZA POR AMBIENTES (nuevo) ==========
+    // --- LIMPIEZA POR AMBIENTES (nuevo) ---
     "room-bedroom":        { name: "Bedroom Cleaning", price: "$7,500", category: "Room Cleaning" },
     "room-bathroom":       { name: "Bathroom & Toilet Cleaning", price: "$12,000", category: "Room Cleaning" },
     "room-kitchen":        { name: "Kitchen Cleaning", price: "$9,000", category: "Room Cleaning" },
@@ -29,7 +30,7 @@
     "floor-polishing":     { name: "Floor Polishing", price: "$95 (per unit)", category: "Floor Polishing" },
     "office-space":        { name: "Office Space (per sq ft, mopping & surfaces, min $10,000)", price: "$80/sq ft", category: "Office Cleaning" },
 
-    // ========== SOFÁS Y SILLAS (ya existentes, se mantienen) ==========
+    // --- SOFÁS Y SILLAS (existentes, precios correctos) ---
     "sofa-1seat":          { name: "1 Seat Sofa",                              price: "$6,000",        category: "Steam Cleaning" },
     "sofa-2seat":          { name: "2 Seat Sofa",                              price: "$10,000",       category: "Steam Cleaning" },
     "sofa-3seat":          { name: "3 Seat Sofa",                              price: "$14,000",       category: "Steam Cleaning" },
@@ -42,62 +43,62 @@
     "office-chairs":       { name: "Office Chair",                             price: "$2,500/each",   category: "Steam Cleaning" },
     "dining-chairs":       { name: "Dining Chair",                             price: "$2,000/each",   category: "Steam Cleaning" },
 
-    // ========== COLCHONES (precios corregidos según imagen) ==========
+    // --- COLCHONES (precios corregidos) ---
     "mattress-king":       { name: "King Size Mattress (Inclusive of 2 pillows)", price: "$12,000",   category: "Steam Cleaning" },
     "mattress-queen":      { name: "Queen Size Mattress (Inclusive of 2 pillows)",price: "$10,000",   category: "Steam Cleaning" },
     "mattress-double":     { name: "Double Size Mattress",                     price: "$10,000",       category: "Steam Cleaning" },
     "mattress-single":     { name: "Single Mattress",                          price: "$8,000",        category: "Steam Cleaning" },
 
-    // ========== VEHÍCULOS ==========
+    // --- VEHÍCULOS ---
     "car":                 { name: "Car Interior (with mats)",                 price: "$12,000",       category: "Steam Cleaning" },
     "suv":                 { name: "SUV Interior (with mats)",                 price: "$16,000",       category: "Steam Cleaning" },
     "tacoma":              { name: "Tacoma / Pick up (with mats)",             price: "$24,000",       category: "Steam Cleaning" },
 
-    // ========== ALFOMBRAS POR PIE CUADRADO ==========
+    // --- ALFOMBRAS POR PIE CUADRADO ---
     "carpet-uninstalled":  { name: "Carpet (uninstalled) – per sq ft",         price: "$115/sq ft",    category: "Carpet Cleaning" },
     "carpet-installed":    { name: "Carpet (installed) – per sq ft",           price: "$95/sq ft",     category: "Carpet Cleaning" },
     "carpet-deepclean":    { name: "Deep Cleaning (pressure washing, shampooing & steam cleaning) – per sq ft", price: "$220/sq ft", category: "Carpet Cleaning" },
     "carpet-pressurewash": { name: "Pressure Washing – Carpet (per sq ft)",    price: "$30/sq ft",     category: "Carpet Cleaning" },
 
-    // ========== RECOGIDA DE ALFOMBRAS ==========
+    // --- RECOGIDA DE ALFOMBRAS ---
     "carpet-pickup-gtown": { name: "Carpet Pickup – Georgetown & West Bank",   price: "$2,000",        category: "Carpet Pickup" },
     "carpet-pickup-westcoast": { name: "Carpet Pickup – West Coast Demerara",  price: "$3,000",        category: "Carpet Pickup" },
 
-    // ========== LAVADO A PRESIÓN (EXTERIORES) ==========
+    // --- LAVADO A PRESIÓN EXTERIOR ---
     "pressure-driveway":   { name: "Pressure Washing – Driveway & Walkway",    price: "$30/sq ft",     category: "Pressure Washing" },
     "pressure-patio":      { name: "Pressure Washing – Patio/Terrace",         price: "$30/sq ft",     category: "Pressure Washing" },
     "pressure-building":   { name: "Pressure Washing – Building Exterior",     price: "$30/sq ft",     category: "Pressure Washing" },
     "pressure-fence":      { name: "Pressure Washing – Fence Cleaning",        price: "$30/sq ft",     category: "Pressure Washing" },
     "pressure-parking":    { name: "Pressure Washing – Parking Lot",           price: "$30/sq ft",     category: "Pressure Washing" },
 
-    // ========== LIMPIEZA RESIDENCIAL (Quote on visit) ==========
+    // --- RESIDENCIAL (Quote on visit) ---
     "residential-1bed":    { name: "Residential – 1 Bedroom Apartment",        price: "Quote on visit",category: "Residential Cleaning" },
     "residential-2bed":    { name: "Residential – 2 Bedroom House",            price: "Quote on visit",category: "Residential Cleaning" },
     "residential-3bed":    { name: "Residential – 3 Bedroom House",            price: "Quote on visit",category: "Residential Cleaning" },
     "residential-general": { name: "Residential – General Home Cleaning",      price: "Quote on visit",category: "Residential Cleaning" },
     "residential-onetime": { name: "Residential – One-Time Refresh",           price: "Quote on visit",category: "Residential Cleaning" },
 
-    // ========== LIMPIEZA PROFUNDA ==========
+    // --- DEEP CLEANING ---
     "deep-1bed":           { name: "Deep Clean – 1 Bedroom",                   price: "Quote on visit",category: "Deep Cleaning" },
     "deep-2bed":           { name: "Deep Clean – 2 Bedrooms",                  price: "Quote on visit",category: "Deep Cleaning" },
     "deep-3bed":           { name: "Deep Clean – 3 Bedrooms",                  price: "Quote on visit",category: "Deep Cleaning" },
     "deep-4bed":           { name: "Deep Clean – 4+ Bedrooms",                 price: "Quote on visit",category: "Deep Cleaning" },
 
-    // ========== LIMPIEZA COMERCIAL ==========
+    // --- COMMERCIAL ---
     "commercial-small":    { name: "Commercial – Small Office (up to 500 sq ft)",   price: "Quote on visit",category: "Commercial Cleaning" },
     "commercial-medium":   { name: "Commercial – Medium Office (500-1,500 sq ft)",  price: "Quote on visit",category: "Commercial Cleaning" },
     "commercial-large":    { name: "Commercial – Large Office (1,500+ sq ft)",      price: "Quote on visit",category: "Commercial Cleaning" },
     "commercial-retail":   { name: "Commercial – Retail Store",                price: "Quote on visit",category: "Commercial Cleaning" },
     "commercial-warehouse":{ name: "Commercial – Warehouse/Industrial",        price: "Quote on visit",category: "Commercial Cleaning" },
 
-    // ========== MUDANZAS ==========
+    // --- MOVE IN/OUT ---
     "movein-1bed":         { name: "Move-In/Out – 1 Bedroom Apartment",        price: "Quote on visit",category: "Move In/Out" },
     "movein-2bed":         { name: "Move-In/Out – 2 Bedroom House",            price: "Quote on visit",category: "Move In/Out" },
     "movein-3bed":         { name: "Move-In/Out – 3 Bedroom House",            price: "Quote on visit",category: "Move In/Out" },
     "movein-4bed":         { name: "Move-In/Out – 4+ Bedroom House",           price: "Quote on visit",category: "Move In/Out" },
   };
 
-  // Actualización de availableDates para incluir las nuevas categorías
+  // ===================== FECHAS DISPONIBLES (actualizado con nuevas categorías) =====================
   const availableDates = {
     "Steam Cleaning":       ["2026-4-28","2026-4-29","2026-4-30","2026-5-2","2026-5-4","2026-5-5","2026-5-6","2026-5-7","2026-5-8","2026-5-9","2026-5-11","2026-5-12","2026-5-13","2026-5-14","2026-5-15","2026-5-16","2026-5-18","2026-5-19","2026-5-20","2026-5-21","2026-5-22","2026-5-23","2026-5-25","2026-5-26","2026-5-27","2026-5-28","2026-5-29","2026-5-30"],
     "Carpet Cleaning":      ["2026-4-28","2026-4-29","2026-4-30","2026-5-2","2026-5-4","2026-5-5","2026-5-6","2026-5-7","2026-5-8","2026-5-9","2026-5-11","2026-5-12","2026-5-13","2026-5-14","2026-5-15","2026-5-16","2026-5-18","2026-5-19","2026-5-20","2026-5-21","2026-5-22","2026-5-23","2026-5-25","2026-5-26","2026-5-27","2026-5-28","2026-5-29","2026-5-30"],
@@ -107,7 +108,7 @@
     "Deep Cleaning":        ["2026-4-28","2026-4-29","2026-4-30","2026-5-2","2026-5-5","2026-5-6","2026-5-8","2026-5-9","2026-5-12","2026-5-13","2026-5-15","2026-5-16","2026-5-19","2026-5-20","2026-5-22","2026-5-23","2026-5-26","2026-5-27","2026-5-29","2026-5-30"],
     "Commercial Cleaning":  ["2026-4-28","2026-4-29","2026-4-30","2026-5-2","2026-5-4","2026-5-5","2026-5-7","2026-5-8","2026-5-11","2026-5-12","2026-5-14","2026-5-15","2026-5-18","2026-5-19","2026-5-21","2026-5-22","2026-5-25","2026-5-26","2026-5-28","2026-5-29"],
     "Move In/Out":          ["2026-4-28","2026-4-29","2026-4-30","2026-5-2","2026-5-4","2026-5-6","2026-5-9","2026-5-11","2026-5-13","2026-5-16","2026-5-18","2026-5-20","2026-5-23","2026-5-25","2026-5-27","2026-5-30"],
-    // Nuevas categorías (usamos las fechas de Residential como base)
+    // Nuevas categorías (se les asignan las mismas fechas que Residential Cleaning como base)
     "Inspection":           ["2026-4-28","2026-4-29","2026-4-30","2026-5-2","2026-5-4","2026-5-6","2026-5-8","2026-5-9","2026-5-11","2026-5-13","2026-5-15","2026-5-16","2026-5-18","2026-5-20","2026-5-22","2026-5-23","2026-5-25","2026-5-27","2026-5-29","2026-5-30"],
     "AC Services":          ["2026-4-28","2026-4-29","2026-4-30","2026-5-2","2026-5-4","2026-5-6","2026-5-8","2026-5-9","2026-5-11","2026-5-13","2026-5-15","2026-5-16","2026-5-18","2026-5-20","2026-5-22","2026-5-23","2026-5-25","2026-5-27","2026-5-29","2026-5-30"],
     "Room Cleaning":        ["2026-4-28","2026-4-29","2026-4-30","2026-5-2","2026-5-4","2026-5-6","2026-5-8","2026-5-9","2026-5-11","2026-5-13","2026-5-15","2026-5-16","2026-5-18","2026-5-20","2026-5-22","2026-5-23","2026-5-25","2026-5-27","2026-5-29","2026-5-30"],
@@ -121,8 +122,7 @@
   let lastBookingPayload = null;
 
   // ══════════════════════════════════════════════════════════════════════════
-  //  LIVITY UI — Custom Select Dropdown + Visual Enhancements
-  //  (No existing logic was modified — only added below this block)
+  //  LIVITY UI — Custom Select Dropdown (versión original, sin cambios estéticos)
   // ══════════════════════════════════════════════════════════════════════════
   var _lvSet = (typeof WeakSet !== "undefined") ? new WeakSet() : null;
 
@@ -131,7 +131,6 @@
     this.native = native;
     this.isOpen = false;
 
-    // Wrap the native select
     this.wrap = document.createElement("div");
     this.wrap.className = "lv-select-wrapper";
     native.parentNode.insertBefore(this.wrap, native);
@@ -139,7 +138,6 @@
     this.wrap._lv = this;
     native._lv = this;
 
-    // Trigger button
     this.trig = document.createElement("div");
     this.trig.className = "lv-trigger";
     this.trig.setAttribute("tabindex", "0");
@@ -151,16 +149,13 @@
     this.wrap.appendChild(this.trig);
     this.valEl = this.trig.querySelector(".lv-value");
 
-    // Dropdown panel
     this.panel = document.createElement("div");
     this.panel.className = "lv-panel";
     this.wrap.appendChild(this.panel);
 
-    // Watch for option changes (handles dynamic populateSelect)
     new MutationObserver(function () { self.rebuild(); })
       .observe(native, { childList: true, subtree: true });
 
-    // Events
     this.trig.addEventListener("click", function (e) {
       e.stopPropagation();
       self.isOpen ? self.close() : self.open();
@@ -219,7 +214,6 @@
 
   LvSelect.prototype.select = function (idx) {
     this.native.selectedIndex = idx;
-    // Dispatch change on native → triggers all existing onchange handlers
     this.native.dispatchEvent(new Event("change", { bubbles: true }));
     this.updateDisplay();
     this.panel.querySelectorAll(".lv-option").forEach(function (item) {
@@ -331,11 +325,7 @@
     initLvCursorGlow();
     initLvRipple();
     initLvParallax();
-    // Selects are initialized after populateSelect() inside init()
   }
-  // ══════════════════════════════════════════════════════════════════════════
-  //  END LIVITY UI ENHANCEMENTS
-  // ══════════════════════════════════════════════════════════════════════════
 
   // ── HANDLE MMG RETURN ───────────────────────────────────────────────────
   async function handleMMGReturn() {
@@ -481,9 +471,19 @@
   function populateSelect() {
     var s = document.getElementById("servicio"); if (!s) return;
     var c = {};
-    for (var k in servicesData) { var d = servicesData[k]; if (!c[d.category]) c[d.category] = []; c[d.category].push(Object.assign({ k: k }, d)); }
+    for (var k in servicesData) { var d = servicesData[k]; if (!c[d.category]) c[d.category] = []; c[d.category].push({ key: k, name: d.name, price: d.price }); }
     s.innerHTML = '<option value="">— Select a service —</option>';
-    for (var cat in c) { var g = document.createElement("optgroup"); g.label = cat; c[cat].forEach(function(i) { var o = document.createElement("option"); o.value = i.k; o.textContent = i.name + " — " + i.price; g.appendChild(o); }); s.appendChild(g); }
+    for (var cat in c) {
+      var g = document.createElement("optgroup");
+      g.label = cat;
+      c[cat].forEach(function(item) {
+        var o = document.createElement("option");
+        o.value = item.key;
+        o.textContent = item.name + " — " + item.price;   // ← formato original de una línea
+        g.appendChild(o);
+      });
+      s.appendChild(g);
+    }
     s.addEventListener("change", onServiceChange);
   }
 
@@ -570,7 +570,6 @@
     document.getElementById("formReserva").classList.add("hidden");
     var pn = document.getElementById("panelEnviado"); if (!pn) return; pn.classList.remove("hidden");
 
-    // ── Google Ads Conversion Tracking ──────────────────────────────────
     if (typeof gtag === "function") {
       gtag('event', 'conversion', {
         'send_to': 'AW-18135400951/f7l_CPb7v6YcEPeD0cdD',
@@ -579,7 +578,6 @@
         'transaction_id': p.timestamp || ''
       });
     }
-    // ────────────────────────────────────────────────────────────────────
 
     document.getElementById("telefonoMostrar").textContent = p.telefono;
     document.getElementById("reciboNombre2").textContent = p.nombre;
@@ -694,9 +692,7 @@
 
   function init() {
     populateSelect();
-    // Initialize custom selects right after populating options
     initLvSelects();
-
     setStep(1); initCalendar();
     handleMMGReturn();
     document.querySelectorAll(".animate-on-scroll").forEach(function(el){ obs.observe(el); });
@@ -725,7 +721,6 @@
       document.getElementById("calendarPlaceholder").classList.remove("hidden");
       document.getElementById("calendarContent").classList.add("hidden");
       document.getElementById("selectedDateDisplay").classList.remove("show");
-      // Reset the custom select display as well
       var servSel = document.getElementById("servicio");
       if (servSel && servSel._lv) { servSel._lv.updateDisplay(); }
       clearErrors(); setStep(1); lastBookingPayload = null;
@@ -750,7 +745,6 @@
     var md = document.getElementById("mmgDoneBtn"); if(md) md.addEventListener("click", closeMMGModal);
     var mr = document.getElementById("mmgRetryBtn"); if(mr) mr.addEventListener("click", resetMMGModal);
 
-    // Launch visual enhancements
     initLvUI();
   }
 
