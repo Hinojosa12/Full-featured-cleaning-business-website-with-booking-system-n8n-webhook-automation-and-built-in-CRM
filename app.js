@@ -11,7 +11,7 @@
   };
 
   const servicesData = {
-,
+
     "bedroom": { name: "Bedroom", price: "$7,500", category: "Cleaning" },
     "bathroom-toilet": { name: "Bathroom & Toilet", price: "$12,000", category: "Cleaning" },
     "kitchen": { name: "Kitchen", price: "$9,000", category: "Cleaning" },
