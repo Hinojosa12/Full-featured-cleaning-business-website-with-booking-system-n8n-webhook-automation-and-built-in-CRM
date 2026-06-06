@@ -1,5 +1,4 @@
 var WEBHOOK = 'https://n8n-n8n.7toway.easypanel.host/webhook/0e6a220e-8739-4db7-9770-cd6f4a4c35f4';
-
 var MMG_CHECKOUT_WEBHOOK = 'https://n8n-n8n.7toway.easypanel.host/webhook/mmg-generate-checkout';
 var MMG_VERIFY_WEBHOOK   = 'https://n8n-n8n.7toway.easypanel.host/webhook/mmg-verify-payment';
 
@@ -41,6 +40,9 @@ var SVC = {
   'pressure-building':    { name: 'Pressure Washing – Building Exterior',        price: '$30/sq ft',      category: 'Pressure Washing' },
   'pressure-fence':       { name: 'Pressure Washing – Fence Cleaning',           price: '$30/sq ft',      category: 'Pressure Washing' },
   'pressure-parking':     { name: 'Pressure Washing – Parking Lot',             price: '$30/sq ft',      category: 'Pressure Washing' },
+  // carpet-installed eliminado
+  'carpet-uninstalled':   { name: 'Per Square foot L x W (uninstalled)',         price: 'sqft:115',       category: 'Carpet Installation', isSqft: true, rate: 115 },
+  'carpet-deep-cleaning': { name: 'Deep Cleaning (Pressure washing, shampooing and steam cleaning)', price: 'sqft:220', category: 'Carpet Cleaning', isSqft: true, rate: 220 }
 };
 
 var availableDates = {
@@ -275,9 +277,25 @@ function initLvUI() {
 //  END LIVITY UI ENHANCEMENTS
 // ══════════════════════════════════════════════════════════════════════════
 
+// ── Funciones para servicios por sqft ────────────────────────────────────
+function isSqftService(serviceKey) {
+  return SVC[serviceKey] && SVC[serviceKey].isSqft === true;
+}
+function getSqftRate(serviceKey) {
+  return SVC[serviceKey] ? SVC[serviceKey].rate : null;
+}
+function calculateSqftPrice(serviceKey, length, width) {
+  if (!isSqftService(serviceKey)) return null;
+  const rate = getSqftRate(serviceKey);
+  if (!rate) return null;
+  const sqft = length * width;
+  return sqft * rate;
+}
+
 // ── HELPER FUNCTIONS ──────────────────────────────────────────────────────
 function parsePrice(priceStr) {
   if (!priceStr || priceStr.toLowerCase().indexOf('quote') !== -1) return null;
+  if (typeof priceStr === 'number') return priceStr;
   var cleaned = priceStr.replace(/[^0-9.]/g, '');
   var num = parseFloat(cleaned);
   return isNaN(num) ? null : num;
@@ -289,7 +307,74 @@ function formatGYD(amount) {
 
 function isFixedPrice(priceStr) {
   if (!priceStr) return false;
+  if (typeof priceStr === 'number') return true;
   return priceStr.toLowerCase().indexOf('quote') === -1 && priceStr.indexOf('/sq ft') === -1 && priceStr.indexOf('/each') === -1;
+}
+
+// ── CREAR CAMPOS DE DIMENSIONES (para services page) ─────────────────────
+let dimensionFieldsContainers = {};
+
+function createDimensionFieldsForSection(prefix, serviceKey) {
+  const containerId = `dimensionFields_${prefix}`;
+  let container = document.getElementById(containerId);
+  if (!container) {
+    const selectGroup = document.getElementById(`${prefix}-servicio`)?.closest('.form-group');
+    if (!selectGroup) return;
+    const parent = selectGroup.parentNode;
+    const newDiv = document.createElement('div');
+    newDiv.id = containerId;
+    newDiv.className = 'form-group full';
+    newDiv.style.marginTop = '1rem';
+    newDiv.style.padding = '0.75rem';
+    newDiv.style.background = 'rgba(0,0,0,0.02)';
+    newDiv.style.borderRadius = '12px';
+    parent.insertBefore(newDiv, selectGroup.nextSibling);
+    container = newDiv;
+    dimensionFieldsContainers[prefix] = container;
+  }
+
+  if (!isSqftService(serviceKey)) {
+    if (container) container.innerHTML = '';
+    return;
+  }
+
+  const rate = getSqftRate(serviceKey);
+  const rateText = rate === 115 ? '115 GYD/sq ft' : '220 GYD/sq ft';
+  container.innerHTML = `
+    <div style="display:flex; gap:1rem; flex-wrap:wrap; align-items:flex-end;">
+      <div style="flex:1; min-width:120px;">
+        <label><i class="fas fa-arrows-alt-h"></i> Length (feet) *</label>
+        <input type="number" id="${prefix}_length" step="0.01" min="0.1" placeholder="e.g., 10.5">
+      </div>
+      <div style="flex:1; min-width:120px;">
+        <label><i class="fas fa-arrows-alt-v"></i> Width (feet) *</label>
+        <input type="number" id="${prefix}_width" step="0.01" min="0.1" placeholder="e.g., 8.2">
+      </div>
+      <div style="flex:0 0 auto;">
+        <div class="sqft-total" style="background:#f5f0e6; padding:0.5rem 1rem; border-radius:40px; font-weight:700;">
+          Total: <span id="${prefix}_sqftTotalDisplay">$0</span>
+        </div>
+        <small style="font-size:0.7rem; color:var(--muted);">Rate: ${rateText}</small>
+      </div>
+    </div>
+  `;
+
+  const lengthInput = document.getElementById(`${prefix}_length`);
+  const widthInput = document.getElementById(`${prefix}_width`);
+  const totalSpan = document.getElementById(`${prefix}_sqftTotalDisplay`);
+
+  function updateTotal() {
+    const l = parseFloat(lengthInput?.value) || 0;
+    const w = parseFloat(widthInput?.value) || 0;
+    if (l > 0 && w > 0) {
+      const total = calculateSqftPrice(serviceKey, l, w);
+      totalSpan.textContent = formatGYD(total);
+    } else {
+      totalSpan.textContent = '$0';
+    }
+  }
+  if (lengthInput) lengthInput.addEventListener('input', updateTotal);
+  if (widthInput) widthInput.addEventListener('input', updateTotal);
 }
 
 // ── SERVICE CHANGE HANDLER ────────────────────────────────────────────────
@@ -302,6 +387,8 @@ function onServiceChangeSection(prefix) {
   calStates['cal-' + prefix] = calStates['cal-' + prefix] || {};
   calStates['cal-' + prefix].selected = null;
   document.getElementById(prefix + '-fecha').value = '';
+
+  createDimensionFieldsForSection(prefix, sk);
 
   if (sd) {
     currentCategories[prefix] = sd.category;
@@ -441,7 +528,7 @@ function toggleForm(id) {
 // ── VALIDATION ────────────────────────────────────────────────────────────
 function getVal(id) { var el = document.getElementById(id); return el ? el.value.trim() : ''; }
 
-function validateForm(p) {
+function validateForm(prefix) {
   var ok = true;
   document.querySelectorAll('.field-error').forEach(function (el) { el.classList.remove('field-error'); });
   document.querySelectorAll('.error-msg').forEach(function (el) { el.textContent = ''; });
@@ -454,16 +541,25 @@ function validateForm(p) {
     ok = false;
   }
 
-  var n = getVal(p + '-nombre'), e = getVal(p + '-email');
-  var t = getVal(p + '-telefono'), s = getVal(p + '-servicio');
-  var f = getVal(p + '-fecha'),   d = getVal(p + '-direccion');
+  var n = getVal(prefix + '-nombre'), e = getVal(prefix + '-email');
+  var t = getVal(prefix + '-telefono'), s = getVal(prefix + '-servicio');
+  var f = getVal(prefix + '-fecha'),   d = getVal(prefix + '-direccion');
 
-  if (!n) err(p + '-nombre',   'Name is required.');
-  if (!e || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)) err(p + '-email', 'Valid email required.');
-  if (!t || !/^[\+]?[\d\s\-\(\)]{7,15}$/.test(t.replace(/\s/g, ''))) err(p + '-telefono', 'Valid phone required.');
-  if (!s) err(p + '-servicio', 'Please select a service.');
-  if (!f) { err(p + '-fecha', 'Please select a date.'); showToast('Please select an available date from the calendar.', 'error'); }
-  if (!d) err(p + '-direccion', 'Address is required.');
+  if (!n) err(prefix + '-nombre',   'Name is required.');
+  if (!e || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)) err(prefix + '-email', 'Valid email required.');
+  if (!t || !/^[\+]?[\d\s\-\(\)]{7,15}$/.test(t.replace(/\s/g, ''))) err(prefix + '-telefono', 'Valid phone required.');
+  if (!s) err(prefix + '-servicio', 'Please select a service.');
+  if (!f) { err(prefix + '-fecha', 'Please select a date.'); showToast('Please select an available date from the calendar.', 'error'); }
+  if (!d) err(prefix + '-direccion', 'Address is required.');
+
+  if (isSqftService(s)) {
+    const length = parseFloat(document.getElementById(`${prefix}_length`)?.value);
+    const width = parseFloat(document.getElementById(`${prefix}_width`)?.value);
+    if (!length || length <= 0 || !width || width <= 0) {
+      showToast('Please enter valid Length and Width in feet for this service.', 'error');
+      ok = false;
+    }
+  }
   return ok;
 }
 
@@ -481,6 +577,20 @@ async function submitForm(prefix, serviceName) {
   var sd    = SVC[sk] || {};
   var fecha = getVal(prefix + '-fecha');
 
+  let finalPrice = sd.price;
+  let sqftValue = null;
+  if (isSqftService(sk)) {
+    const length = parseFloat(document.getElementById(`${prefix}_length`)?.value);
+    const width = parseFloat(document.getElementById(`${prefix}_width`)?.value);
+    if (length && width && length > 0 && width > 0) {
+      sqftValue = length * width;
+      const total = calculateSqftPrice(sk, length, width);
+      finalPrice = formatGYD(total);
+    } else {
+      finalPrice = 'Quote on visit';
+    }
+  }
+
   var payload = {
     nombre:      getVal(prefix + '-nombre'),
     email:       getVal(prefix + '-email'),
@@ -488,13 +598,16 @@ async function submitForm(prefix, serviceName) {
     servicioKey: sk,
     servicio:    sd.name || svcTx,
     categoria:   sd.category || serviceName,
-    precio:      sd.price || 'Quote on visit',
+    precio:      finalPrice,
     fecha:       fecha,
     horario:     '09:00',
     fechaHora:   fecha + 'T09:00',
     direccion:   getVal(prefix + '-direccion'),
     notas:       getVal(prefix + '-notas'),
-    cantidad: null, sqft: null, pickup: null, tipoMudanza: null,
+    cantidad: null,
+    sqft: sqftValue,
+    pickup: null,
+    tipoMudanza: null,
     timestamp:   new Date().toISOString(),
     source:      'standardhomecleaning.html',
   };
@@ -517,9 +630,13 @@ function showSuccessPanel(prefix, data) {
     ? new Date(data.fecha + 'T12:00:00').toLocaleDateString('en-GB', { weekday:'long', year:'numeric', month:'long', day:'numeric' })
     : 'TBD';
 
-  var mmgBtnClass    = isFixedPrice(data.precio) ? 'btn-mmg' : 'btn-mmg mmg-disabled';
-  var mmgBtnDisabled = isFixedPrice(data.precio) ? '' : ' disabled';
-  var mmgAmountText  = isFixedPrice(data.precio) ? data.precio + ' GYD' : 'Quote required';
+  let isFixed = false;
+  let priceNumber = parsePrice(data.precio);
+  if (priceNumber !== null && priceNumber > 0) isFixed = true;
+
+  var mmgBtnClass    = isFixed ? 'btn-mmg' : 'btn-mmg mmg-disabled';
+  var mmgBtnDisabled = isFixed ? '' : ' disabled';
+  var mmgAmountText  = isFixed ? data.precio : 'Quote required';
 
   panel.innerHTML =
     '<div class="success-icon">&#9989;</div>' +
@@ -566,7 +683,9 @@ function resetForm(prefix) {
   var calId = 'cal-' + prefix;
   if (calStates[calId]) { calStates[calId].selected = null; }
 
-  // Reset the custom select display
+  const dimContainer = document.getElementById(`dimensionFields_${prefix}`);
+  if (dimContainer) dimContainer.innerHTML = '';
+
   var selEl = document.getElementById(prefix + '-servicio');
   if (selEl && selEl._lv) { selEl._lv.updateDisplay(); }
 
@@ -576,7 +695,11 @@ function resetForm(prefix) {
 // ── MMG PAYMENT ───────────────────────────────────────────────────────────
 function openMMGModal() {
   if (!lastBookingPayload) return;
-  var amount = parsePrice(lastBookingPayload.precio);
+  let amount = parsePrice(lastBookingPayload.precio);
+  if (amount === null && lastBookingPayload.sqft) {
+    const rate = getSqftRate(lastBookingPayload.servicioKey);
+    if (rate) amount = lastBookingPayload.sqft * rate;
+  }
   document.getElementById('mmgService').textContent = lastBookingPayload.servicio;
   document.getElementById('mmgTotal').textContent = formatGYD(amount) + ' GYD';
   var phone = lastBookingPayload.telefono.replace(/\+592\s?/, '').replace(/\s/g, '');
@@ -595,7 +718,6 @@ function closeMMGModal() {
   document.body.style.overflow = '';
 }
 
-// ── HANDLE MMG RETURN (same flow as app.js) ──────────────────────────────
 async function handleMMGReturn() {
   var params = new URLSearchParams(window.location.search);
   var token = params.get('TOKEN') || params.get('token') || params.get('mmg_token');
@@ -642,6 +764,12 @@ async function processMMGPayment() {
   }
   phoneInput.classList.remove('field-error');
 
+  let amountValue = parsePrice(lastBookingPayload.precio);
+  if (amountValue === null && lastBookingPayload.sqft) {
+    const rate = getSqftRate(lastBookingPayload.servicioKey);
+    if (rate) amountValue = lastBookingPayload.sqft * rate;
+  }
+
   var payBtn = document.getElementById('mmgConfirmPay');
   var payText = document.getElementById('mmgPayText');
   var paySpinner = document.getElementById('mmgPaySpinner');
@@ -658,10 +786,11 @@ async function processMMGPayment() {
         email:     lastBookingPayload.email,
         telefono:  phone,
         servicio:  lastBookingPayload.servicio,
-        precio:    lastBookingPayload.precio,
+        precio:    formatGYD(amountValue),
         fecha:     lastBookingPayload.fecha,
         direccion: lastBookingPayload.direccion,
-        categoria: lastBookingPayload.categoria
+        categoria: lastBookingPayload.categoria,
+        sqft:      lastBookingPayload.sqft
       })
     });
 
@@ -700,7 +829,7 @@ document.addEventListener('DOMContentLoaded', function () {
   var sections = document.querySelectorAll('.service-section');
   var links    = document.querySelectorAll('.quick-nav a');
 
-  // Intersection observer for active nav state (existing logic)
+  // Intersection observer for active nav state
   var obs = new IntersectionObserver(function (entries) {
     entries.forEach(function (e) {
       if (e.isIntersecting) {
@@ -713,10 +842,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
   sections.forEach(function (s) { obs.observe(s); });
 
-  // Handle MMG return from payment page
   handleMMGReturn();
 
-  // Smooth scroll for quick-nav clicks (new)
+  // Smooth scroll for quick-nav clicks
   links.forEach(function (a) {
     a.addEventListener('click', function (e) {
       var href = a.getAttribute('href');
@@ -741,6 +869,5 @@ document.addEventListener('DOMContentLoaded', function () {
     if (tgt) setTimeout(function () { tgt.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 300);
   }
 
-  // Launch visual enhancements
   initLvUI();
 });
