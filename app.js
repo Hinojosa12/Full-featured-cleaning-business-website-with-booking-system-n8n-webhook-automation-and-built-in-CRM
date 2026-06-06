@@ -18,7 +18,7 @@
     "livingroom": { name: "Livingroom", price: "$12,000", category: "Cleaning" },
     "studio-apartment": { name: "Studio Apartment", price: "$40,000", category: "Cleaning" },
     "floor-polishing": { name: "FLOOR POLISHING", price: "$95", category: "Floor Polishing" },
-    "office-space": { name: "Office Space - price is inclusive of mopping and wiping surfaces but not steam cleaning (per square foot) minimum $10,000", price: "$80", category: "Office Cleaning" },
+    "office-space": { name: "Office Space  price is inclusive of mopping and wiping surfaces but not steam cleaning (per square foot) minimum $10,000", price: "$80", category: "Office Cleaning" },
     "1-seat-sofa": { name: "1 seat Sofa", price: "$6,000", category: "Furniture Cleaning" },
     "2-seat-sofa": { name: "2 seat Sofa", price: "$10,000", category: "Furniture Cleaning" },
     "3-seat-sofa": { name: "3 seat Sofa", price: "$14,000", category: "Furniture Cleaning" },
