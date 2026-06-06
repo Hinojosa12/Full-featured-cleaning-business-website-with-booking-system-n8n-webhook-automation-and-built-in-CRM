@@ -702,4 +702,4 @@
   }
 
   document.addEventListener("DOMContentLoaded", init);
-})(); Actualiza el codigo con los datos tu
+})(); 
