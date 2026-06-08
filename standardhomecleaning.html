@@ -107,7 +107,7 @@
                  <option value="deep-2bed">Single Mattress — 8000</option>
                 <option value="deep-3bed">Recliner Single  — 6000</option>
                 <option value="deep-4bed">Recliner Joined — 10000</option>
-                <option value="deep-1bed">Carpet Cleaning – Deep Cleaning  — 16000</option>
+                <option value="deep-1bed">Carpet Cleaning – 16000</option>
                 <option value="deep-2bed">Ottoman — 5000</option>
               </select>
             </div>
@@ -151,7 +151,7 @@
             <div class="fg"><label><i class="fas fa-building"></i>Office size *</label>
               <select id="r3-servicio" onchange="onServiceChangeSection('r3')">
                 <option value="">— Select —</option>
-                <option value="commercial-small">Office Cleaning  — $80/sq ft, min $10,000</option>
+                <option value="commercial-small">Office Cleaning $80/sq ft, min — 10,000</option>
                 <option value="commercial-medium">Office Chairs — 2500</option>
               </select>
             </div>
@@ -186,7 +186,7 @@
         <p class="service-desc">Penetrates deep into fabrics to remove embedded dirt, allergens, and germs — leaving surfaces fresh, sanitized, and restored.</p>
         <div class="price-card">
           <h4>Pricing Guide</h4>
-          <div class="price-item"><span>1 Seat Sofa</span><span class="price-val">$6,000</span></div>
+          <div class="price-item"><span>L Shaped Sofa </span><span class="price-val">6,000</span></div>
           <div class="price-item"><span>2 Seat Sofa</span><span class="price-val">$10,000</span></div>
           <div class="price-item"><span>3 Seat Sofa</span><span class="price-val">$14,000</span></div>
           <div class="price-item"><span>King Mattress + 2 Pillows</span><span class="price-val">$10,000</span></div>
@@ -203,26 +203,10 @@
               <select id="r4-servicio" onchange="onServiceChangeSection('r4')">
                 <option value="">— Select —</option>
                 <optgroup label="Sofas">
-                  <option value="sofa-1seat">1 Seat — $6,000</option>
-                  <option value="sofa-2seat">2 Seat — $10,000</option>
-                  <option value="sofa-3seat">3 Seat — $14,000</option>
-                  <option value="l-shaped">L-Shaped — $16,000</option>
-                  <option value="suite-321">3-2-1 Suite — $24,000</option>
-                  <option value="suite-311">3-1-1 Suite — $20,000</option>
-                  <option value="recliners">Single Recliner — $6,000</option>
-                  <option value="recliners-joined">Joined Recliners — $10,000</option>
-                </optgroup>
-                <optgroup label="Mattresses">
-                  <option value="mattress-king">King + 2 Pillows — $10,000</option>
-                  <option value="mattress-queen">Queen + 2 Pillows — $8,000</option>
-                </optgroup>
-                <optgroup label="Vehicles">
-                  <option value="car">Car Interior (mats) — $12,000</option>
-                  <option value="suv">SUV Interior (mats) — $16,000</option>
-                </optgroup>
-                <optgroup label="Chairs">
-                  <option value="office-chairs">Office Chair — $2,500/each</option>
-                  <option value="dining-chairs">Dining Chair — $2,000/each</option>
+                  <option value="sofa-1seat">L Shaped Sofa — 16,000</option>
+                  <option value="sofa-2seat">3+2+1 Suite — 24,000</option>
+                  <option value="sofa-3seat">3+1+1 Suite — 20,000</option>
+                  <option value="l-shaped">3+2 Suite — 20,000</option>
                 </optgroup>
                 <!-- NUEVO: Servicios de alfombra por metro cuadrado -->
                 <optgroup label="Carpet Services">
@@ -250,52 +234,6 @@
   </div>
 </section>
 
-<!-- ══ SECTION 5: MOVE IN/OUT ══ -->
-<section id="section5" class="service-section" style="background-image:url('https://images.pexels.com/photos/4498136/pexels-photo-4498136.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2');">
-  <div class="service-content">
-    <div class="service-grid">
-      <div class="service-text">
-        <span class="section-tag">MOVE IN/OUT</span>
-        <h2 class="section-title">Move-In / <span>Move-Out Cleaning</span></h2>
-        <p class="service-subtitle">Full property cleaning for a perfect fresh start.</p>
-        <button class="btn-book" onclick="toggleForm('form-r5')"><i class="fas fa-calendar-check"></i> Book This Service</button>
-        <p class="service-desc">Whether you are moving into a new space or preparing for new tenants, our team will thoroughly clean from wall-to-wall and floor-to-ceiling.</p>
-        <p class="included-title">What's Included:</p>
-        <ul><li>Full Property Cleaning</li><li>Kitchen Deep Cleaning</li><li>Bathroom Cleaning</li><li>Floor Cleaning</li><li>Windows &amp; Glass</li><li>Wall-to-Wall Surfaces</li></ul>
-        <div class="form-section" id="form-r5">
-          <h3>Book <span>Move-In / Move-Out</span></h3>
-          <div class="form-grid-2">
-            <div class="fg"><label><i class="fas fa-user"></i>Full name *</label><input type="text" id="r5-nombre" placeholder="e.g., John Smith"></div>
-            <div class="fg"><label><i class="fas fa-envelope"></i>Email *</label><input type="email" id="r5-email" placeholder="john@email.com"></div>
-            <div class="fg"><label><i class="fab fa-whatsapp"></i>WhatsApp *</label><input type="tel" id="r5-telefono" placeholder="+592 123 4567"></div>
-            <div class="fg"><label><i class="fas fa-home"></i>Property size *</label>
-              <select id="r5-servicio" onchange="onServiceChangeSection('r5')">
-                <option value="">— Select —</option>
-                <option value="movein-1bed">1 Bedroom Apartment — Quote on visit</option>
-                <option value="movein-2bed">2 Bedroom House — Quote on visit</option>
-                <option value="movein-3bed">3 Bedroom House — Quote on visit</option>
-                <option value="movein-4bed">4+ Bedroom House — Quote on visit</option>
-              </select>
-            </div>
-            <div class="fg span2"><label><i class="fas fa-calendar-alt"></i>Select available date *</label>
-              <div class="cal-container" id="cal-r5" data-category="Move In/Out">
-                <div class="calendar-message" id="cal-placeholder-r5"><i class="fas fa-hand-pointer"></i>Please select a service first to see available dates.</div>
-                <div id="cal-content-r5" class="hidden"></div>
-              </div>
-              <input type="hidden" id="r5-fecha">
-            </div>
-            <div class="fg span2"><label><i class="fas fa-map-marker-alt"></i>Address *</label><input type="text" id="r5-direccion" placeholder="Street, city, region"></div>
-            <div class="fg span2"><label><i class="fas fa-comment"></i>Notes</label><textarea id="r5-notas" rows="2" placeholder="Property condition, access details..."></textarea></div>
-          </div>
-          <button class="submit-btn" id="btn-r5" onclick="submitForm('r5','Move-In / Move-Out Cleaning')"><i class="fas fa-paper-plane"></i><span>Book Move-In/Out</span></button>
-          <div class="success-panel" id="success-r5"></div>
-        </div>
-      </div>
-      <div class="service-image"><img src="tercera.png" alt="Move cleaning" loading="lazy"></div>
-    </div>
-  </div>
-</section>
-
 <!-- ══ SECTION 6: PRESSURE WASHING ══ -->
 <section id="section6" class="service-section" style="background-image:url('https://images.pexels.com/photos/7232409/pexels-photo-7232409.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2');">
   <div class="service-content">
@@ -317,11 +255,8 @@
             <div class="fg"><label><i class="fas fa-water"></i>Surface type *</label>
               <select id="r6-servicio" onchange="onServiceChangeSection('r6')">
                 <option value="">— Select —</option>
-                <option value="pressure-driveway">Driveway &amp; Walkway — $30/sq ft</option>
-                <option value="pressure-patio">Patio / Terrace — $30/sq ft</option>
-                <option value="pressure-building">Building Exterior — $30/sq ft</option>
-                <option value="pressure-fence">Fence Cleaning — $30/sq ft</option>
-                <option value="pressure-parking">Parking Lot — $30/sq ft</option>
+                <option value="pressure-driveway">Driveway &amp;Pressure Washing — 30GYD/sq ft</option>
+             
               </select>
             </div>
             <div class="fg span2"><label><i class="fas fa-calendar-alt"></i>Select available date *</label>
