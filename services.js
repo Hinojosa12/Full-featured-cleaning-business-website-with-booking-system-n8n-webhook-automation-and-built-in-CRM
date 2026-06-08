@@ -38,22 +38,13 @@
     "tacoma-cleaning":    { name: "Tacoma (Pick ups)",                                            price: "$24,000",  category: "Vehicle Cleaning" },
     "carpet-uninstalled": { name: "Per Square foot L x W (uninstalled)",                          price: "sqft:115", category: "Carpet Installation", isSqft: true, rate: 115 },
     "carpet-deep-cleaning":{ name: "Deep Cleaning (Pressure washing, shampooing and steam)",      price: "sqft:220", category: "Carpet Cleaning",     isSqft: true, rate: 220 },
-    // ── NEW: pressure-driveway now registered as sqft service ─────────────
     "pressure-driveway":  { name: "Driveway & Pressure Washing",                                  price: "sqft:30",  category: "Pressure Washing",    isSqft: true, rate: 30  },
     "pressure-washing":   { name: "Per Square foot pressure washing",                             price: "$30",      category: "Pressure Washing" },
     "recliner-single":    { name: "Recliner Single",                                              price: "$6,000",   category: "Recliner Cleaning" },
     "recliner-joined":    { name: "Recliner Joined",                                              price: "$10,000",  category: "Recliner Cleaning" },
   };
 
-  const availableDates = {
-    "Steam Cleaning":       ["2026-4-28","2026-4-29","2026-4-30","2026-5-2","2026-5-4","2026-5-5","2026-5-6","2026-5-7","2026-5-8","2026-5-9","2026-5-11","2026-5-12","2026-5-13","2026-5-14","2026-5-15","2026-5-16","2026-5-18","2026-5-19","2026-5-20","2026-5-21","2026-5-22","2026-5-23","2026-5-25","2026-5-26","2026-5-27","2026-5-28","2026-5-29","2026-5-30","2026-6-2","2026-6-3","2026-6-4","2026-6-5","2026-6-6","2026-6-8","2026-6-9","2026-6-10","2026-6-11","2026-6-12","2026-6-13","2026-6-15","2026-6-16","2026-6-17","2026-6-18","2026-6-19","2026-6-20","2026-6-22","2026-6-23","2026-6-24","2026-6-25","2026-6-26","2026-6-27","2026-6-29","2026-6-30"],
-    "Carpet Cleaning":      ["2026-4-28","2026-4-29","2026-4-30","2026-5-2","2026-5-4","2026-5-5","2026-5-6","2026-5-7","2026-5-8","2026-5-9","2026-5-11","2026-5-12","2026-5-13","2026-5-14","2026-5-15","2026-5-16","2026-5-18","2026-5-19","2026-5-20","2026-5-21","2026-5-22","2026-5-23","2026-5-25","2026-5-26","2026-5-27","2026-5-28","2026-5-29","2026-5-30","2026-6-2","2026-6-3","2026-6-4","2026-6-5","2026-6-6","2026-6-8","2026-6-9","2026-6-10","2026-6-11","2026-6-12","2026-6-13","2026-6-15","2026-6-16","2026-6-17","2026-6-18","2026-6-19","2026-6-20","2026-6-22","2026-6-23","2026-6-24","2026-6-25","2026-6-26","2026-6-27","2026-6-29","2026-6-30"],
-    "Pressure Washing":     ["2026-4-28","2026-4-29","2026-4-30","2026-5-2","2026-5-5","2026-5-7","2026-5-9","2026-5-11","2026-5-13","2026-5-16","2026-5-18","2026-5-20","2026-5-23","2026-5-25","2026-5-27","2026-5-30","2026-6-1","2026-6-3","2026-6-5","2026-6-8","2026-6-10","2026-6-12","2026-6-15","2026-6-17","2026-6-19","2026-6-22","2026-6-24","2026-6-26","2026-6-29"],
-    "Residential Cleaning": ["2026-4-28","2026-4-29","2026-4-30","2026-5-2","2026-5-4","2026-5-6","2026-5-8","2026-5-9","2026-5-11","2026-5-13","2026-5-15","2026-5-16","2026-5-18","2026-5-20","2026-5-22","2026-5-23","2026-5-25","2026-5-27","2026-5-29","2026-5-30","2026-6-1","2026-6-2","2026-6-3","2026-6-4","2026-6-5","2026-6-6","2026-6-8","2026-6-9","2026-6-10","2026-6-11","2026-6-12","2026-6-13","2026-6-15","2026-6-16","2026-6-17","2026-6-18","2026-6-19","2026-6-20","2026-6-22","2026-6-23","2026-6-24","2026-6-25","2026-6-26","2026-6-27","2026-6-29","2026-6-30"],
-    "Deep Cleaning":        ["2026-4-28","2026-4-29","2026-4-30","2026-5-2","2026-5-5","2026-5-6","2026-5-8","2026-5-9","2026-5-12","2026-5-13","2026-5-15","2026-5-16","2026-5-19","2026-5-20","2026-5-22","2026-5-23","2026-5-26","2026-5-27","2026-5-29","2026-5-30","2026-6-1","2026-6-2","2026-6-4","2026-6-5","2026-6-8","2026-6-9","2026-6-11","2026-6-12","2026-6-15","2026-6-16","2026-6-18","2026-6-19","2026-6-22","2026-6-23","2026-6-25","2026-6-26","2026-6-29","2026-6-30"],
-    "Commercial Cleaning":  ["2026-4-28","2026-4-29","2026-4-30","2026-5-2","2026-5-4","2026-5-5","2026-5-7","2026-5-8","2026-5-11","2026-5-12","2026-5-14","2026-5-15","2026-5-18","2026-5-19","2026-5-21","2026-5-22","2026-5-25","2026-5-26","2026-5-28","2026-5-29","2026-6-1","2026-6-2","2026-6-4","2026-6-5","2026-6-8","2026-6-9","2026-6-11","2026-6-12","2026-6-15","2026-6-16","2026-6-18","2026-6-19","2026-6-22","2026-6-23","2026-6-25","2026-6-26","2026-6-29","2026-6-30"],
-    "Move In/Out":          ["2026-4-28","2026-4-29","2026-4-30","2026-5-2","2026-5-4","2026-5-6","2026-5-9","2026-5-11","2026-5-13","2026-5-16","2026-5-18","2026-5-20","2026-5-23","2026-5-25","2026-5-27","2026-5-30"],
-  };
+  // ── ELIMINADO el objeto availableDates – ahora todos los días futuros están disponibles ──
 
   // ── Sqft helpers ────────────────────────────────────────────────────────
   function isSqftService(serviceKey) {
@@ -167,7 +158,7 @@
     if (widthInput)  widthInput.addEventListener("input", updateTotal);
   }
 
-  // ── Section calendar ────────────────────────────────────────────────────
+  // ── Section calendar (modificado: sin restricciones, usa clases cal-*) ──
   function getCategoryForSection(prefix, serviceKey) {
     if (serviceKey === "carpet-uninstalled" || serviceKey === "carpet-deep-cleaning") return "Carpet Cleaning";
     if (serviceKey === "pressure-driveway") return "Pressure Washing";
@@ -187,18 +178,24 @@
     var fd = new Date(state.year, state.month, 1).getDay();
     var dm = new Date(state.year, state.month + 1, 0).getDate();
 
+    // Usamos clases cal-grid, cal-label, cal-day (las de services.css)
     var html =
       '<div class="cal-header">' +
-        '<div class="cal-nav"><button type="button" onclick="sectionCalPrev('' + prefix + '')"><i class="fas fa-chevron-left"></i></button></div>' +
+        '<div class="cal-nav"><button type="button" onclick="sectionCalPrev(\'' + prefix + '\')"><i class="fas fa-chevron-left"></i></button></div>' +
         '<h4>' + mn[state.month] + ' ' + state.year + '</h4>' +
-        '<div class="cal-nav"><button type="button" onclick="sectionCalNext('' + prefix + '')"><i class="fas fa-chevron-right"></i></button></div>' +
+        '<div class="cal-nav"><button type="button" onclick="sectionCalNext(\'' + prefix + '\')"><i class="fas fa-chevron-right"></i></button></div>' +
       '</div>' +
       '<div class="cal-grid">';
 
+    // Días de la semana
     ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].forEach(function (d) {
       html += '<div class="cal-label">' + d + '</div>';
     });
-    for (var i = 0; i < fd; i++) html += '<div class="cal-day"></div>';
+
+    // Celdas vacías antes del día 1
+    for (var i = 0; i < fd; i++) html += '<div class="cal-day empty"></div>';
+
+    // Días del mes
     for (var d = 1; d <= dm; d++) {
       var dt = new Date(state.year, state.month, d); dt.setHours(0,0,0,0);
       var ds = state.year + "-" + (state.month + 1) + "-" + d;
@@ -219,6 +216,7 @@
     }
     html += '</div>';
 
+    // Leyenda
     html +=
       '<div class="cal-legend">' +
         '<div class="cal-legend-item"><div class="cal-legend-dot avail"></div> Available</div>' +
@@ -240,7 +238,7 @@
     contentDiv.classList.remove("hidden");
   }
 
-    window.selectSectionDate = function (prefix, ds) {
+  window.selectSectionDate = function (prefix, ds) {
     if (!sectionCals[prefix]) return;
     sectionCals[prefix].selected = ds;
     var p = ds.split("-");
@@ -430,23 +428,26 @@
 
   function initCalendar() { var n = new Date(); calMonth = n.getMonth(); calYear = n.getFullYear(); }
 
+  // Render calendar for main form (index.html) — also updated to use classes from services.css
   function renderCalendar() {
     var grid = document.getElementById("calendarGrid"); if (!grid) return; grid.innerHTML = "";
     var mn = ["January","February","March","April","May","June","July","August","September","October","November","December"];
     document.getElementById("calMonthYear").textContent = mn[calMonth] + " " + calYear;
-    ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].forEach(function(d){var l=document.createElement("div");l.className="calendar-day-label";l.textContent=d;grid.appendChild(l);});
+    ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].forEach(function(d){var l=document.createElement("div");l.className="cal-label";l.textContent=d;grid.appendChild(l);});
     var fd=new Date(calYear,calMonth,1).getDay(), dm=new Date(calYear,calMonth+1,0).getDate();
     var td=new Date(); td.setHours(0,0,0,0);
-    var cd=(currentCategory&&availableDates[currentCategory])||[], as=new Set(cd);
-    for(var i=0;i<fd;i++){var e=document.createElement("div");e.className="calendar-day";grid.appendChild(e);}
+    // Ya no usamos availableDates: todos los días futuros son disponibles
+    for(var i=0;i<fd;i++){var e=document.createElement("div");e.className="cal-day empty";grid.appendChild(e);}
     for(var d=1;d<=dm;d++){
-      var c=document.createElement("div");c.className="calendar-day current-month";c.textContent=d;
+      var c=document.createElement("div");c.className="cal-day current-month";c.textContent=d;
       var dt=new Date(calYear,calMonth,d);dt.setHours(0,0,0,0);
       var ds=calYear+"-"+(calMonth+1)+"-"+d;
       if(dt.getTime()===td.getTime())c.classList.add("today");
       if(dt<td)c.classList.add("unavailable");
-      else if(as.has(ds)){c.classList.add("available");c.addEventListener("click",(function(dd,dds){return function(){selectDate(dd,dds);};})(d,ds));}
-      else c.classList.add("unavailable");
+      else {
+        c.classList.add("available");
+        c.addEventListener("click",(function(dd,dds){return function(){selectDate(dd,dds);};})(d,ds));
+      }
       if(selectedDate===ds){c.classList.add("selected");c.classList.remove("unavailable");}
       grid.appendChild(c);
     }
