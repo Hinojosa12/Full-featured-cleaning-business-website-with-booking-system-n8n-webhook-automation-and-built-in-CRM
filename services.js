@@ -18,6 +18,8 @@
     "studio-apartment":   { name: "Studio Apartment",                                             price: "$40,000",  category: "Cleaning" },
     "floor-polishing":    { name: "FLOOR POLISHING",                                              price: "$95",      category: "Floor Polishing" },
     "office-space":       { name: "Office Space (per sq ft, min $10,000)",                        price: "$80",      category: "Office Cleaning" },
+    // 👇 NUEVO: servicio comercial por sq ft (para el select r3)
+    "commercial-small":   { name: "Office Cleaning (per sq ft)",                                  price: "sqft:10000", category: "Commercial Cleaning", isSqft: true, rate: 10000 },
     "1-seat-sofa":        { name: "1 seat Sofa",                                                  price: "$6,000",   category: "Furniture Cleaning" },
     "2-seat-sofa":        { name: "2 seat Sofa",                                                  price: "$10,000",  category: "Furniture Cleaning" },
     "3-seat-sofa":        { name: "3 seat Sofa",                                                  price: "$14,000",  category: "Furniture Cleaning" },
@@ -264,12 +266,14 @@
     renderSectionCalendar(prefix);
   };
 
+  // ── Obtener precio del texto del <option> (fallback) ──
   function getPriceFromSelectOption(prefix) {
     var select = document.getElementById(prefix + "-servicio");
     if (!select) return null;
     var selectedOption = select.options[select.selectedIndex];
     if (!selectedOption) return null;
     var text = selectedOption.text;
+    // Busca el patrón: " — $12,000" o " — 10000GYD/sq ft"
     var match = text.match(/[—\-–]\s*([\$]?[\d,]+(?:\s*GYD\/sq\s*ft)?)/i);
     if (match) {
       var pricePart = match[1];
