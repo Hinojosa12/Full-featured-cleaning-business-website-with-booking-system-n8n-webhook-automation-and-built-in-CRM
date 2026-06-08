@@ -184,53 +184,53 @@
     var mn = ["January","February","March","April","May","June","July","August","September","October","November","December"];
     var dn = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
     var now = new Date(); now.setHours(0,0,0,0);
-    var availSet = new Set((state.category && availableDates[state.category]) || []);
     var fd = new Date(state.year, state.month, 1).getDay();
     var dm = new Date(state.year, state.month + 1, 0).getDate();
 
     var html =
-      '<div class="calendar-header">' +
-        '<div class="calendar-nav"><button type="button" onclick="sectionCalPrev(\'' + prefix + '\')"><i class="fas fa-chevron-left"></i></button></div>' +
-        '<h3>' + mn[state.month] + ' ' + state.year + '</h3>' +
-        '<div class="calendar-nav"><button type="button" onclick="sectionCalNext(\'' + prefix + '\')"><i class="fas fa-chevron-right"></i></button></div>' +
+      '<div class="cal-header">' +
+        '<div class="cal-nav"><button type="button" onclick="sectionCalPrev('' + prefix + '')"><i class="fas fa-chevron-left"></i></button></div>' +
+        '<h4>' + mn[state.month] + ' ' + state.year + '</h4>' +
+        '<div class="cal-nav"><button type="button" onclick="sectionCalNext('' + prefix + '')"><i class="fas fa-chevron-right"></i></button></div>' +
       '</div>' +
-      '<div class="calendar-grid">';
+      '<div class="cal-grid">';
 
     ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].forEach(function (d) {
-      html += '<div class="calendar-day-label">' + d + '</div>';
+      html += '<div class="cal-label">' + d + '</div>';
     });
-    for (var i = 0; i < fd; i++) html += '<div class="calendar-day"></div>';
+    for (var i = 0; i < fd; i++) html += '<div class="cal-day"></div>';
     for (var d = 1; d <= dm; d++) {
       var dt = new Date(state.year, state.month, d); dt.setHours(0,0,0,0);
       var ds = state.year + "-" + (state.month + 1) + "-" + d;
-      var cls = "calendar-day current-month";
-      if (dt.getTime() === now.getTime()) cls += " today";
+      var cls = "cal-day current-month";
       var clickAttr = "";
+      if (dt.getTime() === now.getTime()) cls += " today";
       if (dt < now) {
         cls += " unavailable";
-      } else if (availSet.has(ds)) {
+      } else {
         cls += " available";
         clickAttr = ' onclick="selectSectionDate(\'' + prefix + '\',\'' + ds + '\')"';
-      } else {
-        cls += " unavailable";
       }
-      if (state.selected === ds) { cls = cls.replace(" unavailable",""); cls += " selected"; clickAttr = ' onclick="selectSectionDate(\'' + prefix + '\',\'' + ds + '\')"'; }
+      if (state.selected === ds) {
+        cls = cls.replace(" unavailable","").replace(" available","") + " selected";
+        clickAttr = ' onclick="selectSectionDate(\'' + prefix + '\',\'' + ds + '\')"';
+      }
       html += '<div class="' + cls + '"' + clickAttr + '>' + d + '</div>';
     }
     html += '</div>';
 
     html +=
-      '<div class="calendar-legend">' +
-        '<div class="legend-item"><div class="legend-dot available"></div> Available</div>' +
-        '<div class="legend-item"><div class="legend-dot selected"></div> Selected</div>' +
-        '<div class="legend-item"><div class="legend-dot unavailable"></div> Unavailable</div>' +
+      '<div class="cal-legend">' +
+        '<div class="cal-legend-item"><div class="cal-legend-dot avail"></div> Available</div>' +
+        '<div class="cal-legend-item"><div class="cal-legend-dot sel"></div> Selected</div>' +
+        '<div class="cal-legend-item"><div class="cal-legend-dot unav"></div> Unavailable</div>' +
       '</div>';
 
     if (state.selected) {
       var p2 = state.selected.split("-");
       var dobj = new Date(parseInt(p2[0]), parseInt(p2[1]) - 1, parseInt(p2[2]));
       html +=
-        '<div class="selected-date-display show">' +
+        '<div class="cal-selected-display show">' +
           '<i class="fas fa-check-circle"></i>' +
           '<span>' + dn[dobj.getDay()] + ', ' + mn[dobj.getMonth()] + ' ' + p2[2] + ', ' + p2[0] + '</span>' +
         '</div>';
@@ -240,7 +240,7 @@
     contentDiv.classList.remove("hidden");
   }
 
-  window.selectSectionDate = function (prefix, ds) {
+    window.selectSectionDate = function (prefix, ds) {
     if (!sectionCals[prefix]) return;
     sectionCals[prefix].selected = ds;
     var p = ds.split("-");
