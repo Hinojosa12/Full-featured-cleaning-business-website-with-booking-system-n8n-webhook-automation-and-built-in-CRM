@@ -1,7 +1,7 @@
 (function () {
   "use strict";
 
-  // ── CONFIG (incluyendo endpoints MMG) ───────────────────────────────────
+  // ── CONFIG ──────────────────────────────────────────────────────────────
   const CONFIG = {
     WEBHOOK_URL: "https://n8n-n8n.7toway.easypanel.host/webhook/0e6a220e-8739-4db7-9770-cd6f4a4c35f4",
     SERVICES_PAGE: "standardhomecleaning.html",
@@ -10,7 +10,6 @@
     GET_BOOKINGS_WEBHOOK: "https://n8n-n8n.7toway.easypanel.host/webhook/get-bookings",
   };
 
-  // Servicios (incluyendo los que son sqft)
   const servicesData = {
     "bedroom":            { name: "Bedroom",                                                      price: "$7,500",   category: "Cleaning" },
     "bathroom-toilet":    { name: "Bathroom & Toilet",                                            price: "$12,000",  category: "Cleaning" },
@@ -58,13 +57,14 @@
     return length * width * rate;
   }
   function parsePrice(priceStr) {
-    if (!priceStr || (typeof priceStr === "string" && priceStr.toLowerCase().includes("quote"))) return null;
+    if (!priceStr) return null;
     if (typeof priceStr === "number") return priceStr;
     var cleaned = priceStr.replace(/[^0-9.]/g, "");
     var num = parseFloat(cleaned);
     return isNaN(num) ? null : num;
   }
   function formatGYD(amount) {
+    if (amount === null || isNaN(amount)) return "$0";
     return "$" + Number(amount).toLocaleString("en-US", { minimumFractionDigits: 0 });
   }
   function showToast(m, t, d) {
@@ -74,22 +74,23 @@
     setTimeout(function () { e.classList.remove("show"); }, d);
   }
 
-  // ── Estado global para MMG (último booking) ─────────────────────────────
+  // ── Estado global para MMG ─────────────────────────────────────────────
   let lastBookingPayload = null;
 
   // ════════════════════════════════════════════════════════════════════════
   //  FUNCIONES DE LAS SECCIONES (formularios de standardhomecleaning.html)
   // ════════════════════════════════════════════════════════════════════════
 
-  // Estado por sección: { month, year, selected }
   var sectionCals = {};
 
-  // toggleForm (abrir/cerrar formulario)
   window.toggleForm = function (formId) {
     var form = document.getElementById(formId);
     if (!form) return;
     var isOpen = form.classList.contains("open");
+    // Cerrar todos los formularios abiertos
     document.querySelectorAll(".form-section").forEach(function (f) { f.classList.remove("open"); });
+    // Ocultar todos los paneles de éxito (para que no se acumulen)
+    document.querySelectorAll(".booking-success-panel").forEach(function (p) { p.style.display = "none"; });
     if (!isOpen) {
       form.classList.add("open");
       setTimeout(function () { form.scrollIntoView({ behavior: "smooth", block: "start" }); }, 100);
@@ -152,7 +153,7 @@
     if (widthInput)  widthInput.addEventListener("input", updateTotal);
   }
 
-  // Calendario (sin restricciones) para secciones – clases cal-grid, cal-label, cal-day
+  // Calendario (sin restricciones) – usa clases cal-grid, cal-label, cal-day
   function renderSectionCalendar(prefix) {
     var state = sectionCals[prefix];
     if (!state) return;
@@ -266,35 +267,62 @@
     renderSectionCalendar(prefix);
   };
 
-  // ── NUEVO: Mostrar panel de éxito con MMG (similar a app.js) ───────────
-  function showSuccessPanel(prefix, payload) {
-    // Ocultar el formulario de la sección
-    var formSection = document.getElementById("form-" + prefix);
-    if (formSection) formSection.classList.remove("open");
-
-    // Buscar o crear contenedor de éxito dentro de la misma sección
-    var successContainer = document.getElementById("success-" + prefix);
-    if (!successContainer) {
-      // Si no existe, lo creamos justo después del formulario
-      successContainer = document.createElement("div");
-      successContainer.id = "success-" + prefix;
-      successContainer.className = "booking-success-panel";
-      if (formSection && formSection.parentNode) {
-        formSection.parentNode.insertBefore(successContainer, formSection.nextSibling);
+  // ── Función para obtener precio desde el texto del option (fallback) ──
+  function getPriceFromSelectOption(prefix) {
+    var select = document.getElementById(prefix + "-servicio");
+    if (!select) return null;
+    var selectedOption = select.options[select.selectedIndex];
+    if (!selectedOption) return null;
+    var text = selectedOption.text;
+    // Busca algo como " — $7,500" o " — 115 GYD/sq ft"
+    var match = text.match(/[—\-–]\s*([\$]?[\d,]+(?:\s*GYD\/sq\s*ft)?)/i);
+    if (match) {
+      var pricePart = match[1];
+      if (pricePart.toLowerCase().includes("sq ft")) {
+        // Es sqft, extraer número
+        var numMatch = pricePart.match(/\d+/);
+        if (numMatch) return "sqft:" + numMatch[0];
       }
+      return pricePart;
+    }
+    return null;
+  }
+
+  // ── Mostrar panel de éxito con MMG (ahora reemplaza el contenido del formulario) ──
+  function showSuccessPanel(prefix, payload) {
+    var formSection = document.getElementById("form-" + prefix);
+    if (!formSection) return;
+
+    // Ocultar el formulario (remover clase open) y guardar su contenido original
+    formSection.classList.remove("open");
+    // Buscar o crear el contenedor de éxito dentro del mismo form-section
+    var successContainer = document.getElementById("success-panel-" + prefix);
+    if (!successContainer) {
+      successContainer = document.createElement("div");
+      successContainer.id = "success-panel-" + prefix;
+      successContainer.className = "booking-success-panel";
+      // Insertar dentro del form-section, después del contenido original
+      formSection.appendChild(successContainer);
     }
 
-    // Determinar precio numérico para MMG
-    let amountValue = parsePrice(payload.precio);
-    if (amountValue === null && payload.sqft) {
+    // Calcular monto a mostrar
+    let amountValue = null;
+    if (payload.sqft && payload.sqft > 0) {
       const rate = getSqftRate(payload.servicioKey);
       if (rate) amountValue = payload.sqft * rate;
     }
+    if (amountValue === null) {
+      amountValue = parsePrice(payload.precio);
+    }
     const displayPrice = formatGYD(amountValue || 0);
+    const rawPriceForMMG = amountValue || 0;
+
+    // Guardar el precio numérico en el payload para MMG
+    payload.numericPrice = rawPriceForMMG;
 
     successContainer.innerHTML = `
-      <div style="text-align:center; background:#ffffff; border-radius:24px; padding:2rem; margin:1.5rem 0; box-shadow:0 8px 24px rgba(0,0,0,0.05); border:1px solid var(--cream-border,#eae2d6);">
-        <div style="font-size:3rem; margin-bottom:0.5rem;">✅</div>
+      <div style="text-align:center; background:#ffffff; border-radius:24px; padding:1.5rem; margin:1rem 0; box-shadow:0 8px 24px rgba(0,0,0,0.08); border:1px solid var(--cream-border,#eae2d6);">
+        <div style="font-size:2.5rem; margin-bottom:0.5rem;">✅</div>
         <h3 style="color:#1e7c3a; margin:0 0 0.5rem;">Booking Request Sent!</h3>
         <p style="color:#555;">Your booking has been recorded. Complete payment below to confirm.</p>
         <div style="background:#f8f6f0; border-radius:16px; padding:1rem; margin:1.5rem 0; text-align:left;">
@@ -323,51 +351,41 @@
       });
     }
 
-    // Evento para nuevo booking (resetear esta sección)
+    // Evento para nuevo booking: eliminar el panel y mostrar el formulario limpio
     var newBtn = document.getElementById(`new-booking-btn-${prefix}`);
     if (newBtn) {
       newBtn.addEventListener("click", function() {
-        successContainer.style.display = "none";
         // Limpiar campos del formulario
-        const form = document.getElementById(`form-${prefix}`);
-        if (form) {
-          form.querySelectorAll("input, select, textarea").forEach(field => {
-            if (field.type !== "button" && field.type !== "submit") field.value = "";
-          });
-          document.getElementById(`${prefix}-fecha`).value = "";
-          // Reiniciar calendario
-          if (sectionCals[prefix]) {
-            sectionCals[prefix].selected = null;
-            renderSectionCalendar(prefix);
+        var form = formSection;
+        form.querySelectorAll("input, select, textarea").forEach(field => {
+          if (field.type !== "button" && field.type !== "submit" && field.id !== prefix + "-servicio") {
+            field.value = "";
           }
-          form.classList.add("open");
-          form.scrollIntoView({ behavior: "smooth", block: "start" });
+        });
+        // Resetear select a su primer option (placeholder)
+        var selectEl = document.getElementById(prefix + "-servicio");
+        if (selectEl) selectEl.value = "";
+        // Resetear fecha
+        var fechaEl = document.getElementById(prefix + "-fecha");
+        if (fechaEl) fechaEl.value = "";
+        // Resetear calendario
+        if (sectionCals[prefix]) {
+          sectionCals[prefix].selected = null;
+          renderSectionCalendar(prefix);
         }
-        // Limpiar campos de dimensiones si existen
-        const dimContainer = document.getElementById(`dim-${prefix}`);
+        // Limpiar campos de dimensiones
+        var dimContainer = document.getElementById(`dim-${prefix}`);
         if (dimContainer) dimContainer.innerHTML = "";
+        // Ocultar panel de éxito y mostrar formulario
+        successContainer.style.display = "none";
+        formSection.classList.add("open");
+        formSection.scrollIntoView({ behavior: "smooth", block: "start" });
         lastBookingPayload = null;
       });
     }
-
-    // Guardar payload para MMG
-    lastBookingPayload = payload;
   }
 
-  // Función auxiliar para escapar HTML
-  function escapeHtml(str) {
-    if (!str) return "";
-    return str.replace(/[&<>]/g, function(m) {
-      if (m === '&') return '&amp;';
-      if (m === '<') return '&lt;';
-      if (m === '>') return '&gt;';
-      return m;
-    }).replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, function(c) {
-      return c;
-    });
-  }
-
-  // ── submitForm modificado para usar el nuevo panel de éxito ─────────────
+  // ── submitForm mejorado ─────────────────────────────────────────────────
   window.submitForm = async function (prefix, formCategory) {
     var nombre    = (document.getElementById(prefix + "-nombre")    || {}).value || "";
     var email     = (document.getElementById(prefix + "-email")     || {}).value || "";
@@ -387,11 +405,24 @@
       showToast("Please fill in all required fields.", "error"); return;
     }
 
-    var sd = servicesData[sk] || { name: sk, price: "Quote on visit", category: formCategory };
+    // Obtener datos del servicio
+    var sd = servicesData[sk];
+    if (!sd) {
+      // Si no existe en servicesData, intentar extraer del texto del option
+      var fallbackPrice = getPriceFromSelectOption(prefix);
+      sd = { name: sk, price: fallbackPrice || "Quote on visit", category: formCategory };
+      if (fallbackPrice && fallbackPrice.toString().startsWith("sqft:")) {
+        var rate = parseFloat(fallbackPrice.split(":")[1]);
+        sd.isSqft = true;
+        sd.rate = rate;
+        sd.price = "sqft:" + rate;
+      }
+    }
+
     var finalPrice = sd.price;
     var sqftValue  = null;
 
-    if (isSqftService(sk)) {
+    if (isSqftService(sk) || (sd.isSqft === true)) {
       var lEl = document.getElementById("length-" + prefix);
       var wEl = document.getElementById("width-"  + prefix);
       var l = parseFloat(lEl ? lEl.value : 0);
@@ -400,7 +431,18 @@
         showToast("Please enter valid Length and Width in feet.", "error"); return;
       }
       sqftValue  = l * w;
-      finalPrice = formatGYD(calculateSqftPrice(sk, l, w));
+      var rate = sd.rate || getSqftRate(sk);
+      if (rate) {
+        var totalPrice = sqftValue * rate;
+        finalPrice = formatGYD(totalPrice);
+      } else {
+        finalPrice = "Quote on visit";
+      }
+    } else {
+      // Para servicios de precio fijo, aseguramos que finalPrice sea el string con $
+      if (typeof finalPrice === "string" && !finalPrice.startsWith("$")) {
+        finalPrice = "$" + finalPrice;
+      }
     }
 
     var btn = document.getElementById("btn-" + prefix);
@@ -442,7 +484,7 @@
       });
     }
 
-    // Mostrar panel de éxito con MMG
+    // Mostrar panel de éxito dentro del mismo form-section
     showSuccessPanel(prefix, payload);
     showToast("Booking saved! Complete payment via MMG to confirm.", "success", 5000);
 
@@ -455,10 +497,17 @@
 
   function openMMGModal(bookingPayload) {
     if (!bookingPayload) return;
-    let amount = parsePrice(bookingPayload.precio);
-    if (amount === null && bookingPayload.sqft) {
+    let amount = bookingPayload.numericPrice;
+    if (amount === undefined || amount === null) {
+      amount = parsePrice(bookingPayload.precio);
+    }
+    if ((amount === null || amount === 0) && bookingPayload.sqft) {
       const rate = getSqftRate(bookingPayload.servicioKey);
       if (rate) amount = bookingPayload.sqft * rate;
+    }
+    if (amount === null || amount === 0) {
+      showToast("Cannot process payment: amount is zero or invalid. Please contact support.", "error");
+      return;
     }
     document.getElementById("mmgService").textContent = bookingPayload.servicio;
     document.getElementById("mmgTotal").textContent = formatGYD(amount) + " GYD";
@@ -489,10 +538,17 @@
     }
     phoneInput.classList.remove("field-error");
 
-    let amountValue = parsePrice(lastBookingPayload.precio);
-    if (amountValue === null && lastBookingPayload.sqft) {
+    let amountValue = lastBookingPayload.numericPrice;
+    if (amountValue === undefined || amountValue === null) {
+      amountValue = parsePrice(lastBookingPayload.precio);
+    }
+    if ((amountValue === null || amountValue === 0) && lastBookingPayload.sqft) {
       const rate = getSqftRate(lastBookingPayload.servicioKey);
       if (rate) amountValue = lastBookingPayload.sqft * rate;
+    }
+    if (amountValue === null || amountValue === 0) {
+      showToast("Invalid payment amount.", "error");
+      return;
     }
 
     var payBtn = document.getElementById("mmgConfirmPay");
@@ -548,7 +604,6 @@
     document.querySelector(".mmg-secure").classList.remove("hidden");
   }
 
-  // ── Manejar retorno de MMG (si la página se recarga con token) ─────────
   async function handleMMGReturn() {
     var params = new URLSearchParams(window.location.search);
     var token = params.get("TOKEN") || params.get("token") || params.get("mmg_token");
@@ -581,16 +636,23 @@
     }
   }
 
-  // ── Cargar reservas (solo para CRM, opcional) ──────────────────────────
   async function loadBookingsFromSheets(email) {
-    // Esta función es opcional en services.js, la dejamos por si quieres mostrar CRM en services
+    // Opcional, solo para consistencia
     try {
       var url = CONFIG.GET_BOOKINGS_WEBHOOK;
       if (email) url += "?email=" + encodeURIComponent(email);
-      var res = await fetch(url);
-      var data = await res.json();
-      // No hacemos nada en services, solo para no romper
+      await fetch(url);
     } catch (err) {}
+  }
+
+  function escapeHtml(str) {
+    if (!str) return "";
+    return str.replace(/[&<>]/g, function(m) {
+      if (m === '&') return '&amp;';
+      if (m === '<') return '&lt;';
+      if (m === '>') return '&gt;';
+      return m;
+    });
   }
 
   // ════════════════════════════════════════════════════════════════════════
@@ -598,18 +660,9 @@
   // ════════════════════════════════════════════════════════════════════════
 
   function init() {
-    // Inicializar los selects personalizados si existen (LvSelect)
-    if (typeof initLvSelects === "function") {
-      initLvSelects();
-    } else {
-      // Definir LvSelect básico si no está presente (por si acaso)
-      // Normalmente ya está en services.js, pero lo dejamos como opcional
-    }
-
-    // Manejar retorno de MMG
     handleMMGReturn();
 
-    // Asignar eventos globales para los botones del modal (si existen)
+    // Asignar eventos globales del modal (si existen en la página)
     var bp = document.getElementById("btnPayMMG");
     if (bp) bp.addEventListener("click", function() { if (lastBookingPayload) openMMGModal(lastBookingPayload); });
     var mc = document.getElementById("mmgCloseBtn");
