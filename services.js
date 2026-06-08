@@ -101,10 +101,10 @@
   window.toggleForm = function (formId) {
     var form = document.getElementById(formId);
     if (!form) return;
-    var isOpen = form.classList.contains("show");
-    document.querySelectorAll(".form-section").forEach(function (f) { f.classList.remove("show"); });
+    var isOpen = form.classList.contains("open");
+    document.querySelectorAll(".form-section").forEach(function (f) { f.classList.remove("open"); });
     if (!isOpen) {
-      form.classList.add("show");
+      form.classList.add("open");
       setTimeout(function () { form.scrollIntoView({ behavior: "smooth", block: "start" }); }, 100);
     }
   };
