@@ -36,7 +36,6 @@
     "car-cleaning": { name: "Cars (Inclusive of Mats)", price: "$12,000", category: "Vehicle Cleaning" },
     "suv-cleaning": { name: "SUVs (Inclusive of Mats)", price: "$16,000", category: "Vehicle Cleaning" },
     "tacoma-cleaning": { name: "Tacoma (Pick ups)", price: "$24,000", category: "Vehicle Cleaning" },
-    // carpet-installed eliminado
     "carpet-uninstalled": { name: "Per Square foot L x W (uninstalled)", price: "sqft:115", category: "Carpet Installation", isSqft: true, rate: 115 },
     "carpet-deep-cleaning": { name: "Deep Cleaning (Pressure washing, shampooing and steam cleaning)", price: "sqft:220", category: "Carpet Cleaning", isSqft: true, rate: 220 },
     "pressure-washing": { name: "Per Square foot pressure washing", price: "$30", category: "Pressure Washing" },
@@ -44,15 +43,7 @@
     "recliner-joined": { name: "Recliner Joined", price: "$10,000", category: "Recliner Cleaning" },
   };
 
-  const availableDates = {
-    "Steam Cleaning":       ["2026-4-28","2026-4-29","2026-4-30","2026-5-2","2026-5-4","2026-5-5","2026-5-6","2026-5-7","2026-5-8","2026-5-9","2026-5-11","2026-5-12","2026-5-13","2026-5-14","2026-5-15","2026-5-16","2026-5-18","2026-5-19","2026-5-20","2026-5-21","2026-5-22","2026-5-23","2026-5-25","2026-5-26","2026-5-27","2026-5-28","2026-5-29","2026-5-30"],
-    "Carpet Cleaning":      ["2026-4-28","2026-4-29","2026-4-30","2026-5-2","2026-5-4","2026-5-5","2026-5-6","2026-5-7","2026-5-8","2026-5-9","2026-5-11","2026-5-12","2026-5-13","2026-5-14","2026-5-15","2026-5-16","2026-5-18","2026-5-19","2026-5-20","2026-5-21","2026-5-22","2026-5-23","2026-5-25","2026-5-26","2026-5-27","2026-5-28","2026-5-29","2026-5-30"],
-    "Pressure Washing":     ["2026-4-28","2026-4-29","2026-4-30","2026-5-2","2026-5-5","2026-5-7","2026-5-9","2026-5-11","2026-5-13","2026-5-16","2026-5-18","2026-5-20","2026-5-23","2026-5-25","2026-5-27","2026-5-30"],
-    "Residential Cleaning": ["2026-4-28","2026-4-29","2026-4-30","2026-5-2","2026-5-4","2026-5-6","2026-5-8","2026-5-9","2026-5-11","2026-5-13","2026-5-15","2026-5-16","2026-5-18","2026-5-20","2026-5-22","2026-5-23","2026-5-25","2026-5-27","2026-5-29","2026-5-30"],
-    "Deep Cleaning":        ["2026-4-28","2026-4-29","2026-4-30","2026-5-2","2026-5-5","2026-5-6","2026-5-8","2026-5-9","2026-5-12","2026-5-13","2026-5-15","2026-5-16","2026-5-19","2026-5-20","2026-5-22","2026-5-23","2026-5-26","2026-5-27","2026-5-29","2026-5-30"],
-    "Commercial Cleaning":  ["2026-4-28","2026-4-29","2026-4-30","2026-5-2","2026-5-4","2026-5-5","2026-5-7","2026-5-8","2026-5-11","2026-5-12","2026-5-14","2026-5-15","2026-5-18","2026-5-19","2026-5-21","2026-5-22","2026-5-25","2026-5-26","2026-5-28","2026-5-29"],
-    "Move In/Out":          ["2026-4-28","2026-4-29","2026-4-30","2026-5-2","2026-5-4","2026-5-6","2026-5-9","2026-5-11","2026-5-13","2026-5-16","2026-5-18","2026-5-20","2026-5-23","2026-5-25","2026-5-27","2026-5-30"],
-  };
+  // ⚠️ ELIMINADO: objeto availableDates – ahora todos los días futuros están disponibles
 
   let bookings = [];
   let countersStarted = false, submitting = false;
@@ -350,7 +341,6 @@
     initLvCursorGlow();
     initLvRipple();
     initLvParallax();
-    // Selects are initialized after populateSelect() inside init()
   }
   // ══════════════════════════════════════════════════════════════════════════
   //  END LIVITY UI ENHANCEMENTS
@@ -452,6 +442,7 @@
 
   function initCalendar() { var now = new Date(); calMonth = now.getMonth(); calYear = now.getFullYear(); }
 
+  // ── NUEVO: renderCalendar sin restricciones (todos los días futuros disponibles) ──
   function renderCalendar() {
     var grid = document.getElementById("calendarGrid"); if (!grid) return; grid.innerHTML = "";
     var mn = ["January","February","March","April","May","June","July","August","September","October","November","December"];
@@ -460,18 +451,30 @@
     var fd = new Date(calYear, calMonth, 1).getDay();
     var dm = new Date(calYear, calMonth + 1, 0).getDate();
     var td = new Date(); td.setHours(0,0,0,0);
-    var cd = (currentCategory && availableDates[currentCategory]) || [];
-    var as = new Set(cd);
+
+    // Espacios vacíos antes del primer día
     for (var i = 0; i < fd; i++) { var e = document.createElement("div"); e.className = "calendar-day"; grid.appendChild(e); }
+
     for (var d = 1; d <= dm; d++) {
       var c = document.createElement("div"); c.className = "calendar-day current-month"; c.textContent = d;
       var dt = new Date(calYear, calMonth, d); dt.setHours(0,0,0,0);
       var ds = calYear + "-" + (calMonth + 1) + "-" + d;
+
       if (dt.getTime() === td.getTime()) c.classList.add("today");
-      if (dt < td) c.classList.add("unavailable");
-      else if (as.has(ds)) { c.classList.add("available"); c.addEventListener("click", (function(dd,dds){ return function(){ selectDate(dd,dds); }; })(d,ds)); }
-      else c.classList.add("unavailable");
-      if (selectedDate === ds) { c.classList.add("selected"); c.classList.remove("unavailable"); }
+
+      if (dt < td) {
+        c.classList.add("unavailable");
+      } else {
+        // Todos los días futuros son disponibles
+        c.classList.add("available");
+        c.addEventListener("click", (function(dd,dds){ return function(){ selectDate(dd,dds); }; })(d,ds));
+      }
+
+      if (selectedDate === ds) {
+        c.classList.add("selected");
+        c.classList.remove("unavailable");
+      }
+
       grid.appendChild(c);
     }
   }
@@ -586,7 +589,7 @@
         statusBadge = '<span style="background:#fff5e6;color:#9a5c00;border:1px solid #ffcc80;padding:.25rem .9rem;border-radius:20px;font-size:.72rem;font-weight:700;display:inline-flex;align-items:center;gap:.3rem;white-space:nowrap">⏳ Pending</span>';
       }
       var r = document.createElement("tr");
-      r.innerHTML = '<td><strong>'+b.nombre+'</strong></td><td>'+b.telefono+'</td><td>'+b.servicio+'</td><td>'+b.fecha+'</td><td>'+b.direccion+'</td><td>'+statusBadge+'</td>';
+      r.innerHTML = '<td><strong>'+b.nombre+'</strong></td><td>'+b.telefono+'</td><table>'+b.servicio+'</td><td>'+b.fecha+'</td><td>'+b.direccion+'</td><td>'+statusBadge+'</td></tr>';
       tb.appendChild(r);
     });
   }
@@ -785,7 +788,7 @@
     // Initialize custom selects right after populating options
     initLvSelects();
 
-    setStep(1); initCalendar();
+    setStep(1); initCalendar(); renderCalendar(); // render initial calendar (no category needed)
     handleMMGReturn();
     document.querySelectorAll(".animate-on-scroll").forEach(function(el){ obs.observe(el); });
     var mt = document.getElementById("menuToggle"); if(mt) mt.addEventListener("click", function(){ var nl=document.getElementById("navLinks"); if(nl) nl.classList.toggle("show"); });
