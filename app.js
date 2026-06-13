@@ -19,10 +19,9 @@
       isRoomBased: true,
       rooms: {
         bedroom:    { name: "Bedroom",    rate: 7500 },
-        livingroom: { name: "Livingroom", rate: 8500 },
-        kitchen:    { name: "Kitchen",    rate: 12000 },
-        bathroom:   { name: "Bathroom",   rate: 6500 },
-        toilet:     { name: "Toilet",     rate: 4500 }
+        livingroom: { name: "Livingroom", rate: 12000 },
+        kitchen:    { name: "Kitchen",    rate: 9000 },
+        bathroom:   { name: "Bathroom & Toilet",   rate: 12000 },
       }
     },
     "office-cleaning-sqft": {
