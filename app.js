@@ -61,7 +61,7 @@
     "carpet-uninstalled":   { name: "Per Square foot L x W (uninstalled)",                    price: "sqft:115", category: "Carpet Installation", isSqft: true, rate: 115 },
     "carpet-deep-cleaning": { name: "Deep Cleaning (Pressure washing, shampooing and steam)", price: "sqft:220", category: "Carpet Cleaning",     isSqft: true, rate: 220 },
     // ── Pressure Washing ──
-    "pressure-washing": { name: "Per Square foot pressure washing", price: "$30", category: "Pressure Washing" },
+    "pressure-washing": { name: "Per Square foot pressure washing", price: "$50", category: "Pressure Washing" },
   };
 
   // ── STATE ────────────────────────────────────────────────────────────────
