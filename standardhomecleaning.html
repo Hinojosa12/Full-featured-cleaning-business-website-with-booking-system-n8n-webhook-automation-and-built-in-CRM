@@ -35,34 +35,37 @@
         <button class="btn-book" onclick="toggleForm('form-r1')"><i class="fas fa-calendar-check"></i> Book This Service</button>
         <p class="service-desc">Our professional cleaners handle the cleaning so you can focus on what matters most. Whether you need routine cleaning, a one-time refresh, or help preparing for guests, our team ensures every area of your home is cleaned with attention to detail.</p>
         <p class="included-title">What's Included:</p>
-        <ul><li> Bedroom </li><li>Bathroom & Toilet</li><li>Kitchen</li><li>Livingroom</li><li>Studio Apartment</li></ul>
+        <ul>
+          <li>Bedroom</li>
+          <li>Bathroom &amp; Toilet</li>
+          <li>Kitchen</li>
+          <li>Living Room</li>
+        </ul>
         <div class="form-section" id="form-r1">
-          <h3>Book <span>Residential Cleaning</span></h3>
+          <h3>Book <span>General Home Cleaning</span></h3>
           <div class="form-grid-2">
-            <div class="fg"><label><i class="fas fa-user"></i>Full name *</label><input type="text" id="r1-nombre" placeholder="e.g., John Smith"><span class="error-msg" id="err-r1-nombre"></span></div>
-            <div class="fg"><label><i class="fas fa-envelope"></i>Email *</label><input type="email" id="r1-email" placeholder="john@email.com"><span class="error-msg" id="err-r1-email"></span></div>
-            <div class="fg"><label><i class="fab fa-whatsapp"></i>WhatsApp *</label><input type="tel" id="r1-telefono" placeholder="+592 123 4567"><span class="error-msg" id="err-r1-telefono"></span></div>
-            <div class="fg"><label><i class="fas fa-home"></i>Service type *</label>
+            <div class="fg"><label><i class="fas fa-user"></i>Full name *</label><input type="text" id="r1-nombre" placeholder="e.g., John Smith"></div>
+            <div class="fg"><label><i class="fas fa-envelope"></i>Email *</label><input type="email" id="r1-email" placeholder="john@email.com"></div>
+            <div class="fg"><label><i class="fab fa-whatsapp"></i>WhatsApp *</label><input type="tel" id="r1-telefono" placeholder="+592 123 4567"></div>
+            <div class="fg">
+              <label><i class="fas fa-home"></i>Service type *</label>
+              <!-- ✅ Solo una opción — el room builder aparece al seleccionarla -->
               <select id="r1-servicio" onchange="onServiceChangeSection('r1')">
                 <option value="">— Select —</option>
-                <option value="residential-1bed"> Bedroom — 7500</option>
-                <option value="residential-2bed"> Bathroom & Toilet — 12000</option>
-                <option value="residential-3bed"> Kitchen — 9000t</option>
-                <option value="residential-general">Livingroom — 12000</option>
-                <option value="residential-onetime">Studio Apartment — 40000</option>
-                <!-- NUEVO: General Home Cleaning con cantidades por habitación -->
                 <option value="general-home-cleaning">General Home Cleaning — varies by room</option>
               </select>
-              <span class="error-msg" id="err-r1-servicio"></span>
             </div>
-            <div class="fg span2"><label><i class="fas fa-calendar-alt"></i>Select available date *</label>
-              <div class="cal-container" id="cal-r1" data-category="Residential Cleaning">
+            <!-- Contenedor del room builder (se inyecta por JS) -->
+            <div id="rooms-r1" class="fg span2"></div>
+            <div class="fg span2">
+              <label><i class="fas fa-calendar-alt"></i>Select available date *</label>
+              <div class="cal-container" id="cal-r1">
                 <div class="calendar-message" id="cal-placeholder-r1"><i class="fas fa-hand-pointer"></i>Please select a service first to see available dates.</div>
                 <div id="cal-content-r1" class="hidden"></div>
               </div>
-              <input type="hidden" id="r1-fecha"><span class="error-msg" id="err-r1-fecha"></span>
+              <input type="hidden" id="r1-fecha">
             </div>
-            <div class="fg span2"><label><i class="fas fa-map-marker-alt"></i>Address *</label><input type="text" id="r1-direccion" placeholder="Street, city, region"><span class="error-msg" id="err-r1-direccion"></span></div>
+            <div class="fg span2"><label><i class="fas fa-map-marker-alt"></i>Address *</label><input type="text" id="r1-direccion" placeholder="Street, city, region"></div>
             <div class="fg span2"><label><i class="fas fa-comment"></i>Notes</label><textarea id="r1-notas" rows="2" placeholder="Special instructions..."></textarea></div>
           </div>
           <button class="submit-btn" id="btn-r1" onclick="submitForm('r1','Residential Cleaning')"><i class="fas fa-paper-plane"></i><span>Book Residential Cleaning</span></button>
@@ -85,35 +88,43 @@
         <button class="btn-book" onclick="toggleForm('form-r2')"><i class="fas fa-calendar-check"></i> Book This Service</button>
         <p class="service-desc">Unlike routine cleaning, deep cleaning focuses on every major surface from wall-to-wall, floor-to-ceiling. Ideal for seasonal cleaning, move-in/move-out preparation, or post-event cleanup.</p>
         <p class="included-title">What's Included:</p>
-        <ul><li>1 seat Sofa</li><li>1 seat Sofa </li><li>2 seat Sofa </li><li>3 seat Sofa</li><li>2+1+1 Suite </li><li>Ottoman</li><li>Dinning Chairs</li>
-        <li>King Size Mattresses</li><li>Double Size Mattress </li><li>Single Mattress </li><li>Recliner Single</li><li>Recliner Joined</li><li>Carpet Cleaning</li><li>Dinning Chairs</li></ul>
+        <ul>
+          <li>1 seat Sofa</li><li>2 seat Sofa</li><li>3 seat Sofa</li><li>2+1+1 Suite</li>
+          <li>Ottoman</li><li>Dinning Chairs</li><li>King Size Mattress</li>
+          <li>Double Size Mattress</li><li>Single Mattress</li>
+          <li>Recliner Single</li><li>Recliner Joined</li><li>Carpet Cleaning</li>
+        </ul>
         <div class="form-section" id="form-r2">
           <h3>Book <span>Deep Cleaning</span></h3>
           <div class="form-grid-2">
             <div class="fg"><label><i class="fas fa-user"></i>Full name *</label><input type="text" id="r2-nombre" placeholder="e.g., John Smith"></div>
             <div class="fg"><label><i class="fas fa-envelope"></i>Email *</label><input type="email" id="r2-email" placeholder="john@email.com"></div>
             <div class="fg"><label><i class="fab fa-whatsapp"></i>WhatsApp *</label><input type="tel" id="r2-telefono" placeholder="+592 123 4567"></div>
-            <div class="fg"><label><i class="fas fa-home"></i>Property size *</label>
+            <div class="fg">
+              <label><i class="fas fa-home"></i>Item to clean *</label>
               <select id="r2-servicio" onchange="onServiceChangeSection('r2')">
                 <option value="">— Select —</option>
-                <option value="deep-1bed">Floor Polishing — 95</option>
-                <option value="deep-2bed">1 seat Sofa — 6000</option>
-                <option value="deep-3bed">2 seat Sofa  — 10000</option>
-                <option value="deep-4bed">3 seat Sofa — 14000</option>
-                <option value="deep-1bed">2+1+1 Suite  — 16000</option>
-                <option value="deep-2bed">Ottoman — 5000</option>
-                <option value="deep-3bed">Dinning Chairs  — 2000</option>
-                <option value="deep-4bed">King Size Mattresses — 12000</option>
-                <option value="deep-3bed">Queen Size Mattresses  — 10000</option>
-                <option value="deep-4bed">Double Size Mattress — 10000</option>
-                 <option value="deep-2bed">Single Mattress — 8000</option>
-                <option value="deep-3bed">Recliner Single  — 6000</option>
-                <option value="deep-4bed">Recliner Joined — 10000</option>
-                <option value="deep-1bed">Carpet Cleaning – 16000</option>
+                <option value="deep-floor">Floor Polishing — $95</option>
+                <option value="deep-sofa1">1 seat Sofa — $6,000</option>
+                <option value="deep-sofa2">2 seat Sofa — $10,000</option>
+                <option value="deep-sofa3">3 seat Sofa — $14,000</option>
+                <option value="deep-suite211">2+1+1 Suite — $16,000</option>
+                <option value="deep-ottoman">Ottoman — $5,000</option>
+                <option value="deep-dining">Dinning Chairs — $2,000</option>
+                <option value="deep-king">King Size Mattress — $12,000/side</option>
+                <option value="deep-queen">Queen Size Mattress — $10,000/side</option>
+                <option value="deep-double">Double Size Mattress — $10,000/side</option>
+                <option value="deep-single">Single Mattress — $8,000/side</option>
+                <option value="deep-reclS">Recliner Single — $6,000</option>
+                <option value="deep-reclJ">Recliner Joined — $10,000</option>
+                <option value="deep-carpet">Carpet Cleaning — $16,000</option>
               </select>
             </div>
-            <div class="fg span2"><label><i class="fas fa-calendar-alt"></i>Select available date *</label>
-              <div class="cal-container" id="cal-r2" data-category="Deep Cleaning">
+            <!-- Contenedor para sides (mattresses) -->
+            <div id="sides-r2" class="fg span2"></div>
+            <div class="fg span2">
+              <label><i class="fas fa-calendar-alt"></i>Select available date *</label>
+              <div class="cal-container" id="cal-r2">
                 <div class="calendar-message" id="cal-placeholder-r2"><i class="fas fa-hand-pointer"></i>Please select a service first to see available dates.</div>
                 <div id="cal-content-r2" class="hidden"></div>
               </div>
@@ -131,7 +142,7 @@
   </div>
 </section>
 
-<!-- ══ SECTION 3: COMMERCIAL (modificado con sqft) ══ -->
+<!-- ══ SECTION 3: COMMERCIAL ══ -->
 <section id="section3" class="service-section" style="background-image:url('https://images.pexels.com/photos/4486249/pexels-photo-4486249.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2');">
   <div class="service-content">
     <div class="service-grid">
@@ -149,16 +160,19 @@
             <div class="fg"><label><i class="fas fa-user"></i>Contact name *</label><input type="text" id="r3-nombre" placeholder="e.g., Sarah Johnson"></div>
             <div class="fg"><label><i class="fas fa-envelope"></i>Email *</label><input type="email" id="r3-email" placeholder="company@email.com"></div>
             <div class="fg"><label><i class="fab fa-whatsapp"></i>WhatsApp *</label><input type="tel" id="r3-telefono" placeholder="+592 123 4567"></div>
-            <div class="fg"><label><i class="fas fa-building"></i>Office size *</label>
+            <div class="fg">
+              <label><i class="fas fa-building"></i>Service *</label>
               <select id="r3-servicio" onchange="onServiceChangeSection('r3')">
                 <option value="">— Select —</option>
-                <!-- NUEVO: Office Cleaning con sqft rate 45 -->
-                <option value="office-cleaning-sqft">Office Cleaning (per sq ft) — 45 GYD/sq ft</option>
-                <option value="office-chairs">Office Chairs — 2500</option>
+                <option value="office-cleaning-sqft">Office Cleaning — 80 GYD/sq ft (min $10,000)</option>
+                <option value="office-chairs">Office Chairs — $2,500</option>
               </select>
             </div>
-            <div class="fg span2"><label><i class="fas fa-calendar-alt"></i>Select available date *</label>
-              <div class="cal-container" id="cal-r3" data-category="Commercial Cleaning">
+            <!-- Contenedor sqft (se inyecta por JS) -->
+            <div id="dim-r3" class="fg span2"></div>
+            <div class="fg span2">
+              <label><i class="fas fa-calendar-alt"></i>Select available date *</label>
+              <div class="cal-container" id="cal-r3">
                 <div class="calendar-message" id="cal-placeholder-r3"><i class="fas fa-hand-pointer"></i>Please select a service first to see available dates.</div>
                 <div id="cal-content-r3" class="hidden"></div>
               </div>
@@ -176,7 +190,7 @@
   </div>
 </section>
 
-<!-- ══ SECTION 4: STEAM CLEANING (con carpet sqft + mattress per side) ══ -->
+<!-- ══ SECTION 4: STEAM CLEANING ══ -->
 <section id="section4" class="service-section" style="background-image:url('https://images.pexels.com/photos/6195123/pexels-photo-6195123.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2');">
   <div class="service-content">
     <div class="service-grid">
@@ -186,35 +200,39 @@
         <p class="service-subtitle">High-temperature deep clean for furniture, carpets, cars and more.</p>
         <button class="btn-book" onclick="toggleForm('form-r4')"><i class="fas fa-calendar-check"></i> Book This Service</button>
         <p class="service-desc">Penetrates deep into fabrics to remove embedded dirt, allergens, and germs — leaving surfaces fresh, sanitized, and restored.</p>
-         <p class="included-title">What's Included:</p>
-        <ul><li>L Shaped Sofa/li><li>3+2+1 Suite</li><li>3+1+1 Suite</li><li>3+2 Suite</li></ul>
+        <p class="included-title">What's Included:</p>
+        <ul><li>L Shaped Sofa</li><li>3+2+1 Suite</li><li>3+1+1 Suite</li><li>3+2 Suite</li><li>Carpet Cleaning</li><li>Mattress Cleaning</li></ul>
         <div class="form-section" id="form-r4">
           <h3>Book <span>Steam Cleaning</span></h3>
           <div class="form-grid-2">
             <div class="fg"><label><i class="fas fa-user"></i>Full name *</label><input type="text" id="r4-nombre" placeholder="e.g., John Smith"></div>
             <div class="fg"><label><i class="fas fa-envelope"></i>Email *</label><input type="email" id="r4-email" placeholder="john@email.com"></div>
             <div class="fg"><label><i class="fab fa-whatsapp"></i>WhatsApp *</label><input type="tel" id="r4-telefono" placeholder="+592 123 4567"></div>
-            <div class="fg"><label><i class="fas fa-couch"></i>Item to clean *</label>
+            <div class="fg">
+              <label><i class="fas fa-couch"></i>Item to clean *</label>
               <select id="r4-servicio" onchange="onServiceChangeSection('r4')">
                 <option value="">— Select —</option>
                 <optgroup label="Sofas">
-                  <option value="sofa-1seat">L Shaped Sofa — 16,000</option>
-                  <option value="sofa-2seat">3+2+1 Suite — 24,000</option>
-                  <option value="sofa-3seat">3+1+1 Suite — 20,000</option>
-                  <option value="l-shaped">3+2 Suite — 20,000</option>
+                  <option value="sofa-l">L Shaped Sofa — $16,000</option>
+                  <option value="sofa-321">3+2+1 Suite — $24,000</option>
+                  <option value="sofa-311">3+1+1 Suite — $20,000</option>
+                  <option value="sofa-32">3+2 Suite — $20,000</option>
                 </optgroup>
                 <optgroup label="Carpet Services">
                   <option value="carpet-uninstalled">Per Square foot L x W (uninstalled) — 115 GYD/sq ft</option>
-                  <option value="carpet-deep-cleaning">Deep Cleaning (Pressure washing, shampooing and steam) — 220 GYD/sq ft</option>
+                  <option value="carpet-deep-cleaning">Deep Cleaning (Pressure washing, shampooing &amp; steam) — 220 GYD/sq ft</option>
                 </optgroup>
-                <!-- NUEVO: Servicio de colchones por lado -->
-                <optgroup label="Mattress Cleaning">
-                  <option value="mattress-cleaning-per-side">Mattress Cleaning (per side) — 3,500 GYD per side</option>
+                <optgroup label="Mattress Cleaning (per side)">
+                  <option value="mattress-cleaning-per-side">Mattress Cleaning — $3,500/side</option>
                 </optgroup>
               </select>
             </div>
-            <div class="fg span2"><label><i class="fas fa-calendar-alt"></i>Select available date *</label>
-              <div class="cal-container" id="cal-r4" data-category="Steam Cleaning">
+            <!-- Contenedores para sqft o sides (se inyectan por JS) -->
+            <div id="dim-r4" class="fg span2"></div>
+            <div id="sides-r4" class="fg span2"></div>
+            <div class="fg span2">
+              <label><i class="fas fa-calendar-alt"></i>Select available date *</label>
+              <div class="cal-container" id="cal-r4">
                 <div class="calendar-message" id="cal-placeholder-r4"><i class="fas fa-hand-pointer"></i>Please select a service first to see available dates.</div>
                 <div id="cal-content-r4" class="hidden"></div>
               </div>
@@ -243,21 +261,25 @@
         <button class="btn-book" onclick="toggleForm('form-r6')"><i class="fas fa-calendar-check"></i> Book This Service</button>
         <p class="service-desc">Using powerful equipment, we remove built-up grime, stains, and debris from driveways, patios, buildings and more. Priced at <strong>$30/sq ft</strong>.</p>
         <p class="included-title">Our Services:</p>
-        <ul><li>Pressure Washing</li></ul>
+        <ul><li>Driveway &amp; Walkway</li><li>Building Exterior</li><li>Fence Cleaning</li><li>Patio &amp; Outdoor Areas</li><li>Parking Lot</li></ul>
         <div class="form-section" id="form-r6">
           <h3>Book <span>Pressure Washing</span></h3>
           <div class="form-grid-2">
             <div class="fg"><label><i class="fas fa-user"></i>Full name *</label><input type="text" id="r6-nombre" placeholder="e.g., John Smith"></div>
             <div class="fg"><label><i class="fas fa-envelope"></i>Email *</label><input type="email" id="r6-email" placeholder="john@email.com"></div>
             <div class="fg"><label><i class="fab fa-whatsapp"></i>WhatsApp *</label><input type="tel" id="r6-telefono" placeholder="+592 123 4567"></div>
-            <div class="fg"><label><i class="fas fa-water"></i>Surface type *</label>
+            <div class="fg">
+              <label><i class="fas fa-water"></i>Surface type *</label>
               <select id="r6-servicio" onchange="onServiceChangeSection('r6')">
                 <option value="">— Select —</option>
-                <option value="pressure-driveway">Driveway &amp;Pressure Washing — 30GYD/sq ft</option>
+                <option value="pressure-driveway">Driveway &amp; Pressure Washing — 30 GYD/sq ft</option>
               </select>
             </div>
-            <div class="fg span2"><label><i class="fas fa-calendar-alt"></i>Select available date *</label>
-              <div class="cal-container" id="cal-r6" data-category="Pressure Washing">
+            <!-- Contenedor sqft (se inyecta por JS) -->
+            <div id="dim-r6" class="fg span2"></div>
+            <div class="fg span2">
+              <label><i class="fas fa-calendar-alt"></i>Select available date *</label>
+              <div class="cal-container" id="cal-r6">
                 <div class="calendar-message" id="cal-placeholder-r6"><i class="fas fa-hand-pointer"></i>Please select a service first to see available dates.</div>
                 <div id="cal-content-r6" class="hidden"></div>
               </div>
