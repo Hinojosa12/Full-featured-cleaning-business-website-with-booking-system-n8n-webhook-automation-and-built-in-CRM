@@ -331,7 +331,22 @@
   // ── SUCCESS PANEL — mismo flujo que index.html ────────────────────────────
   function showSuccess(prefix, p) {
     var formSection = $id("form-" + prefix);
-    if (formSection) formSection.classList.remove("open");
+    // Keep form-section open (it's the container) but hide the form fields inside
+    if (formSection) {
+      formSection.classList.add("open");
+      var inner = formSection.querySelector(".form-grid-2");
+      var h3    = formSection.querySelector("h3");
+      var btn   = $id("btn-" + prefix);
+      var ru    = $id("rooms-" + prefix);
+      var di    = $id("dim-" + prefix);
+      var si    = $id("sides-" + prefix);
+      if (inner) inner.style.display = "none";
+      if (h3)    h3.style.display    = "none";
+      if (btn)   btn.style.display   = "none";
+      if (ru)    ru.style.display    = "none";
+      if (di)    di.style.display    = "none";
+      if (si)    si.style.display    = "none";
+    }
 
     var sd = $id("success-" + prefix);
     if (!sd) return;
@@ -417,6 +432,13 @@
     if (form) {
       form.querySelectorAll("input:not([type=hidden]), select, textarea").forEach(function(f){ f.value = ""; });
       var fel = $id(prefix + "-fecha"); if (fel) fel.value = "";
+      // Restore hidden form elements
+      var inner = form.querySelector(".form-grid-2");
+      var h3    = form.querySelector("h3");
+      var btn   = $id("btn-" + prefix);
+      if (inner) inner.style.display = "";
+      if (h3)    h3.style.display    = "";
+      if (btn)   btn.style.display   = "";
       form.classList.add("open");
       setTimeout(function(){ form.scrollIntoView({ behavior: "smooth", block: "start" }); }, 100);
     }
