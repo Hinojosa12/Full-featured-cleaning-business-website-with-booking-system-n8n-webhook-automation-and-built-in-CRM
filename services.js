@@ -11,6 +11,35 @@
   };
 
   const servicesData = {
+    // ================= NUEVOS SERVICIOS (para todas las secciones) =================
+    "general-home-cleaning": {
+      name: "General Home Cleaning",
+      price: "variable",
+      category: "General Home Cleaning",
+      isRoomBased: true,
+      rooms: {
+        bedroom:    { name: "Bedroom",    rate: 7500 },
+        livingroom: { name: "Livingroom", rate: 8500 },
+        kitchen:    { name: "Kitchen",    rate: 12000 },
+        bathroom:   { name: "Bathroom",   rate: 6500 },
+        toilet:     { name: "Toilet",     rate: 4500 }
+      }
+    },
+    "office-cleaning-sqft": {
+      name: "Office Cleaning (per sq ft)",
+      price: "sqft:45",
+      category: "Office Cleaning",
+      isSqft: true,
+      rate: 45
+    },
+    "mattress-cleaning-per-side": {
+      name: "Mattress Cleaning (per side)",
+      price: "side:3500",
+      category: "Mattress Cleaning",
+      isPerSide: true,
+      ratePerSide: 3500
+    },
+    // ================= SERVICIOS EXISTENTES (todos los que tenías) =================
     "bedroom":            { name: "Bedroom",                                                      price: "$7,500",   category: "Cleaning" },
     "bathroom-toilet":    { name: "Bathroom & Toilet",                                            price: "$12,000",  category: "Cleaning" },
     "kitchen":            { name: "Kitchen",                                                      price: "$9,000",   category: "Cleaning" },
@@ -18,7 +47,6 @@
     "studio-apartment":   { name: "Studio Apartment",                                             price: "$40,000",  category: "Cleaning" },
     "floor-polishing":    { name: "FLOOR POLISHING",                                              price: "$95",      category: "Floor Polishing" },
     "office-space":       { name: "Office Space (per sq ft, min $10,000)",                        price: "$80",      category: "Office Cleaning" },
-    // 👇 NUEVO: servicio comercial por sq ft (para el select r3)
     "commercial-small":   { name: "Office Cleaning (per sq ft)",                                  price: "sqft:10000", category: "Commercial Cleaning", isSqft: true, rate: 10000 },
     "1-seat-sofa":        { name: "1 seat Sofa",                                                  price: "$6,000",   category: "Furniture Cleaning" },
     "2-seat-sofa":        { name: "2 seat Sofa",                                                  price: "$10,000",  category: "Furniture Cleaning" },
@@ -48,21 +76,27 @@
 
   // ── Utilidades ──────────────────────────────────────────────────────────
   function isSqftService(serviceKey) {
-    return !!(servicesData[serviceKey] && servicesData[serviceKey].isSqft);
+    return !!(servicesData[serviceKey] && servicesData[serviceKey].isSqft === true);
+  }
+  function isRoomBasedService(serviceKey) {
+    return !!(servicesData[serviceKey] && servicesData[serviceKey].isRoomBased === true);
+  }
+  function isPerSideService(serviceKey) {
+    return !!(servicesData[serviceKey] && servicesData[serviceKey].isPerSide === true);
   }
   function getSqftRate(serviceKey) {
     return servicesData[serviceKey] ? servicesData[serviceKey].rate : null;
   }
   function calculateSqftPrice(serviceKey, length, width) {
-    var rate = getSqftRate(serviceKey);
+    const rate = getSqftRate(serviceKey);
     if (!rate) return null;
     return length * width * rate;
   }
   function parsePrice(priceStr) {
     if (!priceStr) return null;
     if (typeof priceStr === "number") return priceStr;
-    var cleaned = priceStr.replace(/[^0-9.]/g, "");
-    var num = parseFloat(cleaned);
+    const cleaned = priceStr.replace(/[^0-9.]/g, "");
+    const num = parseFloat(cleaned);
     return isNaN(num) ? null : num;
   }
   function formatGYD(amount) {
@@ -81,32 +115,17 @@
   let currentActivePrefix = null;
 
   // ════════════════════════════════════════════════════════════════════════
-  //  FUNCIONES DE LAS SECCIONES (formularios de standardhomecleaning.html)
+  //  FUNCIONES PARA CREAR CAMPOS DINÁMICOS EN LAS SECCIONES
   // ════════════════════════════════════════════════════════════════════════
 
-  var sectionCals = {};
-
-  window.toggleForm = function (formId) {
-    var form = document.getElementById(formId);
-    if (!form) return;
-    var isOpen = form.classList.contains("open");
-    document.querySelectorAll(".form-section").forEach(function (f) { f.classList.remove("open"); });
-    document.querySelectorAll(".booking-success-panel").forEach(function (p) { p.style.display = "none"; });
-    if (!isOpen) {
-      form.classList.add("open");
-      setTimeout(function () { form.scrollIntoView({ behavior: "smooth", block: "start" }); }, 100);
-    }
-  };
-
+  // Campos para servicios por sqft (Length/Width)
   function createSectionDimensionFields(prefix, serviceKey) {
     var containerId = "dim-" + prefix;
     var existing = document.getElementById(containerId);
-
     if (!isSqftService(serviceKey)) {
       if (existing) existing.innerHTML = "";
       return;
     }
-
     if (!existing) {
       var selectEl = document.getElementById(prefix + "-servicio");
       if (!selectEl) return;
@@ -119,52 +138,143 @@
       selectGroup.parentNode.insertBefore(newDiv, selectGroup.nextSibling);
       existing = newDiv;
     }
-
     var rate = getSqftRate(serviceKey);
     var rateText = rate + " GYD/sq ft";
-    existing.innerHTML =
-      '<div style="display:flex;gap:1rem;flex-wrap:wrap;align-items:flex-end;">' +
-        '<div style="flex:1;min-width:120px;">' +
-          '<label><i class="fas fa-arrows-alt-h"></i> Length (feet) *</label>' +
-          '<input type="number" id="length-' + prefix + '" step="0.01" min="0.1" placeholder="e.g., 10.5">' +
-        '</div>' +
-        '<div style="flex:1;min-width:120px;">' +
-          '<label><i class="fas fa-arrows-alt-v"></i> Width (feet) *</label>' +
-          '<input type="number" id="width-' + prefix + '" step="0.01" min="0.1" placeholder="e.g., 8.2">' +
-        '</div>' +
-        '<div style="flex:0 0 auto;">' +
-          '<div style="background:#f5f0e6;padding:0.5rem 1rem;border-radius:40px;font-weight:700;">' +
-            'Total: <span id="sqft-total-' + prefix + '">$0</span>' +
-          '</div>' +
-          '<small style="font-size:0.7rem;color:var(--muted,#888);">Rate: ' + rateText + '</small>' +
-        '</div>' +
-      '</div>';
-
+    existing.innerHTML = `
+      <div style="display:flex;gap:1rem;flex-wrap:wrap;align-items:flex-end;">
+        <div style="flex:1;min-width:120px;">
+          <label><i class="fas fa-arrows-alt-h"></i> Length (feet) *</label>
+          <input type="number" id="length-${prefix}" step="0.01" min="0.1" placeholder="e.g., 10.5">
+        </div>
+        <div style="flex:1;min-width:120px;">
+          <label><i class="fas fa-arrows-alt-v"></i> Width (feet) *</label>
+          <input type="number" id="width-${prefix}" step="0.01" min="0.1" placeholder="e.g., 8.2">
+        </div>
+        <div style="flex:0 0 auto;">
+          <div style="background:#f5f0e6;padding:0.5rem 1rem;border-radius:40px;font-weight:700;">
+            Total: <span id="sqft-total-${prefix}">${formatGYD(0)}</span>
+          </div>
+          <small style="font-size:0.7rem;color:var(--muted,#888);">Rate: ${rateText}</small>
+        </div>
+      </div>
+    `;
     var lengthInput = document.getElementById("length-" + prefix);
     var widthInput  = document.getElementById("width-"  + prefix);
     var totalSpan   = document.getElementById("sqft-total-" + prefix);
-
     function updateTotal() {
       var l = parseFloat(lengthInput ? lengthInput.value : 0) || 0;
       var w = parseFloat(widthInput  ? widthInput.value  : 0) || 0;
-      totalSpan.textContent = (l > 0 && w > 0) ? formatGYD(calculateSqftPrice(serviceKey, l, w)) : "$0";
+      totalSpan.textContent = (l > 0 && w > 0) ? formatGYD(calculateSqftPrice(serviceKey, l, w)) : formatGYD(0);
     }
     if (lengthInput) lengthInput.addEventListener("input", updateTotal);
     if (widthInput)  widthInput.addEventListener("input", updateTotal);
   }
+
+  // Campos para servicios por habitación (General Home Cleaning)
+  function createSectionRoomFields(prefix, serviceKey) {
+    const containerId = "rooms-" + prefix;
+    let existing = document.getElementById(containerId);
+    const service = servicesData[serviceKey];
+    if (!service || !service.isRoomBased) {
+      if (existing) existing.innerHTML = "";
+      return;
+    }
+    if (!existing) {
+      const selectEl = document.getElementById(prefix + "-servicio");
+      if (!selectEl) return;
+      const selectGroup = selectEl.closest(".fg");
+      if (!selectGroup) return;
+      const newDiv = document.createElement("div");
+      newDiv.id = containerId;
+      newDiv.className = "fg span2";
+      newDiv.style.marginTop = "0.5rem";
+      selectGroup.parentNode.insertBefore(newDiv, selectGroup.nextSibling);
+      existing = newDiv;
+    }
+    let html = `<h4>Enter number of each room:</h4><table style="width:100%;">`;
+    for (const [roomKey, room] of Object.entries(service.rooms)) {
+      html += `
+        <tr>
+          <td><strong>${room.name}</strong></td>
+          <td><input type="number" id="qty-${prefix}-${roomKey}" min="0" value="0" step="1" style="width:70px;"></td>
+          <td>${formatGYD(room.rate)}</td>
+          <td id="subtotal-${prefix}-${roomKey}" style="text-align:right;">${formatGYD(0)}</td>
+        </tr>
+      `;
+    }
+    html += `<tr style="border-top:2px solid #ccc;"><td colspan="3"><strong>TOTAL</strong></td><td id="total-${prefix}" style="text-align:right;">${formatGYD(0)}</td></tr></table>`;
+    existing.innerHTML = html;
+    const updateTotal = () => {
+      let grand = 0;
+      for (const [roomKey, room] of Object.entries(service.rooms)) {
+        const qty = parseInt(document.getElementById(`qty-${prefix}-${roomKey}`)?.value) || 0;
+        const subtotal = qty * room.rate;
+        const subtotalSpan = document.getElementById(`subtotal-${prefix}-${roomKey}`);
+        if (subtotalSpan) subtotalSpan.innerText = formatGYD(subtotal);
+        grand += subtotal;
+      }
+      const totalSpan = document.getElementById(`total-${prefix}`);
+      if (totalSpan) totalSpan.innerText = formatGYD(grand);
+      window[`_roomTotal_${prefix}`] = grand;
+    };
+    for (const roomKey of Object.keys(service.rooms)) {
+      const input = document.getElementById(`qty-${prefix}-${roomKey}`);
+      if (input) input.addEventListener("input", updateTotal);
+    }
+    updateTotal();
+  }
+
+  // Campos para servicios por lado (Mattress per side)
+  function createSectionSideFields(prefix, serviceKey) {
+    const containerId = "sides-" + prefix;
+    let existing = document.getElementById(containerId);
+    const service = servicesData[serviceKey];
+    if (!service || !service.isPerSide) {
+      if (existing) existing.innerHTML = "";
+      return;
+    }
+    if (!existing) {
+      const selectEl = document.getElementById(prefix + "-servicio");
+      if (!selectEl) return;
+      const selectGroup = selectEl.closest(".fg");
+      if (!selectGroup) return;
+      const newDiv = document.createElement("div");
+      newDiv.id = containerId;
+      newDiv.className = "fg span2";
+      newDiv.style.marginTop = "0.5rem";
+      selectGroup.parentNode.insertBefore(newDiv, selectGroup.nextSibling);
+      existing = newDiv;
+    }
+    existing.innerHTML = `
+      <label>Number of sides: <input type="number" id="sides-${prefix}" min="1" value="1" step="1" style="width:100px;"></label>
+      <p>Price per side: ${formatGYD(service.ratePerSide)}</p>
+      <p>Total: <span id="sides-total-${prefix}">${formatGYD(service.ratePerSide)}</span></p>
+    `;
+    const sidesInput = document.getElementById(`sides-${prefix}`);
+    sidesInput.addEventListener("input", () => {
+      let sides = parseInt(sidesInput.value) || 1;
+      let total = sides * service.ratePerSide;
+      document.getElementById(`sides-total-${prefix}`).innerText = formatGYD(total);
+      window[`_sidesTotal_${prefix}`] = total;
+    });
+    window[`_sidesTotal_${prefix}`] = service.ratePerSide;
+  }
+
+  // ════════════════════════════════════════════════════════════════════════
+  //  CALENDARIO POR SECCIÓN (EXACTAMENTE IGUAL QUE EL ORIGINAL)
+  // ════════════════════════════════════════════════════════════════════════
+  var sectionCals = {};
 
   function renderSectionCalendar(prefix) {
     var state = sectionCals[prefix];
     if (!state) return;
     var contentDiv = document.getElementById("cal-content-" + prefix);
     if (!contentDiv) return;
-
     var mn = ["January","February","March","April","May","June","July","August","September","October","November","December"];
     var dn = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
     var now = new Date(); now.setHours(0,0,0,0);
     var fd = new Date(state.year, state.month, 1).getDay();
     var dm = new Date(state.year, state.month + 1, 0).getDate();
-
     var html =
       '<div class="cal-header">' +
         '<div class="cal-nav"><button type="button" onclick="sectionCalPrev(\'' + prefix + '\')"><i class="fas fa-chevron-left"></i></button></div>' +
@@ -172,11 +282,9 @@
         '<div class="cal-nav"><button type="button" onclick="sectionCalNext(\'' + prefix + '\')"><i class="fas fa-chevron-right"></i></button></div>' +
       '</div>' +
       '<div class="cal-grid">';
-
     ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].forEach(function (d) {
       html += '<div class="cal-label">' + d + '</div>';
     });
-
     for (var i = 0; i < fd; i++) html += '<div class="cal-day empty"></div>';
     for (var d = 1; d <= dm; d++) {
       var dt = new Date(state.year, state.month, d); dt.setHours(0,0,0,0);
@@ -197,14 +305,12 @@
       html += '<div class="' + cls + '"' + clickAttr + '>' + d + '</div>';
     }
     html += '</div>';
-
     html +=
       '<div class="cal-legend">' +
         '<div class="cal-legend-item"><div class="cal-legend-dot avail"></div> Available</div>' +
         '<div class="cal-legend-item"><div class="cal-legend-dot sel"></div> Selected</div>' +
         '<div class="cal-legend-item"><div class="cal-legend-dot unav"></div> Unavailable</div>' +
       '</div>';
-
     if (state.selected) {
       var p2 = state.selected.split("-");
       var dobj = new Date(parseInt(p2[0]), parseInt(p2[1]) - 1, parseInt(p2[2]));
@@ -214,7 +320,6 @@
           '<span>' + dn[dobj.getDay()] + ', ' + mn[dobj.getMonth()] + ' ' + p2[2] + ', ' + p2[0] + '</span>' +
         '</div>';
     }
-
     contentDiv.innerHTML = html;
     contentDiv.classList.remove("hidden");
   }
@@ -243,12 +348,21 @@
     renderSectionCalendar(prefix);
   };
 
+  // ════════════════════════════════════════════════════════════════════════
+  //  MANEJADOR DE CAMBIO DE SERVICIO EN CADA SECCIÓN
+  // ════════════════════════════════════════════════════════════════════════
   window.onServiceChangeSection = function (prefix) {
     var sk = (document.getElementById(prefix + "-servicio") || {}).value || "";
     var fechaEl = document.getElementById(prefix + "-fecha");
     if (fechaEl) fechaEl.value = "";
 
-    createSectionDimensionFields(prefix, sk);
+    // Limpiar campos anteriores
+    var dimContainer = document.getElementById("dim-" + prefix);
+    if (dimContainer) dimContainer.innerHTML = "";
+    var roomsContainer = document.getElementById("rooms-" + prefix);
+    if (roomsContainer) roomsContainer.innerHTML = "";
+    var sidesContainer = document.getElementById("sides-" + prefix);
+    if (sidesContainer) sidesContainer.innerHTML = "";
 
     if (!sk) {
       var ph = document.getElementById("cal-placeholder-" + prefix);
@@ -258,9 +372,18 @@
       return;
     }
 
+    // Crear campos según el tipo de servicio
+    if (isRoomBasedService(sk)) {
+      createSectionRoomFields(prefix, sk);
+    } else if (isPerSideService(sk)) {
+      createSectionSideFields(prefix, sk);
+    } else if (isSqftService(sk)) {
+      createSectionDimensionFields(prefix, sk);
+    }
+
+    // Inicializar calendario
     var now = new Date();
     sectionCals[prefix] = { month: now.getMonth(), year: now.getFullYear(), selected: null };
-
     var placeholder = document.getElementById("cal-placeholder-" + prefix);
     if (placeholder) placeholder.classList.add("hidden");
     renderSectionCalendar(prefix);
@@ -273,7 +396,6 @@
     var selectedOption = select.options[select.selectedIndex];
     if (!selectedOption) return null;
     var text = selectedOption.text;
-    // Busca el patrón: " — $12,000" o " — 10000GYD/sq ft"
     var match = text.match(/[—\-–]\s*([\$]?[\d,]+(?:\s*GYD\/sq\s*ft)?)/i);
     if (match) {
       var pricePart = match[1];
@@ -304,19 +426,22 @@
     var formSection = document.getElementById("form-" + prefix);
     var panel = ensureSuccessPanel(prefix);
     if (!formSection || !panel) return;
-
     formSection.classList.remove("open");
     let amountValue = null;
     if (payload.sqft && payload.sqft > 0) {
       const rate = getSqftRate(payload.servicioKey);
       if (rate) amountValue = payload.sqft * rate;
+    } else if (payload.rooms) {
+      let total = 0;
+      for (const r of Object.values(payload.rooms)) total += r.subtotal;
+      amountValue = total;
+    } else if (payload.sides) {
+      const service = servicesData[payload.servicioKey];
+      if (service && service.isPerSide) amountValue = payload.sides * service.ratePerSide;
     }
-    if (amountValue === null) {
-      amountValue = parsePrice(payload.precio);
-    }
+    if (amountValue === null) amountValue = parsePrice(payload.precio);
     const displayPrice = formatGYD(amountValue || 0);
     payload.numericPrice = amountValue || 0;
-
     panel.innerHTML = `
       <div style="text-align:center; background:#ffffff; border-radius:24px; padding:2rem; margin:1.5rem 0; box-shadow:0 8px 24px rgba(0,0,0,0.05); border:1px solid var(--cream-border,#eae2d6);">
         <div style="font-size:3rem; margin-bottom:0.5rem;">✅</div>
@@ -328,6 +453,8 @@
           <div style="display:flex; justify-content:space-between; margin-bottom:0.5rem;"><strong>Address:</strong> <span>${escapeHtml(payload.direccion)}</span></div>
           <div style="display:flex; justify-content:space-between; margin-bottom:0.5rem;"><strong>Amount:</strong> <span style="font-weight:700;">${displayPrice} GYD</span></div>
           ${payload.sqft ? `<div style="display:flex; justify-content:space-between;"><strong>Area:</strong> <span>${payload.sqft.toFixed(2)} sq ft</span></div>` : ''}
+          ${payload.rooms ? `<div style="display:flex; justify-content:space-between;"><strong>Rooms total</strong> <span>${displayPrice}</span></div>` : ''}
+          ${payload.sides ? `<div style="display:flex; justify-content:space-between;"><strong>Sides</strong> <span>${payload.sides}</span></div>` : ''}
         </div>
         <button id="mmg-pay-btn-${prefix}" class="btn-mmg" style="background:#1e7c3a; color:white; border:none; padding:0.8rem 2rem; border-radius:40px; font-weight:600; cursor:pointer; width:100%; margin-bottom:0.8rem; transition:background 0.2s;" onmouseover="this.style.background='#155d2e'" onmouseout="this.style.background='#1e7c3a'">
           💳 Pay via MMG — ${displayPrice}
@@ -338,7 +465,6 @@
       </div>
     `;
     panel.style.display = "block";
-
     var payBtn = document.getElementById(`mmg-pay-btn-${prefix}`);
     if (payBtn) {
       payBtn.addEventListener("click", function() {
@@ -365,6 +491,10 @@
         }
         var dimContainer = document.getElementById(`dim-${prefix}`);
         if (dimContainer) dimContainer.innerHTML = "";
+        var roomsContainer = document.getElementById(`rooms-${prefix}`);
+        if (roomsContainer) roomsContainer.innerHTML = "";
+        var sidesContainer = document.getElementById(`sides-${prefix}`);
+        if (sidesContainer) sidesContainer.innerHTML = "";
         panel.style.display = "none";
         formSection.classList.add("open");
         formSection.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -407,8 +537,26 @@
 
     var finalPrice = sd.price;
     var sqftValue  = null;
+    var roomsData  = null;
+    var sidesValue = null;
 
-    if (isSqftService(sk) || (sd.isSqft === true)) {
+    if (isRoomBasedService(sk) || (sd.isRoomBased === true)) {
+      const service = servicesData[sk];
+      let total = 0;
+      roomsData = {};
+      for (const [roomKey, room] of Object.entries(service.rooms)) {
+        const qty = parseInt(document.getElementById(`qty-${prefix}-${roomKey}`)?.value) || 0;
+        roomsData[roomKey] = { name: room.name, quantity: qty, rate: room.rate, subtotal: qty * room.rate };
+        total += qty * room.rate;
+      }
+      finalPrice = formatGYD(total);
+    } else if (isPerSideService(sk) || (sd.isPerSide === true)) {
+      const sides = parseInt(document.getElementById(`sides-${prefix}`)?.value) || 1;
+      sidesValue = sides;
+      const rate = sd.ratePerSide || servicesData[sk]?.ratePerSide || 3500;
+      const total = sides * rate;
+      finalPrice = formatGYD(total);
+    } else if (isSqftService(sk) || (sd.isSqft === true)) {
       var lEl = document.getElementById("length-" + prefix);
       var wEl = document.getElementById("width-"  + prefix);
       var l = parseFloat(lEl ? lEl.value : 0);
@@ -449,6 +597,8 @@
       direccion:   direccion,
       notas:       notas,
       sqft:        sqftValue,
+      rooms:       roomsData,
+      sides:       sidesValue,
       timestamp:   new Date().toISOString(),
       source:      "standardhomecleaning.html",
     };
@@ -479,7 +629,6 @@
   // ════════════════════════════════════════════════════════════════════════
   //  FUNCIONES DE MMG (EXACTAMENTE IGUAL QUE EN app.js)
   // ════════════════════════════════════════════════════════════════════════
-
   function openMMGModal(bookingPayload) {
     if (!bookingPayload) return;
     let amount = bookingPayload.numericPrice;
@@ -489,6 +638,15 @@
     if ((amount === null || amount === 0) && bookingPayload.sqft) {
       const rate = getSqftRate(bookingPayload.servicioKey);
       if (rate) amount = bookingPayload.sqft * rate;
+    }
+    if ((amount === null || amount === 0) && bookingPayload.rooms) {
+      let total = 0;
+      for (const r of Object.values(bookingPayload.rooms)) total += r.subtotal;
+      amount = total;
+    }
+    if ((amount === null || amount === 0) && bookingPayload.sides) {
+      const service = servicesData[bookingPayload.servicioKey];
+      if (service && service.isPerSide) amount = bookingPayload.sides * service.ratePerSide;
     }
     if (amount === null || amount === 0) {
       showToast("Cannot process payment: amount is zero or invalid. Please contact support.", "error");
@@ -531,6 +689,15 @@
       const rate = getSqftRate(lastBookingPayload.servicioKey);
       if (rate) amountValue = lastBookingPayload.sqft * rate;
     }
+    if ((amountValue === null || amountValue === 0) && lastBookingPayload.rooms) {
+      let total = 0;
+      for (const r of Object.values(lastBookingPayload.rooms)) total += r.subtotal;
+      amountValue = total;
+    }
+    if ((amountValue === null || amountValue === 0) && lastBookingPayload.sides) {
+      const service = servicesData[lastBookingPayload.servicioKey];
+      if (service && service.isPerSide) amountValue = lastBookingPayload.sides * service.ratePerSide;
+    }
     if (amountValue === null || amountValue === 0) {
       showToast("Invalid payment amount.", "error");
       return;
@@ -556,14 +723,14 @@
           fecha:     lastBookingPayload.fecha,
           direccion: lastBookingPayload.direccion,
           categoria: lastBookingPayload.categoria,
-          sqft:      lastBookingPayload.sqft
+          sqft:      lastBookingPayload.sqft,
+          rooms:     lastBookingPayload.rooms,
+          sides:     lastBookingPayload.sides
         })
       });
-
       if (!response.ok) throw new Error("Error generating payment URL");
       var data = await response.json();
       if (!data.checkoutUrl) throw new Error("No checkout URL received");
-
       sessionStorage.setItem("mmg_pending_email", lastBookingPayload.email);
       closeMMGModal();
       showToast("Redirecting to MMG payment page...", "info", 3000);
@@ -593,10 +760,8 @@
     var params = new URLSearchParams(window.location.search);
     var token = params.get("TOKEN") || params.get("token") || params.get("mmg_token");
     if (!token) return;
-
     window.history.replaceState({}, document.title, window.location.pathname);
     showToast("Processing your payment...", "info", 5000);
-
     try {
       var res = await fetch(CONFIG.MMG_VERIFY_WEBHOOK + "?TOKEN=" + encodeURIComponent(token));
       var data = await res.json();
@@ -642,10 +807,8 @@
   // ════════════════════════════════════════════════════════════════════════
   //  INICIALIZACIÓN
   // ════════════════════════════════════════════════════════════════════════
-
   function init() {
     handleMMGReturn();
-
     var bp = document.getElementById("btnPayMMG");
     if (bp) bp.addEventListener("click", function() { if (lastBookingPayload) openMMGModal(lastBookingPayload); });
     var mc = document.getElementById("mmgCloseBtn");
