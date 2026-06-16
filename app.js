@@ -25,13 +25,13 @@
     },
     // ── Office Cleaning (sqft) ──
     "office-cleaning-sqft": {
-      name: "Office Cleaning (per sq ft, min $10,000)",
+      name: "Office Cleaning",
       price: "sqft:80",
       category: "Office Cleaning",
       isSqft: true, rate: 80, minPrice: 10000
     },
     // ── Floor Polishing ──
-    "floor-polishing": { name: "FLOOR POLISHING", price: "$95", category: "Floor Polishing" },
+    "floor-polishing": { name: "Floor Polishing", price: "sqft:95", category: "Floor Polishing", isSqft: true, rate: 95 },
     // ── Furniture Cleaning ──
     "1-seat-sofa":   { name: "1 seat Sofa",    price: "$6,000",  category: "Furniture Cleaning" },
     "2-seat-sofa":   { name: "2 seat Sofa",    price: "$10,000", category: "Furniture Cleaning" },
@@ -61,7 +61,7 @@
     "carpet-uninstalled":   { name: "Per Square foot L x W (uninstalled)",                    price: "sqft:115", category: "Carpet Installation", isSqft: true, rate: 115 },
     "carpet-deep-cleaning": { name: "Deep Cleaning (Pressure washing, shampooing and steam)", price: "sqft:220", category: "Carpet Cleaning",     isSqft: true, rate: 220 },
     // ── Pressure Washing ──
-    "pressure-washing": { name: "Per Square foot pressure washing", price: "$50", category: "Pressure Washing" },
+    "pressure-washing": { name: "Driveway & Pressure Washing", price: "sqft:50", category: "Pressure Washing", isSqft: true, rate: 50 },
   };
 
   // ── STATE ────────────────────────────────────────────────────────────────
