@@ -13,6 +13,30 @@
   function toast(m, t, d) { var e = document.getElementById("toast"); if (!e) return; e.textContent = m; e.className = "toast show " + (t || "info"); setTimeout(function () { e.classList.remove("show"); }, d || 3000); }
 
   var items = load();
+  var checkoutDraft = { nombre: "", email: "", telefono: "", direccion: "", fecha: "", notas: "" };
+
+  function firstNonEmpty(ids) {
+    for (var i = 0; i < ids.length; i++) {
+      var el = document.getElementById(ids[i]);
+      if (el && el.value && el.value.trim()) return el.value.trim();
+    }
+    return "";
+  }
+
+  function captureDraft() {
+    var n = (document.getElementById("lvcNombre") || {}).value;
+    var e = (document.getElementById("lvcEmail") || {}).value;
+    var t = (document.getElementById("lvcTelefono") || {}).value;
+    var d = (document.getElementById("lvcDireccion") || {}).value;
+    var f = (document.getElementById("lvcFecha") || {}).value;
+    var no = (document.getElementById("lvcNotas") || {}).value;
+    if (n != null) checkoutDraft.nombre = n;
+    if (e != null) checkoutDraft.email = e;
+    if (t != null) checkoutDraft.telefono = t;
+    if (d != null) checkoutDraft.direccion = d;
+    if (f != null) checkoutDraft.fecha = f;
+    if (no != null) checkoutDraft.notas = no;
+  }
 
   function grandTotal() { return items.reduce(function (s, i) { return s + (i.numericAmount || 0); }, 0); }
 
@@ -129,19 +153,27 @@
     var body = document.getElementById("lvCartBody");
     if (!body) return;
     var today = new Date().toISOString().split("T")[0];
+
+    var preNombre   = checkoutDraft.nombre   || firstNonEmpty(["nombre", "r1-nombre", "r2-nombre", "r3-nombre", "r4-nombre", "r6-nombre"]);
+    var preEmail    = checkoutDraft.email    || firstNonEmpty(["email", "r1-email", "r2-email", "r3-email", "r4-email", "r6-email"]);
+    var preTelefono = checkoutDraft.telefono || firstNonEmpty(["telefono", "r1-telefono", "r2-telefono", "r3-telefono", "r4-telefono", "r6-telefono"]);
+    var preDireccion= checkoutDraft.direccion|| firstNonEmpty(["direccion", "r1-direccion", "r2-direccion", "r3-direccion", "r4-direccion", "r6-direccion"]);
+    var preFecha    = checkoutDraft.fecha    || firstNonEmpty(["fechaSeleccionada", "r1-fecha", "r2-fecha", "r3-fecha", "r4-fecha", "r6-fecha"]);
+    var preNotas    = checkoutDraft.notas    || firstNonEmpty(["notas", "r1-notas", "r2-notas", "r3-notas", "r4-notas", "r6-notas"]);
+
     var html = '<h3><i class="fas fa-clipboard-list"></i> Your Details</h3>';
-    html += '<div class="lv-c-field"><label>Full Name *</label><input type="text" id="lvcNombre" placeholder="e.g., John Smith"></div>';
-    html += '<div class="lv-c-field"><label>Email *</label><input type="email" id="lvcEmail" placeholder="john@email.com"></div>';
-    html += '<div class="lv-c-field"><label>WhatsApp *</label><input type="tel" id="lvcTelefono" placeholder="+592 123 4567"></div>';
-    html += '<div class="lv-c-field"><label>Address *</label><input type="text" id="lvcDireccion" placeholder="Street, city, region"></div>';
-    html += '<div class="lv-c-field"><label>Preferred Date *</label><input type="date" id="lvcFecha" min="' + today + '"></div>';
-    html += '<div class="lv-c-field"><label>Notes</label><textarea id="lvcNotas" rows="2" placeholder="Special instructions..."></textarea></div>';
+    html += '<div class="lv-c-field"><label>Full Name *</label><input type="text" id="lvcNombre" value="' + esc(preNombre) + '" placeholder="e.g., John Smith"></div>';
+    html += '<div class="lv-c-field"><label>Email *</label><input type="email" id="lvcEmail" value="' + esc(preEmail) + '" placeholder="john@email.com"></div>';
+    html += '<div class="lv-c-field"><label>WhatsApp *</label><input type="tel" id="lvcTelefono" value="' + esc(preTelefono) + '" placeholder="+592 123 4567"></div>';
+    html += '<div class="lv-c-field"><label>Address *</label><input type="text" id="lvcDireccion" value="' + esc(preDireccion) + '" placeholder="Street, city, region"></div>';
+    html += '<div class="lv-c-field"><label>Preferred Date *</label><input type="date" id="lvcFecha" min="' + today + '" value="' + esc(preFecha) + '"></div>';
+    html += '<div class="lv-c-field"><label>Notes</label><textarea id="lvcNotas" rows="2" placeholder="Special instructions...">' + esc(preNotas) + '</textarea></div>';
     html += '<div class="lv-c-total-row"><span>Total (' + items.length + ' service' + (items.length > 1 ? "s" : "") + ')</span><span>' + fmt(grandTotal()) + '</span></div>';
     html += '<div id="lvcErr" class="lv-c-err" style="display:none;"></div>';
     html += '<button class="lv-c-btn lv-c-btn-primary" id="lvcSubmitBtn" type="button"><i class="fas fa-paper-plane"></i> Submit Booking Request</button>';
     html += '<button class="lv-c-btn lv-c-btn-secondary" id="lvcBackBtn" type="button">&larr; Back to Cart</button>';
     body.innerHTML = html;
-    document.getElementById("lvcBackBtn").addEventListener("click", renderCartStep);
+    document.getElementById("lvcBackBtn").addEventListener("click", function () { captureDraft(); renderCartStep(); });
     document.getElementById("lvcSubmitBtn").addEventListener("click", submitCart);
   }
 
