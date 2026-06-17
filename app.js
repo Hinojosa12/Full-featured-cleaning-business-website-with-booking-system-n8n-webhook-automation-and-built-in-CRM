@@ -58,7 +58,7 @@
     "recliner-single": { name: "Recliner Single", price: "$6,000",  category: "Recliner Cleaning" },
     "recliner-joined": { name: "Recliner Joined", price: "$10,000", category: "Recliner Cleaning" },
     // ── Carpet ──
-    "carpet-uninstalled":   { name: "Per Square foot L x W (uninstalled)",                    price: "sqft:115", category: "Carpet Installation", isSqft: true, rate: 115 },
+    "carpet-uninstalled":   { name: "Carpet Steam Cleaning",                                  price: "sqft:115", category: "Carpet Cleaning",     isSqft: true, rate: 115 },
     "carpet-deep-cleaning": { name: "Deep Cleaning (Pressure washing, shampooing and steam)", price: "sqft:220", category: "Carpet Cleaning",     isSqft: true, rate: 220 },
     // ── Pressure Washing ──
     "pressure-washing": { name: "Driveway & Pressure Washing", price: "sqft:50", category: "Pressure Washing", isSqft: true, rate: 50 },
