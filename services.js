@@ -21,7 +21,7 @@
     },
     "office-cleaning-sqft": { name: "Office Cleaning", price: "sqft:80",  category: "Office Cleaning",     isSqft: true, rate: 80,  minPrice: 10000 },
     "office-chairs":        { name: "Office Chairs",                             price: "$2,500",   category: "Office Cleaning" },
-    "carpet-uninstalled":   { name: "Per Square foot L x W (uninstalled)",       price: "sqft:115", category: "Carpet Installation", isSqft: true, rate: 115 },
+    "carpet-uninstalled":   { name: "Carpet Steam Cleaning",                    price: "sqft:115", category: "Carpet Cleaning", isSqft: true, rate: 115 },
     "carpet-deep-cleaning": { name: "Deep Cleaning (Pressure washing, shampooing and steam)", price: "sqft:220", category: "Carpet Cleaning", isSqft: true, rate: 220 },
     "pressure-driveway":    { name: "Driveway & Pressure Washing",               price: "sqft:50",  category: "Pressure Washing",    isSqft: true, rate: 50  },
     "mattress-cleaning-per-side": { name: "Mattress Cleaning (per side)", price: "side:3500", category: "Mattress Cleaning", isPerSide: true, ratePerSide: 3500 },
