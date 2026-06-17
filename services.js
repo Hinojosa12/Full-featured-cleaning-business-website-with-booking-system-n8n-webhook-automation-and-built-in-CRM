@@ -232,6 +232,58 @@
     renderCal(prefix);
   };
 
+  // ── ADD TO CART ───────────────────────────────────────────────────────────
+  window.addToCartSection = function(prefix) {
+    var sk = ($id(prefix + "-servicio") || {}).value || "";
+    if (!sk) { toast("Please select a service first.", "error"); return; }
+
+    var sd = servicesData[sk];
+    if (!sd) {
+      var selEl = $id(prefix + "-servicio");
+      var optText = selEl ? (selEl.options[selEl.selectedIndex] || {}).text || "" : "";
+      var match = optText.match(/[—\-–]\s*([\d,]+)/);
+      var rawP = match ? parseFloat(match[1].replace(/,/g, "")) : null;
+      sd = { name: optText.replace(/\s*[—\-–].*/, "").trim() || sk, price: rawP ? "$" + rawP : "Quote on visit", category: "" };
+    }
+
+    var finalPrice = sd.price || "Quote on visit", numericAmount = 0, serviceName = sd.name || sk;
+
+    if (isRoomBasedService(sk)) {
+      var svc = servicesData[sk], qtys = roomQtys[prefix] || {};
+      var total = 0, parts = [];
+      for (var rk in svc.rooms) {
+        var qty = qtys[rk] || 0;
+        total += qty * svc.rooms[rk].rate;
+        if (qty > 0) parts.push(qty + "x " + svc.rooms[rk].name);
+      }
+      if (total === 0) { toast("Please add at least one room.", "error"); return; }
+      numericAmount = total; finalPrice = fmt(total);
+      serviceName = "General Home Cleaning (" + parts.join(", ") + ")";
+
+    } else if (isSqftService(sk)) {
+      var lEl = $id("len-" + prefix), wEl = $id("wid-" + prefix);
+      var l = parseFloat(lEl ? lEl.value : 0) || 0, w = parseFloat(wEl ? wEl.value : 0) || 0;
+      if (l <= 0 || w <= 0) { toast("Please enter valid Length and Width in feet.", "error"); return; }
+      numericAmount = calcSqft(sk, l, w); finalPrice = fmt(numericAmount);
+
+    } else if (isPerSideService(sk)) {
+      var sEl = $id("sds-" + prefix);
+      var sides = parseInt(sEl ? sEl.value : 1) || 1;
+      if (sides < 1) { toast("Please enter a valid number of sides.", "error"); return; }
+      numericAmount = sides * (sd.ratePerSide || 0); finalPrice = fmt(numericAmount);
+      serviceName = sd.name + " (" + sides + " side" + (sides > 1 ? "s" : "") + ")";
+
+    } else {
+      numericAmount = parseNum(finalPrice);
+    }
+
+    window.LivityCart.add({ servicio: serviceName, categoria: sd.category || "", precio: finalPrice, numericAmount: numericAmount });
+
+    // Reset only the service-selection part of this section (keep name/email/etc. intact)
+    var sel = $id(prefix + "-servicio"); if (sel) sel.value = "";
+    buildSpecialFields(prefix, "");
+  };
+
   // ── SUBMIT FORM ───────────────────────────────────────────────────────────
   window.submitForm = async function(prefix, formCategory) {
     var btn = $id("btn-" + prefix);
