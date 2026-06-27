@@ -51,9 +51,10 @@
     "double-mattress": { name: "Double Size Mattress",             price: "$10,000/side", category: "Mattress Cleaning", isPerSide: true, ratePerSide: 10000 },
     "single-mattress": { name: "Single Mattress",                  price: "$8,000/side",  category: "Mattress Cleaning", isPerSide: true, ratePerSide: 8000  },
     // ── Vehicle Cleaning ──
-    "car-cleaning":    { name: "Cars (Inclusive of Mats)",  price: "$12,000", category: "Vehicle Cleaning" },
-    "suv-cleaning":    { name: "SUVs (Inclusive of Mats)",  price: "$16,000", category: "Vehicle Cleaning" },
-    "tacoma-cleaning": { name: "Tacoma (Pick ups)",          price: "$24,000", category: "Vehicle Cleaning" },
+    "car-cleaning":    { name: "Cars",                    price: "$16,000", category: "Vehicle Cleaning" },
+    "cuv-cleaning":    { name: "CUVs & 2 Door Pickup",   price: "$20,000", category: "Vehicle Cleaning" },
+    "suv-cleaning":    { name: "SUVs & 4 Door Pickup",   price: "$24,000", category: "Vehicle Cleaning" },
+    "bus-cleaning":    { name: "RZ & Grand Cabin Buses",  price: "$30,000", category: "Vehicle Cleaning" },
     // ── Recliner Cleaning ──
     "recliner-single": { name: "Recliner Single", price: "$6,000",  category: "Recliner Cleaning" },
     "recliner-joined": { name: "Recliner Joined", price: "$10,000", category: "Recliner Cleaning" },
